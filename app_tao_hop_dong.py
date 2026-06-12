@@ -25,6 +25,21 @@ st.set_page_config(
 # ─────────────────────────────────────────────
 st.markdown("""
 <style>
+
+/* ══ HIDE STREAMLIT CLOUD / DEFAULT UI WHEN SHARING ══ */
+header[data-testid="stHeader"] { display: none !important; visibility: hidden !important; height: 0 !important; }
+div[data-testid="stToolbar"] { display: none !important; visibility: hidden !important; }
+div[data-testid="stDecoration"] { display: none !important; }
+div[data-testid="stStatusWidget"] { display: none !important; visibility: hidden !important; }
+#MainMenu { visibility: hidden !important; display: none !important; }
+footer { visibility: hidden !important; display: none !important; }
+.viewerBadge_container__1QSob,
+.stDeployButton,
+[data-testid="manage-app-button"],
+[data-testid="baseButton-headerNoPadding"],
+[data-testid="stHeaderActionElements"] { display: none !important; visibility: hidden !important; }
+.block-container { padding-top: 1rem !important; }
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 * { font-family: 'Inter', sans-serif !important; box-sizing: border-box; }
