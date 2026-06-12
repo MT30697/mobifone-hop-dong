@@ -25,21 +25,6 @@ st.set_page_config(
 # ─────────────────────────────────────────────
 st.markdown("""
 <style>
-
-/* ══ HIDE STREAMLIT CLOUD / DEFAULT UI WHEN SHARING ══ */
-header[data-testid="stHeader"] { display: none !important; visibility: hidden !important; height: 0 !important; }
-div[data-testid="stToolbar"] { display: none !important; visibility: hidden !important; }
-div[data-testid="stDecoration"] { display: none !important; }
-div[data-testid="stStatusWidget"] { display: none !important; visibility: hidden !important; }
-#MainMenu { visibility: hidden !important; display: none !important; }
-footer { visibility: hidden !important; display: none !important; }
-.viewerBadge_container__1QSob,
-.stDeployButton,
-[data-testid="manage-app-button"],
-[data-testid="baseButton-headerNoPadding"],
-[data-testid="stHeaderActionElements"] { display: none !important; visibility: hidden !important; }
-.block-container { padding-top: 1rem !important; }
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 * { font-family: 'Inter', sans-serif !important; box-sizing: border-box; }
@@ -71,41 +56,6 @@ footer { visibility: hidden !important; display: none !important; }
     background: #1a3550 !important; border: 2px dashed #2a4a6b !important;
     border-radius: 10px !important;
 }
-
-/* ══ FIX FILE UPLOADER IN SIDEBAR: hide long uploaded filename and prevent wrapping bug ══ */
-[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-testid="stFileUploaderFile"],
-[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-testid="stFileUploaderFileName"],
-[data-testid="stSidebar"] [data-testid="stFileUploader"] [data-testid="stFileUploaderFileSize"],
-[data-testid="stSidebar"] [data-testid="stFileUploader"] ul,
-[data-testid="stSidebar"] [data-testid="stFileUploader"] li {
-    display: none !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-}
-[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] {
-    min-height: 42px !important;
-    padding: 8px 10px !important;
-    overflow: hidden !important;
-}
-[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] * {
-    white-space: normal !important;
-    word-break: keep-all !important;
-    overflow-wrap: normal !important;
-    line-height: 1.15 !important;
-}
-[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] small {
-    display: none !important;
-}
-[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] button {
-    width: 100% !important;
-    min-height: 32px !important;
-    padding: 6px 8px !important;
-    font-size: 0.75rem !important;
-}
-
 
 /* ══ INPUT FIELDS (main area) ══ */
 [data-testid="stTextInput"] input {
@@ -535,10 +485,9 @@ with st.sidebar:
         ✅ Template mặc định đã sẵn sàng
     </div>""", unsafe_allow_html=True)
     # Tuỳ chọn upload template khác
-    with st.expander("🔄 Template khác"):
-        st.caption("Upload .docx nếu muốn thay template mặc định")
+    with st.expander("🔄 Dùng template khác (tuỳ chọn)"):
         template_file = st.file_uploader(
-            "Chọn file DOCX",
+            "Upload .docx để ghi đè template mặc định",
             type=["docx"],
             label_visibility="collapsed",
         )
@@ -550,7 +499,7 @@ with st.sidebar:
             </div>""", unsafe_allow_html=True)
         else:
             template_file = None
-            st.caption("Không upload = dùng template mặc định")
+            st.caption("Để trống = dùng template mặc định")
 
     st.markdown("---")
 
