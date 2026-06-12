@@ -18,78 +18,132 @@ st.set_page_config(
 # ─────────────────────────────────────────────
 st.markdown("""
 <style>
-[data-testid="stAppViewContainer"] { background: #f0f4f8; }
+/* ── Nền tổng thể ── */
+[data-testid="stAppViewContainer"] { background: #f5f7fa; }
+[data-testid="stMainBlockContainer"]  { padding-top: 1.5rem; }
+
+/* ── Sidebar ── */
 [data-testid="stSidebar"] { background: #1a3a5c; }
 [data-testid="stSidebar"] * { color: #e2e8f0 !important; }
 [data-testid="stSidebar"] hr { border-color: #2d5a8c !important; }
-
-.header-banner {
-    background: linear-gradient(135deg, #1a3a5c 0%, #2563a8 60%, #1a3a5c 100%);
-    border-radius: 14px; padding: 24px 32px; margin-bottom: 20px;
-    display: flex; align-items: center; gap: 18px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+[data-testid="stSidebar"] .stTextInput input {
+    background: #243f5e !important;
+    color: #f1f5f9 !important;
+    border: 1px solid #3b6b9a !important;
 }
-.header-banner h1 { color:#fff; margin:0; font-size:1.6rem; font-weight:800; }
-.header-banner p  { color:#bfdbfe; margin:4px 0 0; font-size:0.88rem; }
 
+/* ── Input fields: nền TRẮNG, chữ TỐI ── */
+input, textarea, select,
+[data-testid="stTextInput"] input,
+[data-baseweb="input"] input,
+div[data-baseweb="input"] > div {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    font-size: 0.92rem !important;
+}
+[data-testid="stTextInput"] input:focus,
+[data-baseweb="input"] input:focus {
+    border-color: #2563a8 !important;
+    box-shadow: 0 0 0 3px rgba(37,99,168,0.12) !important;
+}
+
+/* ── Label trên input: ĐẬM, RÕ ── */
+[data-testid="stTextInput"] label,
+[data-testid="stSelectbox"] label,
+.stTextInput label {
+    color: #1e3a5c !important;
+    font-weight: 600 !important;
+    font-size: 0.82rem !important;
+    margin-bottom: 3px !important;
+}
+
+/* ── Header banner ── */
+.header-banner {
+    background: linear-gradient(135deg, #0f2d4a 0%, #1a5fa8 55%, #0f2d4a 100%);
+    border-radius: 14px; padding: 22px 30px; margin-bottom: 18px;
+    display: flex; align-items: center; gap: 16px;
+    box-shadow: 0 6px 24px rgba(15,45,74,0.25);
+}
+.header-banner h1 { color:#fff; margin:0; font-size:1.5rem; font-weight:800; letter-spacing:-0.3px; }
+.header-banner p  { color:#bfdbfe; margin:4px 0 0; font-size:0.85rem; }
+
+/* ── Section card ── */
 .section-card {
-    background:#fff; border-radius:12px; padding:20px 24px 16px;
-    margin-bottom:16px; box-shadow:0 2px 10px rgba(0,0,0,0.07);
-    border-left:4px solid #2563a8;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px 20px 12px;
+    margin-bottom: 4px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    border-left: 4px solid #2563a8;
 }
 .section-title {
-    font-weight:700; font-size:0.95rem; color:#1a3a5c;
-    margin-bottom:12px; letter-spacing:0.3px;
+    font-weight: 700; font-size: 0.9rem; color: #1a3a5c;
+    letter-spacing: 0.4px; margin: 0;
 }
 
+/* ── Badges ── */
 .preview-badge {
-    background:#eff6ff; border:1px solid #93c5fd; border-radius:8px;
-    padding:10px 14px; font-family:monospace; font-size:0.82rem;
-    color:#1d4ed8; word-break:break-all;
+    background: #eff6ff; border: 1.5px solid #93c5fd; border-radius: 8px;
+    padding: 10px 14px; font-family: monospace; font-size: 0.85rem;
+    color: #1d4ed8; word-break: break-all; font-weight: 600;
 }
 .ma-kh-badge {
-    background:#f0fdf4; border:1px solid #86efac; border-radius:6px;
-    padding:6px 12px; font-family:monospace; font-size:0.8rem; color:#166534;
-    display:inline-block; margin-top:6px;
+    background: #f0fdf4; border: 1px solid #86efac; border-radius: 6px;
+    padding: 5px 12px; font-family: monospace; font-size: 0.8rem; color: #166534;
+    display: inline-block; margin-top: 6px; font-weight: 600;
 }
 .error-item {
-    background:#fef2f2; border:1px solid #fca5a5; border-radius:7px;
-    padding:8px 12px; font-size:0.82rem; color:#991b1b; margin-bottom:5px;
+    background: #fff5f5; border: 1px solid #feb2b2; border-radius: 7px;
+    padding: 7px 12px; font-size: 0.82rem; color: #c53030; margin-bottom: 5px;
 }
+
+/* ── History items ── */
 .history-item {
-    background:#1e3a5c; border-radius:8px; padding:9px 13px;
-    margin-bottom:6px; font-size:0.79rem; color:#93c5e8;
+    background: #1e3a5c; border-radius: 8px; padding: 8px 12px;
+    margin-bottom: 5px; font-size: 0.79rem;
 }
-.history-item span { color:#e2e8f0; font-weight:600; }
-.history-item .time { color:#64748b; font-size:0.75rem; }
+.history-item .fname { color: #e2e8f0; font-weight: 600; display: block; }
+.history-item .time  { color: #64748b; font-size: 0.73rem; }
 
-.metric-strip { display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; }
+/* ── Metric strip ── */
+.metric-strip { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
 .metric-box {
-    background:white; border-radius:10px; padding:12px 18px;
-    flex:1; min-width:110px; box-shadow:0 2px 8px rgba(0,0,0,0.06);
-    text-align:center;
+    background: white; border-radius: 10px; padding: 12px 16px;
+    flex: 1; min-width: 100px; text-align: center;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    border-top: 3px solid #2563a8;
 }
-.metric-box .val { font-size:1.45rem; font-weight:800; color:#1a3a5c; }
-.metric-box .lbl { font-size:0.71rem; color:#94a3b8; margin-top:2px; }
+.metric-box .val { font-size: 1.4rem; font-weight: 800; color: #1a3a5c; }
+.metric-box .lbl { font-size: 0.7rem; color: #64748b; margin-top: 2px; font-weight: 500; }
 
+/* ── Download button ── */
 .stDownloadButton > button {
-    background:linear-gradient(135deg,#16693a,#15803d) !important;
-    color:white !important; border:none !important;
-    border-radius:10px !important; font-weight:700 !important;
-    font-size:1.05rem !important; padding:14px 28px !important;
-    width:100% !important; box-shadow:0 4px 16px rgba(22,105,58,0.35) !important;
+    background: linear-gradient(135deg, #16a34a, #15803d) !important;
+    color: white !important; border: none !important;
+    border-radius: 10px !important; font-weight: 700 !important;
+    font-size: 1rem !important; padding: 14px 28px !important;
+    width: 100% !important;
+    box-shadow: 0 4px 14px rgba(22,163,74,0.3) !important;
+    transition: all 0.2s !important;
 }
-.stDownloadButton > button:hover { transform:translateY(-1px) !important; }
+.stDownloadButton > button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(22,163,74,0.4) !important;
+}
 
+/* ── Primary button (Tạo HĐ) ── */
 div[data-testid="stButton"] > button[kind="primary"] {
-    background:linear-gradient(135deg,#1a3a5c,#2563a8) !important;
-    color:white !important; border-radius:8px !important;
-    font-weight:700 !important; border:none !important;
-    font-size:1rem !important;
+    background: linear-gradient(135deg, #1a3a5c, #2563a8) !important;
+    color: white !important; border-radius: 8px !important;
+    font-weight: 700 !important; border: none !important;
+    font-size: 1rem !important; padding: 0.6rem 1.5rem !important;
+    box-shadow: 0 3px 12px rgba(37,99,168,0.3) !important;
 }
 
-/* Required star */
-.req { color:#dc2626; }
+/* ── Divider ── */
+hr { border-color: #e2e8f0 !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -279,7 +333,7 @@ with st.sidebar:
         for item in reversed(st.session_state.history[-5:]):
             st.markdown(f"""
             <div class="history-item">
-                <span>{item['fname']}</span><br>
+                <span class="fname">{item['fname']}</span>
                 <span class="time">{item['time']}</span>
             </div>
             """, unsafe_allow_html=True)
