@@ -505,7 +505,7 @@ with st.sidebar:
 
     # Link hướng dẫn sử dụng
     st.markdown("### 📖 Hướng dẫn sử dụng")
-    GUIDE_URL = "https://docs.google.com/document/d/your-doc-id/edit"  # ← thay link thật vào đây
+    GUIDE_URL = "https://docs.google.com/document/d/1TUH57mqOwWgqYw3TPb9k82jgxpvCfb6J/edit?usp=sharing&ouid=112827294689681536440&rtpof=true&sd=true"  # ← thay link thật vào đây
     st.markdown(f"""
     <a href="{GUIDE_URL}" target="_blank"
        style="display:flex;align-items:center;gap:8px;
