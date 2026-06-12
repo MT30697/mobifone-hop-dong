@@ -472,58 +472,31 @@ with st.sidebar:
     # Logo / branding sidebar
     st.markdown("""
     <div style="padding:10px 4px 14px;border-bottom:1px solid #1e3a55;margin-bottom:14px">
-        <div style="font-size:1rem;font-weight:800;color:#f1f5f9;letter-spacing:0.5px">
-            MOBIFONE AUTO-MT306
-        </div>
-        <div style="font-size:0.72rem;color:#64748b;margin-top:3px">
-            Auto Create Contract · v7 Web
-        </div>
+        <div style="font-size:1rem;font-weight:800;color:#f1f5f9;letter-spacing:0.5px">MOBIFONE AUTO-MT306</div>
+        <div style="font-size:0.72rem;color:#64748b;margin-top:3px">Auto Create Contract · v7 Web</div>
     </div>
     """, unsafe_allow_html=True)
 
-    # =========================
-    # TEMPLATE
-    # =========================
-    st.markdown("### 📁 TEMPLATE")
-
-    # Template mặc định
+    st.markdown("### 📁 Template")
+    # Template mặc định luôn có sẵn
     st.markdown("""
-    <div style="
-        background:#0d3320;
-        border:1px solid #166534;
-        border-radius:8px;
-        padding:8px 12px;
-        font-size:0.78rem;
-        color:#4ade80;
-        margin-bottom:8px;
-    ">
+    <div style="background:#0d3320;border:1px solid #166534;border-radius:8px;
+                padding:8px 12px;font-size:0.78rem;color:#4ade80;margin-bottom:8px;">
         ✅ Template mặc định đã sẵn sàng
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Upload template khác
-    with st.expander("🔄 Template tùy chọn", expanded=False):
-
+    </div>""", unsafe_allow_html=True)
+    # Tuỳ chọn upload template khác
+    with st.expander("🔄 Dùng template khác (tuỳ chọn)"):
         template_file = st.file_uploader(
             "Upload .docx để ghi đè template mặc định",
             type=["docx"],
-            label_visibility="collapsed"
+            label_visibility="collapsed",
         )
-
-        if template_file is not None:
+        if template_file:
             st.markdown("""
-            <div style="
-                background:#0d3320;
-                border:1px solid #166534;
-                border-radius:8px;
-                padding:6px 10px;
-                font-size:0.75rem;
-                color:#4ade80;
-                margin-top:4px;
-            ">
+            <div style="background:#0d3320;border:1px solid #166534;border-radius:8px;
+                        padding:6px 10px;font-size:0.75rem;color:#4ade80;margin-top:4px;">
                 ✅ Đang dùng template tùy chỉnh
-            </div>
-            """, unsafe_allow_html=True)
+            </div>""", unsafe_allow_html=True)
         else:
             template_file = None
             st.caption("Để trống = dùng template mặc định")
