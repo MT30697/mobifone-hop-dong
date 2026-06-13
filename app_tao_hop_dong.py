@@ -308,6 +308,53 @@ hr { border: none !important; border-top: 1px solid #e2e8f0 !important; margin: 
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+/* ══ ẨN TOOLBAR TRÊN CÙNG ══ */
+/* Header toolbar (Share, bookmark, github icons) */
+[data-testid="stToolbar"],
+[data-testid="stDecoration"],
+#stDecoration,
+header[data-testid="stHeader"] { display: none !important; visibility: hidden !important; }
+
+/* Manage app bottom bar */
+[data-testid="manage-app-button"],
+.st-emotion-cache-1dp5vir,
+iframe[title="streamlit_analytics"],
+[data-testid="stStatusWidget"] { display: none !important; }
+
+/* ══ ẨN NÚT COLLAPSE MẶC ĐỊNH CỦA STREAMLIT ══ */
+[data-testid="collapsedControl"],
+button[kind="header"],
+[data-testid="stSidebarCollapsedControl"] { display: none !important; }
+
+/* ══ CUSTOM SIDEBAR EXPANDER (fix icon lỗi) ══ */
+/* Ẩn icon mặc định của st.expander */
+[data-testid="stSidebar"] [data-testid="stExpander"] summary svg { display: none !important; }
+[data-testid="stSidebar"] [data-testid="stExpander"] summary::before {
+    content: "▶"; font-size: 0.7rem; margin-right: 6px; color: #64748b;
+    transition: transform 0.2s;
+}
+[data-testid="stSidebar"] [data-testid="stExpander"][open] summary::before { content: "▼"; }
+
+/* ══ NÚT TOGGLE SIDEBAR TÙY CHỈNH ══ */
+#sidebar-toggle-btn {
+    position: fixed;
+    top: 50%;
+    left: var(--sidebar-width, 244px);
+    transform: translateY(-50%) translateX(-50%);
+    z-index: 9999;
+    width: 22px; height: 44px;
+    background: #1a3a5c;
+    border: none; border-radius: 0 8px 8px 0;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.25);
+    transition: background 0.2s, left 0.3s;
+    color: #94a3b8;
+    font-size: 12px;
+    padding: 0;
+}
+#sidebar-toggle-btn:hover { background: #e63946; color: white; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -485,7 +532,7 @@ with st.sidebar:
         ✅ Template mặc định đã sẵn sàng
     </div>""", unsafe_allow_html=True)
     # Tuỳ chọn upload template khác
-    with st.expander("🔄 Dùng template khác (tuỳ chọn)"):
+    with st.expander("↺  Dùng template khác (tuỳ chọn)"):
         template_file = st.file_uploader(
             "Upload .docx để ghi đè template mặc định",
             type=["docx"],
@@ -503,22 +550,18 @@ with st.sidebar:
 
     st.markdown("---")
 
-    # Link hướng dẫn sử dụng
-    st.markdown("### 📖 Hướng dẫn sử dụng")
+    # Link hướng dẫn — 1 dòng gọn
     GUIDE_URL = "https://docs.google.com/document/d/1TUH57mqOwWgqYw3TPb9k82jgxpvCfb6J/edit?usp=sharing&ouid=112827294689681536440&rtpof=true&sd=true"  # ← thay link thật vào đây
     st.markdown(f"""
-    <a href="{GUIDE_URL}" target="_blank"
-       style="display:flex;align-items:center;gap:8px;
-              background:#1a3550;border:1px solid #2a4a6b;
-              border-radius:8px;padding:9px 12px;
-              text-decoration:none;margin-bottom:4px;
-              transition:border-color 0.15s">
-        <span style="font-size:1.1rem">📋</span>
-        <div>
-            <div style="color:#e2e8f0;font-size:0.8rem;font-weight:600">Xem hướng dẫn</div>
-            <div style="color:#475569;font-size:0.7rem">Google Docs · Tiếng Việt</div>
-        </div>
-        <span style="margin-left:auto;color:#475569;font-size:0.75rem">↗</span>
+    <a href="{GUIDE_URL}" target="_blank" style="
+        display:flex;align-items:center;justify-content:center;gap:7px;
+        background:#1a3550;border:1px solid #2a4a6b;border-radius:8px;
+        padding:9px 14px;text-decoration:none;
+        color:#e2e8f0;font-size:0.8rem;font-weight:600;
+        transition:background 0.15s;margin-bottom:0">
+        <span style="font-size:1rem;line-height:1">&#128218;</span>
+        Huong dan su dung
+        <span style="font-size:0.75rem;color:#64748b;margin-left:auto">&#8599;</span>
     </a>
     """, unsafe_allow_html=True)
 
@@ -564,6 +607,54 @@ st.markdown("""
         </div>
     </div>
 </div>
+""", unsafe_allow_html=True)
+
+# ── SIDEBAR TOGGLE BUTTON (JS) ────────────────
+st.markdown("""
+<script>
+(function() {
+    function initToggle() {
+        // Tạo nút nếu chưa có
+        if (document.getElementById('sidebar-toggle-btn')) return;
+
+        var btn = document.createElement('button');
+        btn.id = 'sidebar-toggle-btn';
+        btn.innerHTML = '&#x276E;'; // ❮
+        btn.title = 'Ẩn/hiện sidebar';
+        document.body.appendChild(btn);
+
+        var sidebarOpen = true;
+
+        btn.addEventListener('click', function() {
+            // Streamlit sidebar toggle: click vào collapsedControl hoặc dùng CSS
+            var sidebar = document.querySelector('[data-testid="stSidebar"]');
+            if (!sidebar) return;
+
+            if (sidebarOpen) {
+                sidebar.style.transform = 'translateX(-100%)';
+                sidebar.style.transition = 'transform 0.3s ease';
+                btn.innerHTML = '&#x276F;'; // ❯
+                btn.style.left = '0px';
+                btn.style.borderRadius = '0 8px 8px 0';
+                sidebarOpen = false;
+            } else {
+                sidebar.style.transform = 'translateX(0)';
+                btn.innerHTML = '&#x276E;'; // ❮
+                btn.style.left = '244px';
+                sidebarOpen = true;
+            }
+        });
+    }
+
+    // Retry vì Streamlit render sau
+    var attempts = 0;
+    var interval = setInterval(function() {
+        attempts++;
+        initToggle();
+        if (attempts > 20) clearInterval(interval);
+    }, 300);
+})();
+</script>
 """, unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────
