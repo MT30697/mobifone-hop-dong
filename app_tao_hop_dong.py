@@ -330,12 +330,39 @@ button[kind="header"],
 section[data-testid="stSidebar"] > div > div > div > button,
 .st-emotion-cache-dvne4q { display: none !important; }
 
-/* Fix file uploader label an */
-[data-testid="stFileUploader"] label { display: none !important; }
-[data-testid="stFileUploader"] { margin-top: 0 !important; }
-
-/* Sidebar checkbox: an icon loi */
-[data-testid="stSidebar"] [data-testid="stCheckbox"] { display: none !important; }
+/* ══ AN TOAN BO FILE UPLOADER TRONG SIDEBAR ══ */
+/* An label, button text "upload", dropzone text */
+[data-testid="stSidebar"] [data-testid="stFileUploader"] label,
+[data-testid="stSidebar"] [data-testid="stFileUploaderDropzoneInstructions"],
+[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] span,
+[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] small,
+[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] p,
+[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] div { 
+    font-size: 0 !important; 
+    color: transparent !important;
+}
+/* Giu lai button upload chinh nhung an text loi */
+[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] button {
+    font-size: 0.8rem !important;
+    color: #e2e8f0 !important;
+    background: #1a3550 !important;
+    border: 1px solid #2a4a6b !important;
+    border-radius: 6px !important;
+    padding: 6px 14px !important;
+    width: 100% !important;
+}
+[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] button::before {
+    content: "Chon file .docx" !important;
+    font-size: 0.78rem !important;
+    color: #e2e8f0 !important;
+}
+[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] {
+    padding: 8px !important;
+    background: #1a3550 !important;
+    border: 1px dashed #2a4a6b !important;
+    border-radius: 8px !important;
+    min-height: unset !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -503,53 +530,86 @@ with st.sidebar:
         <div style="font-size:1rem;font-weight:800;color:#f1f5f9;letter-spacing:0.5px">MOBIFONE AUTO-MT306</div>
         <div style="font-size:0.72rem;color:#64748b;margin-top:3px">Auto Create Contract · v7 Web</div>
     </div>
-    <div style="font-size:0.72rem;font-weight:700;color:#94a3b8;letter-spacing:1px;
-                text-transform:uppercase;margin-bottom:8px">Template</div>
+    <div style="font-size:0.72rem;font-weight:700;color:#94a3b8;letter-spacing:1px;margin-bottom:8px">TEMPLATE</div>
     <div style="background:#0d3320;border:1px solid #166534;border-radius:8px;
                 padding:8px 12px;font-size:0.78rem;color:#4ade80;margin-bottom:10px;">
-        Template mac dinh san sang
+        Template mặc định sẵn sàng
     </div>
     <div style="font-size:0.72rem;color:#475569;margin-bottom:6px">
-        De su dung template khac, upload o day:
+        Để dùng template khác, upload ở đây:
     </div>
     """, unsafe_allow_html=True)
 
-    # File uploader — label ẩn hoàn toàn
+    # File uploader — ẩn widget gốc, chỉ show khi user muốn
+    # Dùng CSS ẩn toàn bộ dropzone xấu
+    st.markdown("""
+    <style>
+    /* An toan bo dropzone cua file uploader trong sidebar */
+    section[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"],
+    section[data-testid="stSidebar"] [data-testid="stFileUploaderDropzoneInstructions"],
+    section[data-testid="stSidebar"] [data-testid="stFileUploader"] > label,
+    section[data-testid="stSidebar"] [data-testid="stFileUploader"] > div > div {
+        display: none !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    section[data-testid="stSidebar"] [data-testid="stFileUploader"] {
+        margin: 0 !important;
+        padding: 0 !important;
+        min-height: 0 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     template_file = st.file_uploader(
-        "x",
-        type=["docx"],
-        label_visibility="hidden",
+        "tpl", type=["docx"], label_visibility="collapsed",
     )
     if template_file:
         st.markdown("""
         <div style="background:#0d3320;border:1px solid #166534;border-radius:7px;
-                    padding:6px 10px;font-size:0.75rem;color:#4ade80;margin-top:4px;">
+                    padding:6px 10px;font-size:0.75rem;color:#4ade80;">
             Dang dung template tuy chinh
         </div>""", unsafe_allow_html=True)
+    else:
+        # Nút giả mở file dialog — trigger vào input[type=file] thật của Streamlit
+        import streamlit.components.v1 as components
+        components.html("""
+        <button onclick="
+            var inp = window.parent.document.querySelector(
+                '[data-testid=stSidebar] input[type=file]'
+            );
+            if(inp) inp.click();
+        " style="
+            width:100%; padding:8px 0; background:#1a3550;
+            border:1px dashed #3b6b9a; border-radius:8px;
+            color:#94a3b8; font-size:0.78rem; cursor:pointer;
+            font-family:Arial,sans-serif;
+        ">+ Chọn file template khác</button>
+        """, height=44)
 
     st.markdown("<hr style='border-color:#1e3a55;margin:12px 0'/>", unsafe_allow_html=True)
 
     # Link huong dan — 1 dong gon
-    GUIDE_URL = "https://docs.google.com/document/d/1TUH57mqOwWgqYw3TPb9k82jgxpvCfb6J/edit?usp=sharing&ouid=112827294689681536440&rtpof=true&sd=true"  # ← thay link thật vào đây
+    GUIDE_URL = "https://docs.google.com/document/d/1TUH57mqOwWgqYw3TPb9k82jgxpvCfb6J/edit"  # ← thay link thật vào đây
     st.markdown(f"""
     <a href="{GUIDE_URL}" target="_blank" style="
-        display:flex;align-items:center;justify-content:center;gap:7px;
+        display:flex;align-items:center;gap:8px;
         background:#1a3550;border:1px solid #2a4a6b;border-radius:8px;
         padding:9px 14px;text-decoration:none;
         color:#e2e8f0;font-size:0.8rem;font-weight:600;
         transition:background 0.15s;margin-bottom:0">
-        <span style="font-size:1rem;line-height:1">&#128218;</span>
-        Huong dan su dung
-        <span style="font-size:0.75rem;color:#64748b;margin-left:auto">&#8599;</span>
+        Hướng dẫn sử dụng
+        <span style="margin-left:auto;font-size:0.75rem;color:#64748b">&#8599;</span>
     </a>
     """, unsafe_allow_html=True)
 
-    st.markdown("<hr style='border-color:#1e3a55;margin:12px 0'/>\n<div style='font-size:0.72rem;font-weight:700;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px'>Ben B - Mac dinh</div>", unsafe_allow_html=True)
+    st.markdown("<hr style='border-color:#1e3a55;margin:12px 0'/>\n<div style='font-size:0.72rem;font-weight:700;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px'>BÊN B — MẶC ĐỊNH</div>", unsafe_allow_html=True)
     ten_nv_ben_b = st.text_input("Tên nhân viên",  value=st.session_state.draft.get("ten_nv_ben_b", "Trương Thị Mỹ Châu"))
     email_ben_b  = st.text_input("Email nhân viên", value=st.session_state.draft.get("email_ben_b",  "cuong.danghuy.ctv@mobifone.vn"))
     sdt_ben_b    = st.text_input("SĐT nhân viên",   value=st.session_state.draft.get("sdt_ben_b",    "0901959799"))
 
-    st.markdown("<hr style='border-color:#1e3a55;margin:12px 0'/>\n<div style='font-size:0.72rem;font-weight:700;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px'>Lich su gan nhat</div>", unsafe_allow_html=True)
+    st.markdown("<hr style='border-color:#1e3a55;margin:12px 0'/>\n<div style='font-size:0.72rem;font-weight:700;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px'>LỊCH SỬ GẦN NHẤT</div>", unsafe_allow_html=True)
     if not st.session_state.history:
         st.markdown("<div style='color:#334155;font-size:0.78rem;padding:4px 0'>Chưa có hợp đồng nào</div>", unsafe_allow_html=True)
     else:
