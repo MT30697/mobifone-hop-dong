@@ -646,7 +646,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ── SIDEBAR TOGGLE — dùng components.html thay vì st.markdown script ──
+# ── SIDEBAR TOGGLE ──
 import streamlit.components.v1 as components
 components.html("""
 <script>
@@ -655,46 +655,69 @@ components.html("""
         var doc = window.parent.document;
         if (doc.getElementById('mbf-sidebar-btn')) return;
 
+        var sb = doc.querySelector('[data-testid="stSidebar"]');
+        if (!sb) return;
+
+        // Đọc width thật của sidebar
+        var sbWidth = sb.getBoundingClientRect().width;
+        if (sbWidth < 10) return; // chưa render xong
+
         var btn = doc.createElement('button');
         btn.id = 'mbf-sidebar-btn';
-        btn.title = 'An/hien sidebar';
         btn.textContent = '<';
         Object.assign(btn.style, {
-            position:'fixed', top:'50%', left:'244px',
-            transform:'translateY(-50%)',
-            zIndex:'999999', width:'20px', height:'44px',
-            background:'#1a3a5c', color:'#94a3b8',
-            border:'none', borderRadius:'0 8px 8px 0',
-            cursor:'pointer', fontSize:'14px', fontWeight:'bold',
-            boxShadow:'2px 0 8px rgba(0,0,0,0.3)',
-            transition:'background 0.2s, left 0.3s',
-            padding:'0'
+            position: 'fixed',
+            top: '50vh',
+            left: sbWidth + 'px',
+            transform: 'translateY(-50%)',
+            zIndex: '999999',
+            width: '18px',
+            height: '40px',
+            background: '#1a3a5c',
+            color: '#94a3b8',
+            border: 'none',
+            borderRadius: '0 8px 8px 0',
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            boxShadow: '2px 0 8px rgba(0,0,0,0.35)',
+            transition: 'background 0.2s',
+            padding: '0',
+            lineHeight: '1'
         });
         doc.body.appendChild(btn);
 
         var open = true;
         btn.addEventListener('click', function() {
-            var sb = doc.querySelector('[data-testid="stSidebar"]');
-            if (!sb) return;
             if (open) {
                 sb.style.transition = 'transform 0.3s ease';
                 sb.style.transform = 'translateX(-110%)';
                 btn.style.left = '0px';
-                btn.style.borderRadius = '0 8px 8px 0';
                 btn.textContent = '>';
                 open = false;
             } else {
+                sb.style.transition = 'transform 0.3s ease';
                 sb.style.transform = 'translateX(0)';
-                btn.style.left = '244px';
+                btn.style.left = sbWidth + 'px';
                 btn.textContent = '<';
                 open = true;
             }
         });
-        btn.addEventListener('mouseenter', function() { btn.style.background='#e63946'; btn.style.color='#fff'; });
-        btn.addEventListener('mouseleave', function() { btn.style.background='#1a3a5c'; btn.style.color='#94a3b8'; });
+        btn.addEventListener('mouseenter', function() {
+            btn.style.background = '#e63946';
+            btn.style.color = '#fff';
+        });
+        btn.addEventListener('mouseleave', function() {
+            btn.style.background = '#1a3a5c';
+            btn.style.color = '#94a3b8';
+        });
     }
+    // Thử nhiều lần đến khi sidebar render xong
     var t = 0;
-    var iv = setInterval(function(){ initToggle(); if(++t>30) clearInterval(iv); }, 200);
+    var iv = setInterval(function() {
+        initToggle();
+        if (++t > 40) clearInterval(iv);
+    }, 250);
 })();
 </script>
 """, height=0)
