@@ -322,39 +322,20 @@ header[data-testid="stHeader"] { display: none !important; visibility: hidden !i
 iframe[title="streamlit_analytics"],
 [data-testid="stStatusWidget"] { display: none !important; }
 
-/* ══ ẨN NÚT COLLAPSE MẶC ĐỊNH CỦA STREAMLIT ══ */
+/* ══ AN NUT COLLAPSE + KEYBOARD DOUBLE CUA STREAMLIT ══ */
 [data-testid="collapsedControl"],
+[data-testid="stSidebarCollapsedControl"],
 button[kind="header"],
-[data-testid="stSidebarCollapsedControl"] { display: none !important; }
+[data-testid="stSidebarCollapseButton"],
+section[data-testid="stSidebar"] > div > div > div > button,
+.st-emotion-cache-dvne4q { display: none !important; }
 
-/* ══ CUSTOM SIDEBAR EXPANDER (fix icon lỗi) ══ */
-/* Ẩn icon mặc định của st.expander */
-[data-testid="stSidebar"] [data-testid="stExpander"] summary svg { display: none !important; }
-[data-testid="stSidebar"] [data-testid="stExpander"] summary::before {
-    content: "▶"; font-size: 0.7rem; margin-right: 6px; color: #64748b;
-    transition: transform 0.2s;
-}
-[data-testid="stSidebar"] [data-testid="stExpander"][open] summary::before { content: "▼"; }
+/* Fix file uploader label an */
+[data-testid="stFileUploader"] label { display: none !important; }
+[data-testid="stFileUploader"] { margin-top: 0 !important; }
 
-/* ══ NÚT TOGGLE SIDEBAR TÙY CHỈNH ══ */
-#sidebar-toggle-btn {
-    position: fixed;
-    top: 50%;
-    left: var(--sidebar-width, 244px);
-    transform: translateY(-50%) translateX(-50%);
-    z-index: 9999;
-    width: 22px; height: 44px;
-    background: #1a3a5c;
-    border: none; border-radius: 0 8px 8px 0;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 2px 0 8px rgba(0,0,0,0.25);
-    transition: background 0.2s, left 0.3s;
-    color: #94a3b8;
-    font-size: 12px;
-    padding: 0;
-}
-#sidebar-toggle-btn:hover { background: #e63946; color: white; }
+/* Sidebar checkbox: an icon loi */
+[data-testid="stSidebar"] [data-testid="stCheckbox"] { display: none !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -516,41 +497,39 @@ def validate(kh: dict) -> list:
 # SIDEBAR
 # ─────────────────────────────────────────────
 with st.sidebar:
-    # Logo / branding sidebar
+    # ── Branding ──
     st.markdown("""
     <div style="padding:10px 4px 14px;border-bottom:1px solid #1e3a55;margin-bottom:14px">
         <div style="font-size:1rem;font-weight:800;color:#f1f5f9;letter-spacing:0.5px">MOBIFONE AUTO-MT306</div>
         <div style="font-size:0.72rem;color:#64748b;margin-top:3px">Auto Create Contract · v7 Web</div>
     </div>
+    <div style="font-size:0.72rem;font-weight:700;color:#94a3b8;letter-spacing:1px;
+                text-transform:uppercase;margin-bottom:8px">Template</div>
+    <div style="background:#0d3320;border:1px solid #166534;border-radius:8px;
+                padding:8px 12px;font-size:0.78rem;color:#4ade80;margin-bottom:10px;">
+        Template mac dinh san sang
+    </div>
+    <div style="font-size:0.72rem;color:#475569;margin-bottom:6px">
+        De su dung template khac, upload o day:
+    </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("### 📁 Template")
-    # Template mặc định luôn có sẵn
-    st.markdown("""
-    <div style="background:#0d3320;border:1px solid #166534;border-radius:8px;
-                padding:8px 12px;font-size:0.78rem;color:#4ade80;margin-bottom:8px;">
-        ✅ Template mặc định đã sẵn sàng
-    </div>""", unsafe_allow_html=True)
-    # Tuỳ chọn upload template khác
-    with st.expander("↺  Dùng template khác (tuỳ chọn)"):
-        template_file = st.file_uploader(
-            "Upload .docx để ghi đè template mặc định",
-            type=["docx"],
-            label_visibility="collapsed",
-        )
-        if template_file:
-            st.markdown("""
-            <div style="background:#0d3320;border:1px solid #166534;border-radius:8px;
-                        padding:6px 10px;font-size:0.75rem;color:#4ade80;margin-top:4px;">
-                ✅ Đang dùng template tùy chỉnh
-            </div>""", unsafe_allow_html=True)
-        else:
-            template_file = None
-            st.caption("Để trống = dùng template mặc định")
+    # File uploader — label ẩn hoàn toàn
+    template_file = st.file_uploader(
+        "x",
+        type=["docx"],
+        label_visibility="hidden",
+    )
+    if template_file:
+        st.markdown("""
+        <div style="background:#0d3320;border:1px solid #166534;border-radius:7px;
+                    padding:6px 10px;font-size:0.75rem;color:#4ade80;margin-top:4px;">
+            Dang dung template tuy chinh
+        </div>""", unsafe_allow_html=True)
 
-    st.markdown("---")
+    st.markdown("<hr style='border-color:#1e3a55;margin:12px 0'/>", unsafe_allow_html=True)
 
-    # Link hướng dẫn — 1 dòng gọn
+    # Link huong dan — 1 dong gon
     GUIDE_URL = "https://docs.google.com/document/d/1TUH57mqOwWgqYw3TPb9k82jgxpvCfb6J/edit?usp=sharing&ouid=112827294689681536440&rtpof=true&sd=true"  # ← thay link thật vào đây
     st.markdown(f"""
     <a href="{GUIDE_URL}" target="_blank" style="
@@ -565,14 +544,12 @@ with st.sidebar:
     </a>
     """, unsafe_allow_html=True)
 
-    st.markdown("---")
-    st.markdown("### 👤 Bên B — Mặc định")
+    st.markdown("<hr style='border-color:#1e3a55;margin:12px 0'/>\n<div style='font-size:0.72rem;font-weight:700;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px'>Ben B - Mac dinh</div>", unsafe_allow_html=True)
     ten_nv_ben_b = st.text_input("Tên nhân viên",  value=st.session_state.draft.get("ten_nv_ben_b", "Trương Thị Mỹ Châu"))
     email_ben_b  = st.text_input("Email nhân viên", value=st.session_state.draft.get("email_ben_b",  "cuong.danghuy.ctv@mobifone.vn"))
     sdt_ben_b    = st.text_input("SĐT nhân viên",   value=st.session_state.draft.get("sdt_ben_b",    "0901959799"))
 
-    st.markdown("---")
-    st.markdown("### 🕐 Lịch sử gần nhất")
+    st.markdown("<hr style='border-color:#1e3a55;margin:12px 0'/>\n<div style='font-size:0.72rem;font-weight:700;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px'>Lich su gan nhat</div>", unsafe_allow_html=True)
     if not st.session_state.history:
         st.markdown("<div style='color:#334155;font-size:0.78rem;padding:4px 0'>Chưa có hợp đồng nào</div>", unsafe_allow_html=True)
     else:
@@ -609,53 +586,58 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ── SIDEBAR TOGGLE BUTTON (JS) ────────────────
-st.markdown("""
+# ── SIDEBAR TOGGLE — dùng components.html thay vì st.markdown script ──
+import streamlit.components.v1 as components
+components.html("""
 <script>
 (function() {
     function initToggle() {
-        // Tạo nút nếu chưa có
-        if (document.getElementById('sidebar-toggle-btn')) return;
+        var doc = window.parent.document;
+        if (doc.getElementById('mbf-sidebar-btn')) return;
 
-        var btn = document.createElement('button');
-        btn.id = 'sidebar-toggle-btn';
-        btn.innerHTML = '&#x276E;'; // ❮
-        btn.title = 'Ẩn/hiện sidebar';
-        document.body.appendChild(btn);
+        var btn = doc.createElement('button');
+        btn.id = 'mbf-sidebar-btn';
+        btn.title = 'An/hien sidebar';
+        btn.textContent = '<';
+        Object.assign(btn.style, {
+            position:'fixed', top:'50%', left:'244px',
+            transform:'translateY(-50%)',
+            zIndex:'999999', width:'20px', height:'44px',
+            background:'#1a3a5c', color:'#94a3b8',
+            border:'none', borderRadius:'0 8px 8px 0',
+            cursor:'pointer', fontSize:'14px', fontWeight:'bold',
+            boxShadow:'2px 0 8px rgba(0,0,0,0.3)',
+            transition:'background 0.2s, left 0.3s',
+            padding:'0'
+        });
+        doc.body.appendChild(btn);
 
-        var sidebarOpen = true;
-
+        var open = true;
         btn.addEventListener('click', function() {
-            // Streamlit sidebar toggle: click vào collapsedControl hoặc dùng CSS
-            var sidebar = document.querySelector('[data-testid="stSidebar"]');
-            if (!sidebar) return;
-
-            if (sidebarOpen) {
-                sidebar.style.transform = 'translateX(-100%)';
-                sidebar.style.transition = 'transform 0.3s ease';
-                btn.innerHTML = '&#x276F;'; // ❯
+            var sb = doc.querySelector('[data-testid="stSidebar"]');
+            if (!sb) return;
+            if (open) {
+                sb.style.transition = 'transform 0.3s ease';
+                sb.style.transform = 'translateX(-110%)';
                 btn.style.left = '0px';
                 btn.style.borderRadius = '0 8px 8px 0';
-                sidebarOpen = false;
+                btn.textContent = '>';
+                open = false;
             } else {
-                sidebar.style.transform = 'translateX(0)';
-                btn.innerHTML = '&#x276E;'; // ❮
+                sb.style.transform = 'translateX(0)';
                 btn.style.left = '244px';
-                sidebarOpen = true;
+                btn.textContent = '<';
+                open = true;
             }
         });
+        btn.addEventListener('mouseenter', function() { btn.style.background='#e63946'; btn.style.color='#fff'; });
+        btn.addEventListener('mouseleave', function() { btn.style.background='#1a3a5c'; btn.style.color='#94a3b8'; });
     }
-
-    // Retry vì Streamlit render sau
-    var attempts = 0;
-    var interval = setInterval(function() {
-        attempts++;
-        initToggle();
-        if (attempts > 20) clearInterval(interval);
-    }, 300);
+    var t = 0;
+    var iv = setInterval(function(){ initToggle(); if(++t>30) clearInterval(iv); }, 200);
 })();
 </script>
-""", unsafe_allow_html=True)
+""", height=0)
 
 # ─────────────────────────────────────────────
 # STAT CARDS
