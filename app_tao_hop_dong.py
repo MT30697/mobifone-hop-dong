@@ -591,7 +591,7 @@ with st.sidebar:
     st.markdown("<hr style='border-color:#1e3a55;margin:12px 0'/>", unsafe_allow_html=True)
 
     # Link huong dan — 1 dong gon
-    GUIDE_URL = "https://docs.google.com/document/d/1TUH57mqOwWgqYw3TPb9k82jgxpvCfb6J/edit"  # ← thay link thật vào đây
+    GUIDE_URL = "https://drive.google.com/file/d/1abANUPjJpZPUbgdwJWbUHRSbeTQ29Yvn/view?usp=sharing"  # ← thay link thật vào đây
     st.markdown(f"""
     <a href="{GUIDE_URL}" target="_blank" style="
         display:flex;align-items:center;gap:8px;
