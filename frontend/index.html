@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>MobiFone Auto Contract</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#F0F2F6;display:flex;min-height:100vh;font-size:14px;}
+
+/* ══ SIDEBAR ══ */
+.sb{width:210px;min-height:100vh;flex-shrink:0;background:linear-gradient(180deg,#0d1f35 0%,#0f2a4a 40%,#1a3a6b 100%);display:flex;flex-direction:column;position:relative;}
+.sb-logo{padding:16px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.07);}
+.sb-logo .logo{font-size:1.3rem;font-weight:900;color:#fff;letter-spacing:-0.5px;}
+.sb-logo .logo span{color:#E31837;}
+.sb-logo .sub{font-size:0.58rem;color:#64748b;letter-spacing:2px;text-transform:uppercase;margin-top:3px;}
+
+.sb-sec{padding:14px 16px 5px;font-size:0.6rem;color:#475569;letter-spacing:1px;text-transform:uppercase;font-weight:700;}
+.nav{display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:0.8rem;color:#94a3b8;cursor:pointer;border-left:3px solid transparent;transition:all 0.15s;}
+.nav:hover{background:rgba(255,255,255,0.05);color:#e2e8f0;}
+.nav.act{background:rgba(66,133,244,0.15);color:#fff;border-left-color:#4285f4;font-weight:600;}
+.nav .ni{font-size:0.85rem;width:16px;}
+
+.sb-nv{padding:12px 16px;}
+.nv-wrap{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.nv-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#4285f4,#0B2D4D);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.85rem;flex-shrink:0;}
+.nv-info .name{font-size:0.82rem;font-weight:700;color:#f1f5f9;}
+.nv-info .role{font-size:0.65rem;color:#64748b;}
+.nv-rows{margin-bottom:8px;}
+.nv-row{display:flex;gap:6px;font-size:0.65rem;color:#64748b;padding:2px 0;}
+.nv-row b{color:#94a3b8;font-weight:500;}
+.nv-row span{color:#cbd5e1;}
+.btn-edit{width:100%;padding:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:#94a3b8;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;}
+.btn-edit:hover{background:rgba(255,255,255,0.1);color:#e2e8f0;}
+
+.hist-list{padding:4px 16px 10px;}
+.hi{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.hi-icon{width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.72rem;}
+.hi-info{flex:1;min-width:0;}
+.hi-name{font-size:0.68rem;color:#e2e8f0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hi-meta{display:flex;align-items:center;gap:5px;margin-top:2px;}
+.hi-time{font-size:0.6rem;color:#475569;}
+.hbdg{display:inline-block;padding:1px 6px;border-radius:8px;font-size:0.58rem;font-weight:700;}
+.hbdg.g{background:rgba(34,197,94,0.15);color:#22c55e;}
+.hbdg.b{background:rgba(66,133,244,0.15);color:#60a5fa;}
+.hbdg.y{background:rgba(245,158,11,0.15);color:#fbbf24;}
+.hbdg.r{background:rgba(239,68,68,0.15);color:#f87171;}
+
+.sb-collapse{padding:10px 16px;margin-top:auto;border-top:1px solid rgba(255,255,255,0.06);}
+.btn-collapse{width:100%;padding:7px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:6px;color:#64748b;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;}
+.btn-collapse:hover{background:rgba(255,255,255,0.08);color:#94a3b8;}
+.sb-foot{padding:8px 16px 12px;font-size:0.58rem;color:#64748b;text-align:center;}
+.sb-foot span{color:#f87171;font-weight:700;}
+.sb-foot .dev{color:#94a3b8;margin-top:2px;}
+
+/* ══ MAIN ══ */
+.main{flex:1;display:flex;flex-direction:column;min-height:100vh;overflow:hidden;}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,#0d1f35 0%,#0f2a4a 40%,#1a3a6b 65%,#E31837 100%);padding:13px 24px;display:flex;align-items:center;justify-content:space-between;}
+.hdr-l .t{font-size:1.05rem;font-weight:800;color:#fff;}
+.hdr-l .s{font-size:0.72rem;color:rgba(255,255,255,0.55);margin-top:1px;}
+.hdr-r{display:flex;align-items:center;gap:8px;}
+.bdg{display:inline-block;padding:3px 10px;border-radius:16px;font-size:0.65rem;font-weight:700;}
+.bdg-o{background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.2);}
+.bdg-r{background:#E31837;color:#fff;}
+.bdg-g{background:rgba(34,197,94,0.2);color:#4ade80;border:1px solid rgba(34,197,94,0.25);}
+.hdr-icon{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.85rem;cursor:pointer;position:relative;}
+.hdr-badge{position:absolute;top:-3px;right:-3px;width:14px;height:14px;background:#E31837;border-radius:50%;font-size:0.5rem;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.hdr-nv{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.08);border-radius:20px;padding:4px 10px 4px 4px;cursor:pointer;}
+.hdr-av{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#4285f4,#0B2D4D);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.6rem;}
+.hdr-nv-info .hn{font-size:0.72rem;font-weight:600;color:#fff;}
+.hdr-nv-info .hr{font-size:0.58rem;color:rgba(255,255,255,0.5);}
+
+/* CONTENT */
+.content{flex:1;padding:16px 20px 130px;overflow-y:auto;}
+
+/* STEPPER */
+.stepper{background:white;border-radius:10px;padding:14px 20px;margin-bottom:14px;display:flex;align-items:center;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
+.step{display:flex;align-items:center;flex-shrink:0;}
+.sdot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;}
+.sdot.done{background:#22c55e;color:#fff;}
+.sdot.act{background:#0d1f35;color:#fff;box-shadow:0 0 0 4px rgba(13,31,53,0.12);}
+.sdot.todo{background:#f1f5f9;color:#94a3b8;}
+.si{margin-left:8px;}
+.sn{font-size:0.72rem;font-weight:700;}
+.ss{font-size:0.6rem;margin-top:1px;}
+.sn.done{color:#16a34a;}.ss.done{color:#86efac;}
+.sn.act{color:#0d1f35;}.ss.act{color:#64748b;}
+.sn.todo{color:#94a3b8;}.ss.todo{color:#cbd5e1;}
+.sline{flex:1;height:2px;margin:0 8px;}
+.sline.done{background:#22c55e;}.sline.todo{background:#e2e8f0;}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:52% 1fr;gap:14px;}
+
+/* CARD */
+.card{background:white;border-radius:10px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #f1f5f9;}
+.ch{font-size:0.65rem;font-weight:700;color:#0d1f35;letter-spacing:0.8px;text-transform:uppercase;padding-bottom:8px;border-bottom:2px solid #f8fafc;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+
+/* FORM */
+.fr{display:grid;gap:8px;margin-bottom:8px;}
+.fr.c2{grid-template-columns:1fr 1fr;}
+.fr.c4{grid-template-columns:1fr 1fr 1fr 1fr;}
+.fg label{display:block;font-size:0.65rem;font-weight:600;color:#374151;margin-bottom:3px;}
+.fg label .req{color:#E31837;}
+.fg input,.fg select{width:100%;height:32px;border:1.5px solid #e2e8f0;border-radius:7px;padding:0 10px;font-size:0.8rem;color:#1e293b;background:#fff;outline:none;}
+.fg input:focus,.fg select:focus{border-color:#0d1f35;box-shadow:0 0 0 2px rgba(13,31,53,0.08);}
+.fg input::placeholder{color:#c4c9d4;}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;margin-bottom:8px;}
+.tbl th{font-size:0.6rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.4px;padding:7px 6px;background:#f8fafc;border-bottom:2px solid #e2e8f0;text-align:left;}
+.tbl td{padding:5px 5px;border-bottom:1px solid #f5f5f5;vertical-align:middle;}
+.tbl tr:hover td{background:#fafbfc;}
+.tbl td input,.tbl td select{width:100%;height:28px;border:1px solid #e2e8f0;border-radius:5px;padding:0 6px;font-size:0.75rem;color:#1e293b;background:#fff;}
+.tbl td input:focus,.tbl td select:focus{border-color:#0d1f35;outline:none;}
+.tbl td input.tt{background:#f8fafc;color:#0d1f35;font-weight:700;border-color:#e2e8f0;}
+.xbtn{width:26px;height:26px;border-radius:6px;border:none;background:#fee2e2;color:#ef4444;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;}
+.rn{font-size:0.68rem;color:#94a3b8;text-align:center;}
+.pa{display:flex;gap:6px;margin-top:8px;}
+.pb{padding:6px 14px;border-radius:7px;font-size:0.72rem;font-weight:600;cursor:pointer;border:1.5px solid #e2e8f0;background:white;color:#374151;display:flex;align-items:center;gap:4px;}
+.pb:hover{border-color:#0d1f35;color:#0d1f35;}
+.pb.add{border-color:#bfdbfe;color:#3b82f6;}
+.pb.add:hover{background:#eff6ff;}
+.pb.rm{border-color:#fecaca;color:#ef4444;}
+.pb.rm:hover{background:#fff5f5;}
+
+/* TONG */
+.tbox{background:linear-gradient(135deg,#f0f7ff,#e0edff);border:1.5px solid #93c5fd;border-radius:10px;padding:12px 16px;margin-top:10px;display:flex;align-items:center;gap:16px;}
+.tbox-icon{width:40px;height:40px;background:linear-gradient(135deg,#0d1f35,#1a3a6b);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.tbox .tl{font-size:0.6rem;font-weight:700;color:#1e40af;letter-spacing:1px;text-transform:uppercase;}
+.tbox .ta{font-size:1.25rem;font-weight:800;color:#0d1f35;}
+.tbox .tw{font-size:0.68rem;color:#64748b;font-style:italic;}
+
+/* RIGHT: KIỂM TRA */
+.okbox{background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;padding:9px 12px;color:#166534;font-weight:700;font-size:0.75rem;text-align:center;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px;}
+.ci{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f8fafc;font-size:0.78rem;color:#374151;}
+.ci:last-child{border:none;}
+.ci .ico{font-size:0.85rem;font-weight:700;}
+.ci .ok{color:#22c55e;}.ci .fail{color:#ef4444;}
+.ci-detail{margin-top:8px;background:#f0f7ff;border-radius:7px;padding:8px 10px;font-size:0.7rem;color:#3b82f6;cursor:pointer;display:flex;align-items:center;gap:5px;}
+
+/* THAO TAC */
+.arow{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;}
+.abtn{padding:8px 12px;border-radius:7px;font-size:0.75rem;font-weight:600;cursor:pointer;border:1.5px solid #e2e8f0;background:white;color:#374151;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s;}
+.abtn:hover{border-color:#0d1f35;color:#0d1f35;}
+.abtn.blue{border-color:#bfdbfe;color:#3b82f6;background:#f0f7ff;}
+.abtn.blue:hover{background:#e0edff;}
+.abtn.red{border-color:#fecaca;color:#ef4444;}
+.abtn.red:hover{background:#fff5f5;}
+.abtn.full{grid-column:span 2;}
+
+/* FILE INFO */
+.fi-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;margin-top:6px;}
+.fi-row{display:flex;align-items:center;gap:8px;padding:4px 0;}
+.fi-icon{width:22px;height:22px;border-radius:5px;background:#e0edff;display:flex;align-items:center;justify-content:center;font-size:0.65rem;flex-shrink:0;}
+.fi-label{font-size:0.65rem;color:#64748b;}
+.fi-val{font-size:0.72rem;color:#0d1f35;font-weight:600;}
+.fi-link{color:#3b82f6;text-decoration:none;font-size:0.72rem;font-weight:600;}
+
+/* PREVIEW */
+.ptop{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.ptabs{display:flex;gap:4px;}
+.pt{padding:4px 12px;border-radius:6px;font-size:0.7rem;font-weight:600;border:1.5px solid #e2e8f0;background:white;color:#64748b;cursor:pointer;display:flex;align-items:center;gap:4px;}
+.pt.act{background:#0d1f35;color:white;border-color:#0d1f35;}
+.pt.dis{opacity:0.35;cursor:not-allowed;}
+.ptools{display:flex;gap:4px;}
+.ptool{width:26px;height:26px;border-radius:5px;border:1px solid #e2e8f0;background:white;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.7rem;color:#64748b;}
+.ptool:hover{background:#f8fafc;}
+.pframe{background:white;border:1px solid #e2e8f0;border-radius:8px;padding:20px 26px;font-family:"Times New Roman",serif;font-size:10.5pt;line-height:1.6;height:380px;overflow-y:auto;}
+.pnav{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:0 2px;}
+.pnav-info{font-size:0.7rem;color:#64748b;}
+.pnav-btns{display:flex;gap:3px;}
+.pnav-btn{width:24px;height:24px;border-radius:5px;border:1px solid #e2e8f0;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#374151;}
+.pnav-btn:hover{background:#f8fafc;}
+
+/* BOTTOM BAR */
+.bb{position:fixed;bottom:0;left:210px;right:0;background:white;border-top:1.5px solid #e8eaf0;padding:12px 24px;display:flex;align-items:center;gap:16px;box-shadow:0 -4px 20px rgba(0,0,0,0.07);z-index:100;}
+.bb-tot{display:flex;align-items:center;gap:12px;flex:1.2;}
+.bb-tot-icon{width:38px;height:38px;border-radius:8px;background:linear-gradient(135deg,#0d1f35,#1a3a6b);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.bb-tot-text .bl{font-size:0.6rem;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase;}
+.bb-tot-text .ba{font-size:1.25rem;font-weight:800;color:#0d1f35;line-height:1.2;}
+.bb-tot-text .bw{font-size:0.65rem;color:#64748b;font-style:italic;}
+.bb-proc{flex:2;background:#f8fafc;border-radius:8px;padding:9px 14px;}
+.bpl{font-size:0.65rem;color:#64748b;margin-bottom:5px;display:flex;align-items:center;gap:5px;font-weight:600;}
+.spin{width:11px;height:11px;border:2px solid #e2e8f0;border-top-color:#0d1f35;border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.prog{height:5px;background:#e2e8f0;border-radius:10px;overflow:hidden;}
+.progb{height:100%;width:45%;background:linear-gradient(90deg,#0d1f35,#E31837);border-radius:10px;animation:progani 2s ease-in-out infinite alternate;}
+@keyframes progani{from{width:30%;}to{width:65%;}}
+.bb-btns{display:flex;gap:8px;}
+.btn-gen{padding:10px 20px;background:#E31837;color:white;border:none;border-radius:9px;cursor:pointer;text-align:left;line-height:1.3;}
+.btn-gen:hover{background:#c01430;}
+.btn-gen .bt{font-size:0.85rem;font-weight:700;display:flex;align-items:center;gap:6px;}
+.btn-gen .bs{font-size:0.6rem;opacity:0.8;}
+.btn-sav{padding:10px 18px;background:#0d1f35;color:white;border:none;border-radius:9px;cursor:pointer;text-align:left;line-height:1.3;}
+.btn-sav:hover{background:#1a3a6b;}
+.btn-sav .bt{font-size:0.82rem;font-weight:700;display:flex;align-items:center;gap:6px;}
+.btn-sav .bs{font-size:0.6rem;opacity:0.7;}
+
+/* FOOTER */
+.footer{text-align:center;padding:10px;font-size:0.6rem;color:#94a3b8;border-top:1px solid #e2e8f0;}
+.footer span{color:#E31837;font-weight:700;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sb">
+  <div class="sb-logo">
+    <div class="logo">mobi<span>fone</span></div>
+    <div class="sub">AUTO CONTRACT</div>
+  </div>
+
+  <div class="sb-sec">Menu chính</div>
+  <div class="nav act"><span class="ni">📝</span> Tạo hợp đồng</div>
+  <div class="nav"><span class="ni">📁</span> Hợp đồng đã tạo</div>
+  <div class="nav"><span class="ni">💾</span> Nháp</div>
+  <div class="nav"><span class="ni">🗂</span> Template</div>
+
+  <div class="sb-sec">Thông tin nhân viên</div>
+  <div class="sb-nv">
+    <div class="nv-wrap">
+      <div class="nv-av">VL</div>
+      <div class="nv-info">
+        <div class="name">Võ Thị Lê</div>
+        <div class="role">Nhân viên kinh doanh</div>
+      </div>
+    </div>
+    <div class="nv-rows">
+      <div class="nv-row">SĐT <span>0905 424 214</span></div>
+      <div class="nv-row">Email <span>vothile@mobifone.vn</span></div>
+
+    </div>
+    <button class="btn-edit">✏️ Chỉnh sửa thông tin</button>
+  </div>
+
+  <div class="sb-sec" style="display:flex;align-items:center;justify-content:space-between;">
+    <span>Lịch sử HĐ</span>
+    <span style="color:#3b82f6;font-size:0.6rem;cursor:pointer;">Xem tất cả</span>
+  </div>
+  <div class="hist-list" id="hist_list">
+    </div>
+        <!-- Thao tác -->
+        <div class="card">
+          <div class="ch">⚡ Thao tác</div>
+          <div class="arow">
+            <button class="abtn blue" onclick="saveDraft()">💾 Lưu nháp</button>
+            <button class="abtn red" onclick="clearDraft()">🗑 Xoá nháp</button>
+            <button class="abtn full">⬇ Tải template</button>
+          </div>
+          <div class="fi-card" id="file_info">
+            <div class="fi-row">
+              <div class="fi-icon">📄</div>
+              <div><div class="fi-label">Tên file preview</div><a class="fi-link" href="#">HD_1_HKDVOTHILE.docx</a></div>
+            </div>
+            <div class="fi-row">
+              <div class="fi-icon">🔑</div>
+              <div><div class="fi-label">Mã khách hàng</div><div class="fi-val" style="color:#3b82f6;">HKD001</div></div>
+            </div>
+            <div class="fi-row">
+              <div class="fi-icon">🕐</div>
+              <div><div class="fi-label">Thời gian tạo</div><div class="fi-val">25/06/2026 09:15</div></div>
+            </div>
+            <div class="fi-row">
+              <div class="fi-icon">📦</div>
+              <div><div class="fi-label">Kích thước</div><div class="fi-val">15.2 KB</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview -->
+        <div class="card">
+          <div class="ch">👁 Xem trước hợp đồng</div>
+          <div class="ptop">
+            <div class="ptabs">
+              <div class="pt act">📝 Word</div>
+              <div class="pt dis">📄 PDF</div>
+            </div>
+            <div class="ptools">
+              <div class="ptool">⬇</div>
+              <div class="ptool">⛶</div>
+            </div>
+          </div>
+          <div class="pframe">
+            <div style="text-align:center;margin-bottom:10px;">
+              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='0' y='30' font-size='28' font-weight='900' font-family='Arial' fill='%230066CC'%3Emobi%3C/text%3E%3Ctext x='68' y='30' font-size='28' font-weight='900' font-family='Arial' fill='%23E31837'%3Efone%3C/text%3E%3C/svg%3E" style="height:28px;"/>
+              <div style="font-weight:700;font-size:0.82rem;margin-top:6px;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+              <div style="font-style:italic;font-size:0.78rem;">Độc lập – Tự do – Hạnh phúc</div>
+              <div style="margin:4px 0;font-size:0.78rem;">———o0o———</div>
+            </div>
+            <div style="text-align:center;font-weight:700;font-size:0.88rem;margin-bottom:4px;">HỢP ĐỒNG DỊCH VỤ VIỄN THÔNG</div>
+            <div style="text-align:center;font-style:italic;font-size:0.75rem;margin-bottom:10px;">Số: 1/2026/HDDV</div>
+            <p style="font-style:italic;font-size:0.72rem;">Căn cứ Bộ luật Dân sự số 91/2015/QH13 ngày 24/11/2015;</p>
+            <p style="font-style:italic;font-size:0.72rem;">Căn cứ Luật Viễn thông số 41/2009/QH12 ngày 23/11/2009;</p>
+            <p style="font-style:italic;font-size:0.72rem;margin-bottom:8px;">Căn cứ nhu cầu và khả năng của các bên.</p>
+            <p style="font-weight:700;font-size:0.78rem;margin-bottom:5px;">BÊN A: HKD VÕ THỊ LỆ</p>
+            <p style="font-size:0.75rem;">Trụ sở chính &nbsp;: 142 Phan Châu Trinh, Hải Châu, Đà Nẵng</p>
+            <p style="font-size:0.75rem;">Địa chỉ GD &nbsp;&nbsp;&nbsp;: (Để trống nếu giống trụ sở)</p>
+            <p style="font-size:0.75rem;">Điện thoại &nbsp;&nbsp;&nbsp;: 0905424214</p>
+            <p style="font-size:0.75rem;">Mã số thuế &nbsp;&nbsp;: 0499424133554</p>
+            <p style="font-size:0.75rem;margin-bottom:8px;">Đại diện &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: Võ Thị Lệ &nbsp; Chức vụ: Chủ HKD</p>
+            <p style="font-weight:700;font-size:0.78rem;margin-bottom:5px;">BÊN B: MOBIFONE ĐÀ NẴNG</p>
+            <p style="font-size:0.75rem;">Địa chỉ &nbsp;&nbsp;&nbsp;&nbsp;: 90 Nguyễn Văn Linh, Hải Châu, Đà Nẵng</p>
+            <p style="font-size:0.75rem;">Điện thoại &nbsp;: 0236 1234567 &nbsp; Fax: 0236 1234568</p>
+          </div>
+          <div class="pnav">
+            <div class="pnav-info">Trang <strong>1</strong> / 5</div>
+            <div class="pnav-btns">
+              <button class="pnav-btn">‹</button>
+              <button class="pnav-btn">›</button>
+              <button class="pnav-btn">−</button>
+              <button class="pnav-btn">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      © 2026 MobiFone Đà Nẵng – <span>MOBIFONE AUTO-MT306</span> – Developed by Minh Thông
+    </div>
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div class="bb">
+    <div class="bb-tot">
+      <div class="bb-tot-icon">💰</div>
+      <div class="bb-tot-text">
+        <div class="bl">Tổng giá trị hợp đồng</div>
+        <div class="ba"><span class="tong-val">0 đ</span></div>
+        <div class="bw"><span class="bangchu-val">—</span></div>
+      </div>
+    </div>
+    <div class="bb-proc">
+      <div class="bpl"><span class="spin"></span> ĐANG XỬ LÝ... Hệ thống đang sẵn sàng tạo hợp đồng cho bạn</div>
+      <div class="prog"><div class="progb" id="prog_bar"></div></div>
+    </div>
+    <div class="bb-btns">
+      <button class="btn-gen" id="btn_gen" onclick="generateContract()"><div class="bt">🚀 TẠO HỢP ĐỒNG</div><div class="bs">Sinh file Word & Lưu vào hệ thống</div></button>
+      <button class="btn-sav" onclick="saveDraft()"><div class="bt">💾 LƯU NHÁP</div><div class="bs">Lưu thông tin hợp đồng</div></button>
+    </div>
+  </div>
+
+</div><!-- end main -->
+
+<script>
+// ══ STATE ══════════════════════════════════════
+const state = {
+  so_hd: "", ngay_ky: new Date().getDate().toString().padStart(2,"0"),
+  thang_ky: (new Date().getMonth()+1).toString().padStart(2,"0"),
+  nam_ky: new Date().getFullYear().toString(),
+  ten_hkd: "", tru_so: "", dia_chi_gd: "", dien_thoai: "",
+  ma_so_thue: "", dai_dien: "", chuc_vu: "Chủ HKD", email_kh: "",
+  ten_nv_ben_b: "Trương Thị Mỹ Châu",
+  email_ben_b: "cuong.danghuy.ctv@mobifone.vn",
+  sdt_ben_b: "0901959799",
+  goi_cuocs: [
+    {ten_goi:"",don_vi:"Gói",so_luong:"",gia_goi:"",so_hd_trong_goi:""},
+    {ten_goi:"",don_vi:"Gói",so_luong:"",gia_goi:"",so_hd_trong_goi:""},
+    {ten_goi:"",don_vi:"Gói",so_luong:"",gia_goi:"",so_hd_trong_goi:""},
+  ],
+  history: JSON.parse(localStorage.getItem("hd_history") || "[]"),
+  draft: JSON.parse(localStorage.getItem("hd_draft") || "null"),
+  last_file_id: null, last_filename: null,
+};
+
+// ══ HELPERS ════════════════════════════════════
+const $ = id => document.getElementById(id);
+const fmtNum = n => n.toLocaleString("vi-VN");
+function saveHistory() { localStorage.setItem("hd_history", JSON.stringify(state.history)); }
+function saveDraft()   { localStorage.setItem("hd_draft", JSON.stringify(collectData())); }
+function loadDraft()   {
+  const d = JSON.parse(localStorage.getItem("hd_draft") || "null");
+  if (!d) { alert("Không có nháp nào!"); return; }
+  Object.assign(state, d);
+  renderPackages();
+  populateForm();
+  alert("Đã tải nháp!");
+}
+function clearDraft()  { localStorage.removeItem("hd_draft"); alert("Đã xoá nháp!"); }
+
+function collectData() {
+  return {
+    so_hd:      $("f_so_hd")?.value||"",
+    ngay_ky:    $("f_ngay")?.value||"",
+    thang_ky:   $("f_thang")?.value||"",
+    nam_ky:     $("f_nam")?.value||"",
+    ten_hkd:    $("f_ten_hkd")?.value||"",
+    tru_so:     $("f_tru_so")?.value||"",
+    dia_chi_gd: $("f_dia_chi")?.value||"",
+    dien_thoai: $("f_dien_thoai")?.value||"",
+    ma_so_thue: $("f_ma_so_thue")?.value||"",
+    dai_dien:   $("f_dai_dien")?.value||"",
+    chuc_vu:    $("f_chuc_vu")?.value||"Chủ HKD",
+    email_kh:   $("f_email_kh")?.value||"",
+    ten_nv_ben_b: $("sb_ten")?.value||"",
+    email_ben_b:  $("sb_email")?.value||"",
+    sdt_ben_b:    $("sb_sdt")?.value||"",
+    goi_cuocs: state.goi_cuocs.filter(g=>g.ten_goi),
+  };
+}
+
+function populateForm() {
+  const d = state.draft || state;
+  if ($("f_so_hd"))       $("f_so_hd").value       = d.so_hd||"";
+  if ($("f_ngay"))        $("f_ngay").value         = d.ngay_ky||"";
+  if ($("f_thang"))       $("f_thang").value        = d.thang_ky||"";
+  if ($("f_nam"))         $("f_nam").value          = d.nam_ky||"";
+  if ($("f_ten_hkd"))     $("f_ten_hkd").value      = d.ten_hkd||"";
+  if ($("f_tru_so"))      $("f_tru_so").value       = d.tru_so||"";
+  if ($("f_dia_chi"))     $("f_dia_chi").value      = d.dia_chi_gd||"";
+  if ($("f_dien_thoai"))  $("f_dien_thoai").value   = d.dien_thoai||"";
+  if ($("f_ma_so_thue"))  $("f_ma_so_thue").value   = d.ma_so_thue||"";
+  if ($("f_dai_dien"))    $("f_dai_dien").value      = d.dai_dien||"";
+  if ($("f_chuc_vu"))     $("f_chuc_vu").value       = d.chuc_vu||"Chủ HKD";
+  if ($("f_email_kh"))    $("f_email_kh").value      = d.email_kh||"";
+}
+
+// ══ PACKAGE TABLE ══════════════════════════════
+function renderPackages() {
+  const tbody = $("pkg_tbody");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+  state.goi_cuocs.forEach((g, i) => {
+    let sl  = parseFloat(g.so_luong)||0;
+    let gia = parseFloat((g.gia_goi||"").replace(/\./g,"").replace(",","."))||0;
+    let tt  = sl * gia;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><div class="rn">${i+1}</div></td>
+      <td><input value="${g.ten_goi}" placeholder="E-50" onchange="updateGoi(${i},'ten_goi',this.value)"/></td>
+      <td><select onchange="updateGoi(${i},'don_vi',this.value)">
+        <option ${g.don_vi=="Gói"?"selected":""}>Gói</option>
+        <option ${g.don_vi=="Tháng"?"selected":""}>Tháng</option>
+      </select></td>
+      <td><input value="${g.so_luong}" placeholder="1" onchange="updateGoi(${i},'so_luong',this.value); recalc()"/></td>
+      <td><input value="${g.gia_goi}" placeholder="100000" onchange="updateGoi(${i},'gia_goi',this.value); recalc()"/></td>
+      <td><input value="${g.so_hd_trong_goi}" placeholder="50" onchange="updateGoi(${i},'so_hd_trong_goi',this.value)"/></td>
+      <td><input class="tt" value="${tt?fmtNum(tt):""}" readonly/></td>
+      <td><button class="xbtn" onclick="removeGoi(${i})">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+  recalc();
+}
+
+function updateGoi(i, field, val) { state.goi_cuocs[i][field] = val; }
+function addGoi()    { if(state.goi_cuocs.length<10){state.goi_cuocs.push({ten_goi:"",don_vi:"Gói",so_luong:"",gia_goi:"",so_hd_trong_goi:""}); renderPackages();} }
+function removeGoi(i){ if(state.goi_cuocs.length>1){state.goi_cuocs.splice(i,1); renderPackages();} }
+
+function recalc() {
+  let tong = 0;
+  state.goi_cuocs.forEach(g => {
+    const sl  = parseFloat(g.so_luong)||0;
+    const gia = parseFloat((g.gia_goi||"").replace(/\./g,"").replace(",","."))||0;
+    tong += sl * gia;
+  });
+  const ts = tong ? fmtNum(tong)+" đ" : "0 đ";
+  document.querySelectorAll(".tong-val").forEach(el => el.textContent = ts);
+  document.querySelectorAll(".bangchu-val").forEach(el => el.textContent = tong ? numberToWords(tong) : "—");
+}
+
+// ══ VALIDATE ═══════════════════════════════════
+async function validateForm() {
+  const data = collectData();
+  try {
+    const res = await fetch("/api/validate", {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(data)
+    });
+    const json = await res.json();
+    updateValidation(json);
+    return json.valid;
+  } catch(e) {
+    // offline fallback
+    const errors = [];
+    if(!data.so_hd)       errors.push("Số hợp đồng");
+    if(!data.ten_hkd)     errors.push("Tên HKD");
+    if(!data.tru_so)      errors.push("Trụ sở chính");
+    if(!data.dien_thoai)  errors.push("Số điện thoại");
+    if(!data.ma_so_thue)  errors.push("Mã số thuế");
+    if(!data.dai_dien)    errors.push("Đại diện");
+    if(!data.chuc_vu)     errors.push("Chức vụ");
+    if(!data.goi_cuocs.length) errors.push("Gói cước");
+    updateValidation({valid: errors.length===0, errors});
+    return errors.length === 0;
+  }
+}
+
+function updateValidation({valid, errors}) {
+  const panel = $("validation_panel");
+  if (!panel) return;
+  const checks = [
+    ["Thông tin hợp đồng", !errors.some(e=>["Số hợp đồng","Tháng ký","Năm ký"].includes(e))],
+    ["Thông tin Bên A – Khách hàng", !errors.some(e=>["Tên HKD","Trụ sở","Điện thoại","MST","Đại diện","Chức vụ","Email"].includes(e))],
+    ["Thông tin gói cước", !errors.includes("Gói cước")],
+    ["Tính toán tổng giá trị", true],
+  ];
+  const okHtml = valid
+    ? `<div class="okbox">✦ Tất cả hợp lệ – Sẵn sàng tạo HĐ</div>`
+    : errors.slice(0,4).map(e=>`<div style="font-size:0.7rem;color:#f59e0b;padding:2px 0 2px 20px;">⚠ Thiếu: ${e}</div>`).join("");
+  panel.innerHTML = okHtml + checks.map(([lbl,ok])=>`
+    <div class="ci"><span class="ico ${ok?"ok":"fail"}">${ok?"✓":"✕"}</span>${lbl}</div>`
+  ).join("") + `<div class="ci-detail">👁 Xem chi tiết kiểm tra</div>`;
+}
+
+// ══ GENERATE ═══════════════════════════════════
+async function generateContract() {
+  const valid = await validateForm();
+  if (!valid) { alert("Vui lòng điền đủ thông tin bắt buộc!"); return; }
+
+  const btnGen = $("btn_gen");
+  btnGen.disabled = true;
+  btnGen.innerHTML = `<div class="bt">⏳ Đang tạo...</div>`;
+
+  const prog = $("prog_bar");
+  if(prog) { prog.style.width="0%"; prog.parentElement.style.display="block"; }
+  let pct = 0;
+  const progTimer = setInterval(()=>{ pct = Math.min(pct+8,90); if(prog) prog.style.width=pct+"%"; },200);
+
+  try {
+    const data = collectData();
+    const res = await fetch("/api/generate", {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) { const err = await res.json(); throw new Error(err.detail||"Lỗi server"); }
+    const json = await res.json();
+
+    clearInterval(progTimer);
+    if(prog) prog.style.width="100%";
+
+    state.last_file_id  = json.file_id;
+    state.last_filename = json.filename;
+
+    // Cập nhật lịch sử
+    state.history.unshift({fname:json.filename, time:json.created_at});
+    if(state.history.length>10) state.history.pop();
+    saveHistory();
+    renderHistory();
+
+    // Hiện nút tải
+    const dlArea = $("dl_area");
+    if (dlArea) {
+      dlArea.innerHTML = `<a href="/api/download/${json.file_id}/${json.filename}"
+        download="${json.filename}"
+        style="display:flex;align-items:center;justify-content:center;gap:8px;
+               background:#0d1f35;color:white;padding:10px 20px;border-radius:9px;
+               text-decoration:none;font-size:0.85rem;font-weight:700;margin-top:8px;">
+        ⬇️ Tải xuống ${json.filename}</a>`;
+    }
+
+    // Cập nhật file info
+    updateFileInfo(json);
+    showToast("✅ Tạo hợp đồng thành công!", "success");
+    if(prog) setTimeout(()=>{ prog.style.width="0%"; },1000);
+
+  } catch(e) {
+    clearInterval(progTimer);
+    if(prog) prog.style.width="0%";
+    showToast("❌ Lỗi: "+e.message, "error");
+  } finally {
+    btnGen.disabled = false;
+    btnGen.innerHTML = `<div class="bt">🚀 TẠO HỢP ĐỒNG</div><div class="bs">Sinh file Word & Lưu vào hệ thống</div>`;
+  }
+}
+
+function updateFileInfo(json) {
+  const fi = $("file_info");
+  if (!fi) return;
+  fi.innerHTML = `
+    <div class="fi-row"><div class="fi-icon">📄</div>
+      <div><div class="fi-label">Tên file</div>
+      <a class="fi-link" href="/api/download/${json.file_id}/${json.filename}" download>${json.filename}</a></div></div>
+    <div class="fi-row"><div class="fi-icon">🕐</div>
+      <div><div class="fi-label">Thời gian tạo</div><div class="fi-val">${json.created_at}</div></div></div>`;
+}
+
+// ══ HISTORY ════════════════════════════════════
+function renderHistory() {
+  const hist = $("hist_list");
+  if (!hist) return;
+  if (!state.history.length) {
+    hist.innerHTML = `<div style="padding:6px 14px;font-size:0.7rem;color:#475569;">Chưa có hợp đồng nào</div>`;
+    return;
+  }
+  hist.innerHTML = state.history.slice(0,5).map(h=>`
+    <div class="hi">
+      <div class="hi-icon">📄</div>
+      <div class="hi-info">
+        <div class="hi-name">${h.fname}</div>
+        <div class="hi-meta"><span class="hi-time">${h.time}</span>
+        <span class="hbdg g">Thành công</span></div>
+      </div>
+    </div>`).join("");
+}
+
+// ══ TOAST ══════════════════════════════════════
+function showToast(msg, type="success") {
+  const t = document.createElement("div");
+  t.style.cssText = `position:fixed;top:20px;right:20px;z-index:9999;
+    padding:12px 20px;border-radius:10px;font-size:0.82rem;font-weight:600;
+    box-shadow:0 4px 20px rgba(0,0,0,0.15);animation:fadeIn 0.3s ease;
+    background:${type==="success"?"#0d1f35":"#E31837"};color:white;`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 3500);
+}
+
+// ══ NUMBER TO WORDS ════════════════════════════
+function numberToWords(n) {
+  if (n===0) return "Không đồng";
+  const units = ["","nghìn","triệu","tỷ"];
+  const d = ["không","một","hai","ba","bốn","năm","sáu","bảy","tám","chín"];
+  function d3(n,first=false){
+    let tr=Math.floor(n/100),ch=Math.floor((n%100)/10),dv=n%10,s="";
+    if(tr) s+=d[tr]+" trăm";
+    if(ch===0&&dv===0) return s;
+    if(tr&&ch===0) s+=" linh";
+    else if(tr||!first) s+=" "+(ch===1?"mười":ch?d[ch]+" mươi":"");
+    else s+=(ch===1?"mười":ch>1?d[ch]+" mươi":"");
+    if(dv){
+      if(ch===0&&!tr&&first) s+=" "+d[dv];
+      else if(dv===5&&ch) s+=" lăm";
+      else if(dv===1&&ch) s+=" mốt";
+      else s+=" "+d[dv];
+    }
+    return s.trim();
+  }
+  let chunks=[],i=0,num=n;
+  while(num>0){chunks.push([num%1000,i]);num=Math.floor(num/1000);i++;}
+  const parts=[];
+  chunks.reverse().forEach(([chunk,power],idx)=>{
+    if(!chunk) return;
+    let p=d3(chunk,idx===chunks.length-1);
+    if(units[power]) p+=" "+units[power];
+    parts.push(p);
+  });
+  let r=parts.join(" ").trim();
+  return r[0].toUpperCase()+r.slice(1)+" đồng chẵn";
+}
+
+// ══ INIT ═══════════════════════════════════════
+document.addEventListener("DOMContentLoaded", ()=>{
+  renderPackages();
+  renderHistory();
+  populateForm();
+
+  // Validate on input change
+  document.querySelectorAll("input,select").forEach(el=>{
+    el.addEventListener("change", ()=>{ validateForm(); recalc(); });
+  });
+
+  // Initial validate
+  setTimeout(validateForm, 500);
+});
+</script>
+<style>
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+</style>
+
+</body>
+</html>
