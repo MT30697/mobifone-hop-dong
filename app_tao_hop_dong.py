@@ -1257,12 +1257,13 @@ with gb:
 
 with pb:
     preview_btn = st.button(
-        "👁  Xem trước",
+        "👁  Xem trước" if not st.session_state.show_preview else "✕  Đóng preview",
         use_container_width=True,
-        disabled=not st.session_state.generated,
+        disabled=not bool(st.session_state.result_bytes),
     )
     if preview_btn:
         st.session_state.show_preview = not st.session_state.show_preview
+        st.rerun()
 
 if generate:
     try:
