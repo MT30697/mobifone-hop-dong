@@ -834,9 +834,10 @@ for k, default in [
 
 # ── INJECT CSS ─────────────────────────────────────────────────
 
-# ══════════════════════════════════════════════
+
+# ══════════════════════════════════════════════════════
 # PAGE CONFIG
-# ══════════════════════════════════════════════
+# ══════════════════════════════════════════════════════
 st.set_page_config(
     page_title="MobiFone Auto Contract",
     page_icon="📄",
@@ -844,352 +845,484 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ══════════════════════════════════════════════
-# CSS — đơn giản, system font, không Google Fonts
-# ══════════════════════════════════════════════
-st.markdown("""
-<style>
-* { box-sizing: border-box; }
-html, body, [class*="css"] {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-                 Roboto, Arial, sans-serif !important;
-}
+# ══════════════════════════════════════════════════════
+# CSS
+# ══════════════════════════════════════════════════════
+st.markdown("""<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#F0F2F6;display:flex;min-height:100vh;font-size:14px;}
+
+/* ══ SIDEBAR ══ */
+.sb{width:210px;min-height:100vh;flex-shrink:0;background:linear-gradient(180deg,#0d1f35 0%,#0f2a4a 40%,#1a3a6b 100%);display:flex;flex-direction:column;position:relative;}
+.sb-logo{padding:16px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.07);}
+.sb-logo .logo{font-size:1.3rem;font-weight:900;color:#fff;letter-spacing:-0.5px;}
+.sb-logo .logo span{color:#E31837;}
+.sb-logo .sub{font-size:0.58rem;color:#64748b;letter-spacing:2px;text-transform:uppercase;margin-top:3px;}
+
+.sb-sec{padding:14px 16px 5px;font-size:0.6rem;color:#475569;letter-spacing:1px;text-transform:uppercase;font-weight:700;}
+.nav{display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:0.8rem;color:#94a3b8;cursor:pointer;border-left:3px solid transparent;transition:all 0.15s;}
+.nav:hover{background:rgba(255,255,255,0.05);color:#e2e8f0;}
+.nav.act{background:rgba(66,133,244,0.15);color:#fff;border-left-color:#4285f4;font-weight:600;}
+.nav .ni{font-size:0.85rem;width:16px;}
+
+.sb-nv{padding:12px 16px;}
+.nv-wrap{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.nv-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#4285f4,#0B2D4D);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.85rem;flex-shrink:0;}
+.nv-info .name{font-size:0.82rem;font-weight:700;color:#f1f5f9;}
+.nv-info .role{font-size:0.65rem;color:#64748b;}
+.nv-rows{margin-bottom:8px;}
+.nv-row{display:flex;gap:6px;font-size:0.65rem;color:#64748b;padding:2px 0;}
+.nv-row b{color:#94a3b8;font-weight:500;}
+.nv-row span{color:#cbd5e1;}
+.btn-edit{width:100%;padding:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:#94a3b8;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;}
+.btn-edit:hover{background:rgba(255,255,255,0.1);color:#e2e8f0;}
+
+.hist-list{padding:4px 16px 10px;}
+.hi{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.hi-icon{width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.72rem;}
+.hi-info{flex:1;min-width:0;}
+.hi-name{font-size:0.68rem;color:#e2e8f0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hi-meta{display:flex;align-items:center;gap:5px;margin-top:2px;}
+.hi-time{font-size:0.6rem;color:#475569;}
+.hbdg{display:inline-block;padding:1px 6px;border-radius:8px;font-size:0.58rem;font-weight:700;}
+.hbdg.g{background:rgba(34,197,94,0.15);color:#22c55e;}
+.hbdg.b{background:rgba(66,133,244,0.15);color:#60a5fa;}
+.hbdg.y{background:rgba(245,158,11,0.15);color:#fbbf24;}
+.hbdg.r{background:rgba(239,68,68,0.15);color:#f87171;}
+
+.sb-collapse{padding:10px 16px;margin-top:auto;border-top:1px solid rgba(255,255,255,0.06);}
+.btn-collapse{width:100%;padding:7px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:6px;color:#64748b;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;}
+.btn-collapse:hover{background:rgba(255,255,255,0.08);color:#94a3b8;}
+.sb-foot{padding:8px 16px 12px;font-size:0.58rem;color:#64748b;text-align:center;}
+.sb-foot span{color:#f87171;font-weight:700;}
+.sb-foot .dev{color:#94a3b8;margin-top:2px;}
+
+/* ══ MAIN ══ */
+.main{flex:1;display:flex;flex-direction:column;min-height:100vh;overflow:hidden;}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,#0d1f35 0%,#0f2a4a 40%,#1a3a6b 65%,#E31837 100%);padding:13px 24px;display:flex;align-items:center;justify-content:space-between;}
+.hdr-l .t{font-size:1.05rem;font-weight:800;color:#fff;}
+.hdr-l .s{font-size:0.72rem;color:rgba(255,255,255,0.55);margin-top:1px;}
+.hdr-r{display:flex;align-items:center;gap:8px;}
+.bdg{display:inline-block;padding:3px 10px;border-radius:16px;font-size:0.65rem;font-weight:700;}
+.bdg-o{background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.2);}
+.bdg-r{background:#E31837;color:#fff;}
+.bdg-g{background:rgba(34,197,94,0.2);color:#4ade80;border:1px solid rgba(34,197,94,0.25);}
+.hdr-icon{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.85rem;cursor:pointer;position:relative;}
+.hdr-badge{position:absolute;top:-3px;right:-3px;width:14px;height:14px;background:#E31837;border-radius:50%;font-size:0.5rem;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.hdr-nv{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.08);border-radius:20px;padding:4px 10px 4px 4px;cursor:pointer;}
+.hdr-av{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#4285f4,#0B2D4D);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.6rem;}
+.hdr-nv-info .hn{font-size:0.72rem;font-weight:600;color:#fff;}
+.hdr-nv-info .hr{font-size:0.58rem;color:rgba(255,255,255,0.5);}
+
+/* CONTENT */
+.content{flex:1;padding:16px 20px 130px;overflow-y:auto;}
+
+/* STEPPER */
+.stepper{background:white;border-radius:10px;padding:14px 20px;margin-bottom:14px;display:flex;align-items:center;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
+.step{display:flex;align-items:center;flex-shrink:0;}
+.sdot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;}
+.sdot.done{background:#22c55e;color:#fff;}
+.sdot.act{background:#0d1f35;color:#fff;box-shadow:0 0 0 4px rgba(13,31,53,0.12);}
+.sdot.todo{background:#f1f5f9;color:#94a3b8;}
+.si{margin-left:8px;}
+.sn{font-size:0.72rem;font-weight:700;}
+.ss{font-size:0.6rem;margin-top:1px;}
+.sn.done{color:#16a34a;}.ss.done{color:#86efac;}
+.sn.act{color:#0d1f35;}.ss.act{color:#64748b;}
+.sn.todo{color:#94a3b8;}.ss.todo{color:#cbd5e1;}
+.sline{flex:1;height:2px;margin:0 8px;}
+.sline.done{background:#22c55e;}.sline.todo{background:#e2e8f0;}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:52% 1fr;gap:14px;}
+
+/* CARD */
+.card{background:white;border-radius:10px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #f1f5f9;}
+.ch{font-size:0.65rem;font-weight:700;color:#0d1f35;letter-spacing:0.8px;text-transform:uppercase;padding-bottom:8px;border-bottom:2px solid #f8fafc;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+
+/* FORM */
+.fr{display:grid;gap:8px;margin-bottom:8px;}
+.fr.c2{grid-template-columns:1fr 1fr;}
+.fr.c4{grid-template-columns:1fr 1fr 1fr 1fr;}
+.fg label{display:block;font-size:0.65rem;font-weight:600;color:#374151;margin-bottom:3px;}
+.fg label .req{color:#E31837;}
+.fg input,.fg select{width:100%;height:32px;border:1.5px solid #e2e8f0;border-radius:7px;padding:0 10px;font-size:0.8rem;color:#1e293b;background:#fff;outline:none;}
+.fg input:focus,.fg select:focus{border-color:#0d1f35;box-shadow:0 0 0 2px rgba(13,31,53,0.08);}
+.fg input::placeholder{color:#c4c9d4;}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;margin-bottom:8px;}
+.tbl th{font-size:0.6rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.4px;padding:7px 6px;background:#f8fafc;border-bottom:2px solid #e2e8f0;text-align:left;}
+.tbl td{padding:5px 5px;border-bottom:1px solid #f5f5f5;vertical-align:middle;}
+.tbl tr:hover td{background:#fafbfc;}
+.tbl td input,.tbl td select{width:100%;height:28px;border:1px solid #e2e8f0;border-radius:5px;padding:0 6px;font-size:0.75rem;color:#1e293b;background:#fff;}
+.tbl td input:focus,.tbl td select:focus{border-color:#0d1f35;outline:none;}
+.tbl td input.tt{background:#f8fafc;color:#0d1f35;font-weight:700;border-color:#e2e8f0;}
+.xbtn{width:26px;height:26px;border-radius:6px;border:none;background:#fee2e2;color:#ef4444;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;}
+.rn{font-size:0.68rem;color:#94a3b8;text-align:center;}
+.pa{display:flex;gap:6px;margin-top:8px;}
+.pb{padding:6px 14px;border-radius:7px;font-size:0.72rem;font-weight:600;cursor:pointer;border:1.5px solid #e2e8f0;background:white;color:#374151;display:flex;align-items:center;gap:4px;}
+.pb:hover{border-color:#0d1f35;color:#0d1f35;}
+.pb.add{border-color:#bfdbfe;color:#3b82f6;}
+.pb.add:hover{background:#eff6ff;}
+.pb.rm{border-color:#fecaca;color:#ef4444;}
+.pb.rm:hover{background:#fff5f5;}
+
+/* TONG */
+.tbox{background:linear-gradient(135deg,#f0f7ff,#e0edff);border:1.5px solid #93c5fd;border-radius:10px;padding:12px 16px;margin-top:10px;display:flex;align-items:center;gap:16px;}
+.tbox-icon{width:40px;height:40px;background:linear-gradient(135deg,#0d1f35,#1a3a6b);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.tbox .tl{font-size:0.6rem;font-weight:700;color:#1e40af;letter-spacing:1px;text-transform:uppercase;}
+.tbox .ta{font-size:1.25rem;font-weight:800;color:#0d1f35;}
+.tbox .tw{font-size:0.68rem;color:#64748b;font-style:italic;}
+
+/* RIGHT: KIỂM TRA */
+.okbox{background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;padding:9px 12px;color:#166534;font-weight:700;font-size:0.75rem;text-align:center;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px;}
+.ci{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f8fafc;font-size:0.78rem;color:#374151;}
+.ci:last-child{border:none;}
+.ci .ico{font-size:0.85rem;font-weight:700;}
+.ci .ok{color:#22c55e;}.ci .fail{color:#ef4444;}
+.ci-detail{margin-top:8px;background:#f0f7ff;border-radius:7px;padding:8px 10px;font-size:0.7rem;color:#3b82f6;cursor:pointer;display:flex;align-items:center;gap:5px;}
+
+/* THAO TAC */
+.arow{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;}
+.abtn{padding:8px 12px;border-radius:7px;font-size:0.75rem;font-weight:600;cursor:pointer;border:1.5px solid #e2e8f0;background:white;color:#374151;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s;}
+.abtn:hover{border-color:#0d1f35;color:#0d1f35;}
+.abtn.blue{border-color:#bfdbfe;color:#3b82f6;background:#f0f7ff;}
+.abtn.blue:hover{background:#e0edff;}
+.abtn.red{border-color:#fecaca;color:#ef4444;}
+.abtn.red:hover{background:#fff5f5;}
+.abtn.full{grid-column:span 2;}
+
+/* FILE INFO */
+.fi-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;margin-top:6px;}
+.fi-row{display:flex;align-items:center;gap:8px;padding:4px 0;}
+.fi-icon{width:22px;height:22px;border-radius:5px;background:#e0edff;display:flex;align-items:center;justify-content:center;font-size:0.65rem;flex-shrink:0;}
+.fi-label{font-size:0.65rem;color:#64748b;}
+.fi-val{font-size:0.72rem;color:#0d1f35;font-weight:600;}
+.fi-link{color:#3b82f6;text-decoration:none;font-size:0.72rem;font-weight:600;}
+
+/* PREVIEW */
+.ptop{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.ptabs{display:flex;gap:4px;}
+.pt{padding:4px 12px;border-radius:6px;font-size:0.7rem;font-weight:600;border:1.5px solid #e2e8f0;background:white;color:#64748b;cursor:pointer;display:flex;align-items:center;gap:4px;}
+.pt.act{background:#0d1f35;color:white;border-color:#0d1f35;}
+.pt.dis{opacity:0.35;cursor:not-allowed;}
+.ptools{display:flex;gap:4px;}
+.ptool{width:26px;height:26px;border-radius:5px;border:1px solid #e2e8f0;background:white;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.7rem;color:#64748b;}
+.ptool:hover{background:#f8fafc;}
+.pframe{background:white;border:1px solid #e2e8f0;border-radius:8px;padding:20px 26px;font-family:"Times New Roman",serif;font-size:10.5pt;line-height:1.6;height:380px;overflow-y:auto;}
+.pnav{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:0 2px;}
+.pnav-info{font-size:0.7rem;color:#64748b;}
+.pnav-btns{display:flex;gap:3px;}
+.pnav-btn{width:24px;height:24px;border-radius:5px;border:1px solid #e2e8f0;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#374151;}
+.pnav-btn:hover{background:#f8fafc;}
+
+/* BOTTOM BAR */
+.bb{position:fixed;bottom:0;left:210px;right:0;background:white;border-top:1.5px solid #e8eaf0;padding:12px 24px;display:flex;align-items:center;gap:16px;box-shadow:0 -4px 20px rgba(0,0,0,0.07);z-index:100;}
+.bb-tot{display:flex;align-items:center;gap:12px;flex:1.2;}
+.bb-tot-icon{width:38px;height:38px;border-radius:8px;background:linear-gradient(135deg,#0d1f35,#1a3a6b);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.bb-tot-text .bl{font-size:0.6rem;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase;}
+.bb-tot-text .ba{font-size:1.25rem;font-weight:800;color:#0d1f35;line-height:1.2;}
+.bb-tot-text .bw{font-size:0.65rem;color:#64748b;font-style:italic;}
+.bb-proc{flex:2;background:#f8fafc;border-radius:8px;padding:9px 14px;}
+.bpl{font-size:0.65rem;color:#64748b;margin-bottom:5px;display:flex;align-items:center;gap:5px;font-weight:600;}
+.spin{width:11px;height:11px;border:2px solid #e2e8f0;border-top-color:#0d1f35;border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.prog{height:5px;background:#e2e8f0;border-radius:10px;overflow:hidden;}
+.progb{height:100%;width:45%;background:linear-gradient(90deg,#0d1f35,#E31837);border-radius:10px;animation:progani 2s ease-in-out infinite alternate;}
+@keyframes progani{from{width:30%;}to{width:65%;}}
+.bb-btns{display:flex;gap:8px;}
+.btn-gen{padding:10px 20px;background:#E31837;color:white;border:none;border-radius:9px;cursor:pointer;text-align:left;line-height:1.3;}
+.btn-gen:hover{background:#c01430;}
+.btn-gen .bt{font-size:0.85rem;font-weight:700;display:flex;align-items:center;gap:6px;}
+.btn-gen .bs{font-size:0.6rem;opacity:0.8;}
+.btn-sav{padding:10px 18px;background:#0d1f35;color:white;border:none;border-radius:9px;cursor:pointer;text-align:left;line-height:1.3;}
+.btn-sav:hover{background:#1a3a6b;}
+.btn-sav .bt{font-size:0.82rem;font-weight:700;display:flex;align-items:center;gap:6px;}
+.btn-sav .bs{font-size:0.6rem;opacity:0.7;}
+
+/* FOOTER */
+.footer{text-align:center;padding:10px;font-size:0.6rem;color:#94a3b8;border-top:1px solid #e2e8f0;}
+.footer span{color:#E31837;font-weight:700;}
+/* Extra Streamlit overrides */
 #MainMenu, footer, header { visibility: hidden !important; }
 [data-testid="stToolbar"] { display: none !important; }
-
-/* App background */
 [data-testid="stAppViewContainer"] { background: #F0F2F6 !important; }
-[data-testid="stMainBlockContainer"] { padding: 1rem 1.5rem 120px !important; }
-
-/* Sidebar */
-[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #0B2D4D 0%, #123A72 100%) !important;
-}
+[data-testid="stMainBlockContainer"] { padding: 0 1.5rem 140px !important; max-width: 1400px !important; }
+[data-testid="block-container"] { padding-top: 0 !important; }
+[data-testid="stSidebar"] { background: linear-gradient(180deg,#0d1f35 0%,#0f2a4a 40%,#1a3a6b 100%) !important; }
 [data-testid="stSidebar"] * { color: #e2e8f0 !important; }
-[data-testid="stSidebar"] input {
-    background: rgba(255,255,255,0.1) !important;
-    border: 1px solid rgba(255,255,255,0.2) !important;
-    color: #fff !important;
-    border-radius: 6px !important;
-}
-[data-testid="stSidebar"] label {
-    color: #94a3b8 !important;
-    font-size: 0.72rem !important;
-}
-[data-testid="stSidebar"] .stButton > button {
-    background: rgba(255,255,255,0.07) !important;
-    border: 1px solid rgba(255,255,255,0.15) !important;
-    color: #e2e8f0 !important;
-    border-radius: 6px !important;
-    font-size: 0.8rem !important;
-    text-align: left !important;
-}
-
-/* Inputs */
-[data-testid="stTextInput"] input {
-    height: 40px !important;
-    border-radius: 8px !important;
-    border: 1.5px solid #dde1e7 !important;
-    font-size: 0.85rem !important;
-    color: #1e293b !important;
-    background: #fff !important;
-}
-[data-testid="stTextInput"] input:focus {
-    border-color: #0B2D4D !important;
-    box-shadow: 0 0 0 3px rgba(11,45,77,0.08) !important;
-}
-[data-testid="stTextInput"] input::placeholder { color: #b0b8c4 !important; }
-[data-testid="stTextInput"] input:disabled {
-    background: #f8fafc !important;
-    color: #0B2D4D !important;
-    font-weight: 700 !important;
-    -webkit-text-fill-color: #0B2D4D !important;
-    opacity: 1 !important;
-}
-[data-testid="stTextInput"] label {
-    font-size: 0.78rem !important;
-    font-weight: 600 !important;
-    color: #374151 !important;
-}
-
-/* Buttons */
-.stButton > button {
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    font-size: 0.84rem !important;
-    height: 40px !important;
-    border: 1.5px solid #dde1e7 !important;
-    transition: all 0.15s !important;
-}
-.stButton > button[kind="primary"] {
-    background: #E31837 !important;
-    border-color: #E31837 !important;
-    color: #fff !important;
-    font-size: 0.9rem !important;
-}
-.stButton > button[kind="primary"]:hover {
-    background: #c01430 !important;
-    box-shadow: 0 4px 14px rgba(227,24,55,0.35) !important;
-}
-.stButton > button:not([kind="primary"]):hover {
-    border-color: #0B2D4D !important;
-    color: #0B2D4D !important;
-}
-
-/* Success/error */
-[data-testid="stSuccess"] { border-radius: 8px !important; }
-[data-testid="stError"]   { border-radius: 8px !important; }
-</style>
-""", unsafe_allow_html=True)
+[data-testid="stSidebar"] input { background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.15) !important; color: #fff !important; border-radius: 6px !important; }
+[data-testid="stSidebar"] label { color: #94a3b8 !important; font-size: 0.7rem !important; }
+[data-testid="stSidebar"] .stButton > button { background: rgba(255,255,255,0.06) !important; border: 1px solid rgba(255,255,255,0.12) !important; color: #e2e8f0 !important; border-radius: 7px !important; font-size: 0.78rem !important; }
+[data-testid="stTextInput"] input { height: 34px !important; border-radius: 7px !important; border: 1.5px solid #e2e8f0 !important; font-size: 0.82rem !important; color: #1e293b !important; }
+[data-testid="stTextInput"] input:focus { border-color: #0d1f35 !important; box-shadow: 0 0 0 2px rgba(13,31,53,0.08) !important; }
+[data-testid="stTextInput"] input::placeholder { color: #c4c9d4 !important; }
+[data-testid="stTextInput"] input:disabled { background: #f8fafc !important; color: #0d1f35 !important; font-weight: 700 !important; -webkit-text-fill-color: #0d1f35 !important; opacity: 1 !important; }
+[data-testid="stTextInput"] label { font-size: 0.68rem !important; font-weight: 600 !important; color: #374151 !important; }
+.stButton > button { border-radius: 7px !important; font-weight: 600 !important; font-size: 0.82rem !important; height: 36px !important; border: 1.5px solid #e2e8f0 !important; transition: all 0.15s !important; }
+.stButton > button[kind="primary"] { background: #E31837 !important; border-color: #E31837 !important; color: #fff !important; font-size: 0.88rem !important; font-weight: 700 !important; height: 42px !important; }
+.stButton > button[kind="primary"]:hover { background: #c01430 !important; }
+</style>""", unsafe_allow_html=True)
 
 
-# ══════════════════════════════════════════════
+# ══════════════════════════════════════════════════════
 # SIDEBAR
-# ══════════════════════════════════════════════
+# ══════════════════════════════════════════════════════
 with st.sidebar:
     # Logo
-    import base64 as _b64
-    if '_LOGO_B64' in globals():
-        st.markdown(
-            "<div style='padding:16px 12px 8px;text-align:center;'>"
-            "<img src='data:image/png;base64," + _LOGO_B64 + "' "
-            "style='width:110px;filter:brightness(0) invert(1);'/>"
-            "<div style='font-size:0.65rem;color:#94a3b8;letter-spacing:2px;"
-            "text-transform:uppercase;margin-top:6px;'>AUTO-MT306</div>"
-            "</div>",
-            unsafe_allow_html=True
-        )
-    else:
-        st.markdown(
-            "<div style='padding:16px 12px 8px;text-align:center;'>"
-            "<div style='font-size:1.4rem;font-weight:900;color:#fff;'>mobi<span style='color:#E31837;'>fone</span></div>"
-            "<div style='font-size:0.65rem;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;'>AUTO-MT306</div>"
-            "</div>",
-            unsafe_allow_html=True
-        )
-
-    st.markdown("<hr style='border:none;border-top:1px solid rgba(255,255,255,0.1);margin:4px 0 12px;'/>", unsafe_allow_html=True)
-
-    # Menu
-    for icon, label, key in [("📝","Tạo hợp đồng","contract"),("📁","HĐ đã tạo","history"),("💾","Nháp","draft"),("🗂","Template","template")]:
-        st.button(f"{icon}  {label}", key=f"nav_{key}", use_container_width=True)
-
-    st.markdown("<hr style='border:none;border-top:1px solid rgba(255,255,255,0.1);margin:12px 0;'/>", unsafe_allow_html=True)
-    st.markdown("<div style='font-size:0.65rem;color:#64748b;letter-spacing:1px;text-transform:uppercase;padding:0 4px;margin-bottom:8px;'>Nhân viên</div>", unsafe_allow_html=True)
-
-    ten_nv   = st.text_input("Tên NV",   value=st.session_state.draft.get("ten_nv_ben_b",  "Trương Thị Mỹ Châu"), key="sb_ten")
-    email_nv = st.text_input("Email NV", value=st.session_state.draft.get("email_ben_b",   "cuong.danghuy.ctv@mobifone.vn"), key="sb_email")
-    sdt_nv   = st.text_input("SĐT NV",   value=st.session_state.draft.get("sdt_ben_b",     "0901959799"), key="sb_sdt")
-    st.session_state.draft["ten_nv_ben_b"] = ten_nv
-    st.session_state.draft["email_ben_b"]  = email_nv
-    st.session_state.draft["sdt_ben_b"]    = sdt_nv
-
-    st.markdown("<hr style='border:none;border-top:1px solid rgba(255,255,255,0.1);margin:12px 0;'/>", unsafe_allow_html=True)
-    total = len(st.session_state.history)
-    today = sum(1 for h in st.session_state.history if h.get("time","").startswith(datetime.now().strftime("%d/%m/%Y")))
-    st.markdown(f"<div style='display:flex;gap:20px;padding:0 4px;margin-bottom:10px;'><div style='text-align:center;'><div style='font-size:1.1rem;font-weight:800;color:#f1f5f9;'>{total}</div><div style='font-size:0.62rem;color:#64748b;'>Tổng HĐ</div></div><div style='text-align:center;'><div style='font-size:1.1rem;font-weight:800;color:#22c55e;'>{today}</div><div style='font-size:0.62rem;color:#64748b;'>Hôm nay</div></div></div>", unsafe_allow_html=True)
-
-    for item in reversed(st.session_state.history[-4:]):
-        st.markdown(f"<div style='padding:5px 4px;border-bottom:1px solid rgba(255,255,255,0.06);'><div style='font-size:0.72rem;color:#e2e8f0;font-weight:500;word-break:break-all;'>📄 {item['fname']}</div><div style='font-size:0.62rem;color:#64748b;'>{item['time']}</div></div>", unsafe_allow_html=True)
-
-    if st.session_state.history:
-        if st.button("🗑 Xoá lịch sử", use_container_width=True, key="clr_hist"):
-            st.session_state.history = []; st.rerun()
-
-    st.markdown("<hr style='border:none;border-top:1px solid rgba(255,255,255,0.1);margin:12px 0;'/>", unsafe_allow_html=True)
-    template_file = st.file_uploader("Template .docx", type=["docx"], key="tmpl", label_visibility="collapsed")
-    if template_file:
-        st.success("✅ Template tuỳ chỉnh")
-    else:
-        st.markdown("<div style='font-size:0.72rem;color:#64748b;padding:0 4px;'>📄 Template mặc định</div>", unsafe_allow_html=True)
-
-    st.markdown("<div style='padding:16px 4px 8px;font-size:0.62rem;color:#475569;text-align:center;'>© 2026 MobiFone Đà Nẵng<br><span style='color:#E31837;font-weight:700;'>MobiFone Auto</span> · MT306</div>", unsafe_allow_html=True)
-
-template_bytes = template_file.read() if template_file else DEFAULT_TEMPLATE_BYTES
-
-# ══════════════════════════════════════════════
-# HEADER
-# ══════════════════════════════════════════════
-st.markdown("""
-<div style='background:linear-gradient(135deg,#0B2D4D 0%,#123A72 55%,#E31837 100%);
-    border-radius:12px;padding:20px 28px;margin-bottom:20px;
-    display:flex;align-items:center;justify-content:space-between;'>
-    <div>
-        <div style='font-size:1.25rem;font-weight:800;color:#fff;'>MobiFone Auto Create Contract</div>
-        <div style='font-size:0.8rem;color:rgba(255,255,255,0.7);margin-top:2px;'>
-            Tạo hợp đồng nhanh chóng – Chính xác – Bảo mật
-        </div>
-    </div>
-    <div style='display:flex;gap:6px;'>
-        <span style='background:rgba(255,255,255,0.15);color:#fff;padding:3px 10px;border-radius:20px;font-size:0.68rem;font-weight:700;'>MT306</span>
-        <span style='background:#E31837;color:#fff;padding:3px 10px;border-radius:20px;font-size:0.68rem;font-weight:700;'>v7 Web</span>
-        <span style='background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);padding:3px 10px;border-radius:20px;font-size:0.68rem;'>06/2026</span>
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-# ══════════════════════════════════════════════
-# STEPPER
-# ══════════════════════════════════════════════
-draft = st.session_state.draft
-_goi_filled = any(g.get("ten_goi") for g in st.session_state.goi_cuocs[:st.session_state.n_goi])
-if st.session_state.generated:          cur_step = 5
-elif _goi_filled and draft.get("ten_hkd"): cur_step = 4
-elif draft.get("ten_hkd"):              cur_step = 3
-elif draft.get("so_hd"):                cur_step = 2
-else:                                   cur_step = 1
-
-_steps = ["Chọn template","Nhập thông tin","Kiểm tra","Xem trước","Tạo hợp đồng"]
-_scols = st.columns(5)
-for _i, (_sc, _sl) in enumerate(zip(_scols, _steps), 1):
-    with _sc:
-        if _i < cur_step:
-            _bg, _fg, _lc = "#22c55e", "#fff", "#16a34a"
-            _ic = "✓"
-        elif _i == cur_step:
-            _bg, _fg, _lc = "#0B2D4D", "#fff", "#0B2D4D"
-            _ic = str(_i)
-        else:
-            _bg, _fg, _lc = "#e2e8f0", "#94a3b8", "#94a3b8"
-            _ic = str(_i)
-        st.markdown(
-            "<div style='text-align:center;background:white;border-radius:10px;"
-            "padding:10px 4px;box-shadow:0 1px 3px rgba(0,0,0,0.06);'>"
-            "<div style='width:30px;height:30px;border-radius:50%;"
-            "background:" + _bg + ";color:" + _fg + ";"
-            "display:inline-flex;align-items:center;justify-content:center;"
-            "font-size:0.78rem;font-weight:700;margin-bottom:4px;'>" + _ic + "</div>"
-            "<div style='font-size:0.62rem;font-weight:600;color:" + _lc + ";'>" + _sl + "</div>"
-            "</div>",
-            unsafe_allow_html=True
-        )
-
-st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
-
-# ══════════════════════════════════════════════
-# MAIN LAYOUT
-# ══════════════════════════════════════════════
-left_col, right_col = st.columns([13, 7], gap="large")
-
-with left_col:
-
-    # ── Card: Thông tin HĐ
-    with st.container():
-        st.markdown("<div style='background:white;border-radius:12px;padding:18px 20px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #f1f5f9;'><div style='font-size:0.7rem;font-weight:700;color:#0B2D4D;letter-spacing:0.8px;text-transform:uppercase;padding-bottom:10px;border-bottom:2px solid #f1f5f9;margin-bottom:12px;'>📋 Thông tin hợp đồng</div>", unsafe_allow_html=True)
-        _c1, _c2, _c3, _c4 = st.columns(4)
-        with _c1: so_hd    = st.text_input("Số hợp đồng ✱", value=draft.get("so_hd",""), placeholder="101", key="f_so")
-        with _c2: ngay_ky  = st.text_input("Ngày ký",        value=draft.get("ngay_ky", datetime.now().strftime("%d")), placeholder="25", key="f_ng")
-        with _c3: thang_ky = st.text_input("Tháng ký ✱",    value=draft.get("thang_ky", datetime.now().strftime("%m")), placeholder="06", key="f_th")
-        with _c4: nam_ky   = st.text_input("Năm ký ✱",      value=draft.get("nam_ky", datetime.now().strftime("%Y")), placeholder="2026", key="f_nam")
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    # ── Card: Bên A
-    with st.container():
-        st.markdown("<div style='background:white;border-radius:12px;padding:18px 20px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #f1f5f9;'><div style='font-size:0.7rem;font-weight:700;color:#0B2D4D;letter-spacing:0.8px;text-transform:uppercase;padding-bottom:10px;border-bottom:2px solid #f1f5f9;margin-bottom:12px;'>🏢 Bên A — Khách hàng</div>", unsafe_allow_html=True)
-        _a1, _a2 = st.columns(2)
-        with _a1:
-            ten_hkd    = st.text_input("Tên HKD đầy đủ ✱", value=draft.get("ten_hkd",""),    placeholder="HKD Nhà Nghỉ Kim Liên", key="f_ten")
-            dia_chi_gd = st.text_input("Địa chỉ giao dịch", value=draft.get("dia_chi_gd",""), placeholder="Để trống nếu giống trụ sở", key="f_dc")
-            ma_so_thue = st.text_input("Mã số thuế ✱",      value=draft.get("ma_so_thue",""), placeholder="049189011144", key="f_mst")
-            dai_dien   = st.text_input("Họ tên đại diện ✱", value=draft.get("dai_dien",""),   placeholder="Nguyễn Văn A", key="f_dd")
-        with _a2:
-            tru_so     = st.text_input("Trụ sở chính ✱",    value=draft.get("tru_so",""),     placeholder="142/2 Phan Châu Trinh, Đà Nẵng", key="f_ts")
-            dien_thoai = st.text_input("Số điện thoại ✱",   value=draft.get("dien_thoai",""), placeholder="0904725978", key="f_dt")
-            email_kh   = st.text_input("Email khách hàng ✱",value=draft.get("email_kh",""),   placeholder="example@gmail.com", key="f_em")
-            chuc_vu    = st.text_input("Chức vụ ✱",         value=draft.get("chuc_vu","Chủ HKD"), placeholder="Chủ HKD", key="f_cv")
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    # ── Card: Điều 6
-    with st.container():
-        st.markdown("<div style='background:white;border-radius:12px;padding:18px 20px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #f1f5f9;'><div style='font-size:0.7rem;font-weight:700;color:#0B2D4D;letter-spacing:0.8px;text-transform:uppercase;padding-bottom:10px;border-bottom:2px solid #f1f5f9;margin-bottom:12px;'>💰 Điều 6 — Giá trị hợp đồng</div>", unsafe_allow_html=True)
-
-        # Header bảng
-        _hc = st.columns([0.3, 2, 0.8, 0.8, 1.1, 1.1, 1.1, 0.3])
-        for _h, _hl in zip(_hc, ["#","Gói cước","ĐVT","SL","Giá gói","Thành tiền","SL HĐ/gói",""]):
-            with _h:
-                st.markdown(f"<div style='font-size:0.65rem;font-weight:700;color:#64748b;text-transform:uppercase;padding:4px 0;'>{_hl}</div>", unsafe_allow_html=True)
-
-        n_goi = st.session_state.n_goi
-        goi_list = st.session_state.goi_cuocs
-        while len(goi_list) < n_goi:
-            goi_list.append({"ten_goi":"","don_vi":"","so_luong":"","gia_goi":"","so_hd_trong_goi":""})
-
-        tong_tien = 0
-        for _i in range(n_goi):
-            g = goi_list[_i]
-            _rc = st.columns([0.3, 2, 0.8, 0.8, 1.1, 1.1, 1.1, 0.3])
-            with _rc[0]: st.markdown(f"<div style='padding-top:32px;text-align:center;font-size:0.75rem;color:#94a3b8;'>{_i+1}</div>", unsafe_allow_html=True)
-            with _rc[1]: g["ten_goi"]          = st.text_input("Gói",   value=g.get("ten_goi",""),   key=f"gc_ten_{_i}", placeholder="E-50",   label_visibility="collapsed")
-            with _rc[2]: g["don_vi"]            = st.text_input("ĐVT",   value=g.get("don_vi",""),    key=f"gc_dv_{_i}",  placeholder="Gói",    label_visibility="collapsed")
-            with _rc[3]: g["so_luong"]          = st.text_input("SL",    value=g.get("so_luong",""),  key=f"gc_sl_{_i}",  placeholder="1",      label_visibility="collapsed")
-            with _rc[4]: g["gia_goi"]           = st.text_input("Giá",   value=g.get("gia_goi",""),   key=f"gc_gia_{_i}", placeholder="100000", label_visibility="collapsed")
-            try:
-                _sl  = int(str(g.get("so_luong","0") or "0").replace(".","").replace(",",""))
-                _gia = int(str(g.get("gia_goi","0")  or "0").replace(".","").replace(",",""))
-                _tt  = _sl * _gia; tong_tien += _tt
-            except: _tt = 0
-            _tt_str = "{:,}".format(_tt).replace(",",".") if _tt else "0"
-            with _rc[5]: st.text_input("TT", value=_tt_str, key=f"gc_tt_{_i}", label_visibility="collapsed", disabled=True)
-            with _rc[6]: g["so_hd_trong_goi"]  = st.text_input("SLHD",  value=g.get("so_hd_trong_goi",""), key=f"gc_hd_{_i}", placeholder="50", label_visibility="collapsed")
-            with _rc[7]:
-                st.markdown("<div style='padding-top:26px;'>", unsafe_allow_html=True)
-                if st.button("✕", key=f"del_{_i}", help="Xóa") and n_goi > 1:
-                    goi_list.pop(_i); st.session_state.n_goi -= 1; st.session_state.goi_cuocs = goi_list; st.rerun()
-                st.markdown("</div>", unsafe_allow_html=True)
-            if _i < len(goi_list): goi_list[_i] = g
-            else: goi_list.append(g)
-
-        st.session_state.goi_cuocs = goi_list
-
-        _ba1, _ba2, _ = st.columns([1.2, 1.2, 5])
-        with _ba1:
-            if st.button("➕ Thêm gói", use_container_width=True, key="add_pkg") and n_goi < 10:
-                st.session_state.n_goi += 1; st.session_state.goi_cuocs.append({"ten_goi":"","don_vi":"","so_luong":"","gia_goi":"","so_hd_trong_goi":""}); st.rerun()
-        with _ba2:
-            if st.button("➖ Bớt gói", use_container_width=True, key="rm_pkg") and n_goi > 1:
-                st.session_state.n_goi -= 1; st.session_state.goi_cuocs = st.session_state.goi_cuocs[:st.session_state.n_goi]; st.rerun()
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    # ── Tổng tiền + Buttons
-    _tong_str = "{:,}".format(tong_tien).replace(",",".") + " đ" if tong_tien > 0 else "0 đ"
-    _bang_chu = so_tien_bang_chu(tong_tien) if tong_tien > 0 else "—"
     st.markdown(
-        "<div style='background:linear-gradient(135deg,#eff6ff,#dbeafe);"
-        "border:1.5px solid #93c5fd;border-radius:12px;padding:14px 18px;margin-bottom:12px;'>"
-        "<div style='font-size:0.65rem;font-weight:700;color:#1e40af;letter-spacing:1px;text-transform:uppercase;'>Tổng giá trị hợp đồng</div>"
-        "<div style='font-size:1.4rem;font-weight:800;color:#0B2D4D;margin:2px 0;'>" + _tong_str + "</div>"
-        "<div style='font-size:0.75rem;color:#64748b;font-style:italic;'>" + _bang_chu + "</div>"
+        "<div style='padding:14px 14px 12px;border-bottom:1px solid rgba(255,255,255,0.07);'>"
+        "<div style='font-size:1.25rem;font-weight:900;color:#fff;letter-spacing:-0.5px;'>mobi<span style='color:#E31837;'>fone</span></div>"
+        "<div style='font-size:0.58rem;color:#64748b;letter-spacing:2px;text-transform:uppercase;margin-top:3px;'>AUTO CONTRACT</div>"
         "</div>",
         unsafe_allow_html=True
     )
 
+    # Menu
+    st.markdown("<div style='padding:12px 14px 4px;font-size:0.6rem;color:#475569;letter-spacing:1px;text-transform:uppercase;font-weight:700;'>Menu chính</div>", unsafe_allow_html=True)
+    for icon, label, key in [("📝","Tạo hợp đồng","contract"),("📁","HĐ đã tạo","history"),("💾","Nháp","draft"),("🗂","Template","template")]:
+        active = st.session_state.get("active_tab","contract") == key
+        bg = "background:rgba(66,133,244,0.15);border-left:3px solid #4285f4;" if active else "border-left:3px solid transparent;"
+        st.markdown(f"<div style='display:flex;align-items:center;gap:10px;padding:9px 14px;font-size:0.8rem;color:{'#fff' if active else '#94a3b8'};cursor:pointer;{bg}'>{icon} {label}</div>", unsafe_allow_html=True)
+        if st.button(label, key=f"nav_{key}", use_container_width=True):
+            st.session_state["active_tab"] = key; st.rerun()
+
+    # Thông tin NV
+    st.markdown("<hr style='border:none;border-top:1px solid rgba(255,255,255,0.07);margin:8px 0;'/>", unsafe_allow_html=True)
+    st.markdown("<div style='padding:0 14px 4px;font-size:0.6rem;color:#475569;letter-spacing:1px;text-transform:uppercase;font-weight:700;'>Thông tin nhân viên</div>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='padding:8px 14px;'>"
+        "<div style='display:flex;align-items:center;gap:10px;margin-bottom:8px;'>"
+        "<div style='width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4285f4,#0B2D4D);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.82rem;flex-shrink:0;'>VL</div>"
+        "<div><div style='font-size:0.8rem;font-weight:700;color:#f1f5f9;'>Võ Thị Lê</div>"
+        "<div style='font-size:0.65rem;color:#64748b;'>Nhân viên kinh doanh</div></div>"
+        "</div></div>",
+        unsafe_allow_html=True
+    )
+    ten_nv   = st.text_input("Tên NV",   value=st.session_state.draft.get("ten_nv_ben_b","Trương Thị Mỹ Châu"), key="sb_ten")
+    email_nv = st.text_input("Email NV", value=st.session_state.draft.get("email_ben_b","cuong.danghuy.ctv@mobifone.vn"), key="sb_email")
+    sdt_nv   = st.text_input("SĐT NV",   value=st.session_state.draft.get("sdt_ben_b","0901959799"), key="sb_sdt")
+    st.session_state.draft["ten_nv_ben_b"] = ten_nv
+    st.session_state.draft["email_ben_b"]  = email_nv
+    st.session_state.draft["sdt_ben_b"]    = sdt_nv
+
+    # Lịch sử
+    st.markdown("<hr style='border:none;border-top:1px solid rgba(255,255,255,0.07);margin:8px 0;'/>", unsafe_allow_html=True)
+    _total = len(st.session_state.history)
+    _today = sum(1 for h in st.session_state.history if h.get("time","").startswith(datetime.now().strftime("%d/%m/%Y")))
+    st.markdown(
+        f"<div style='padding:0 14px 6px;display:flex;align-items:center;justify-content:space-between;'>"
+        f"<span style='font-size:0.6rem;color:#475569;letter-spacing:1px;text-transform:uppercase;font-weight:700;'>Lịch sử HĐ</span>"
+        f"<span style='font-size:0.6rem;color:#3b82f6;cursor:pointer;'>Xem tất cả ({_total})</span></div>",
+        unsafe_allow_html=True
+    )
+    _bdg_map = {"Thành công":"g","Nháp":"b","Đang xử lý":"y","Huỷ":"r"}
+    for item in reversed(st.session_state.history[-5:]):
+        _bdg_cls = "g"
+        _html = (
+            "<div style='display:flex;gap:8px;padding:5px 14px;border-bottom:1px solid rgba(255,255,255,0.04);'>"
+            "<div style='width:26px;height:26px;border-radius:5px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:0.68rem;flex-shrink:0;'>📄</div>"
+            "<div style='flex:1;min-width:0;'>"
+            "<div style='font-size:0.68rem;color:#e2e8f0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'>" + item["fname"] + "</div>"
+            "<div style='font-size:0.6rem;color:#475569;margin-top:1px;'>" + item["time"] + "</div>"
+            "</div></div>"
+        )
+        st.markdown(_html, unsafe_allow_html=True)
+    if not st.session_state.history:
+        st.markdown("<div style='padding:6px 14px;font-size:0.7rem;color:#475569;'>Chưa có hợp đồng nào</div>", unsafe_allow_html=True)
+
+    st.markdown("<hr style='border:none;border-top:1px solid rgba(255,255,255,0.07);margin:8px 0;'/>", unsafe_allow_html=True)
+    template_file = st.file_uploader("Template .docx", type=["docx"], key="tmpl", label_visibility="collapsed")
+    if template_file:
+        st.success("✅ Template tuỳ chỉnh")
+    else:
+        st.markdown("<div style='padding:2px 14px;font-size:0.7rem;color:#475569;'>📄 Template mặc định sẵn sàng</div>", unsafe_allow_html=True)
+
+    if st.button("◀ Thu gọn menu", use_container_width=True, key="collapse"):
+        pass
+    st.markdown(
+        "<div style='padding:6px 14px 10px;font-size:0.58rem;color:#64748b;text-align:center;'>"
+        "© 2026 MobiFone Đà Nẵng – <span style='color:#f87171;font-weight:700;'>MOBIFONE AUTO-MT306</span>"
+        "<div style='color:#94a3b8;margin-top:2px;'>Developed by Minh Thông</div>"
+        "</div>",
+        unsafe_allow_html=True
+    )
+
+template_bytes = template_file.read() if template_file else DEFAULT_TEMPLATE_BYTES
+draft = st.session_state.draft
+
+# ══════════════════════════════════════════════════════
+# HEADER
+# ══════════════════════════════════════════════════════
+st.markdown(
+    "<div style='background:linear-gradient(135deg,#0d1f35 0%,#0f2a4a 40%,#1a3a6b 65%,#E31837 100%);"
+    "border-radius:10px;padding:13px 22px;margin-bottom:14px;"
+    "display:flex;align-items:center;justify-content:space-between;'>"
+    "<div>"
+    "<div style='font-size:1.05rem;font-weight:800;color:#fff;'>MobiFone Auto Create Contract</div>"
+    "<div style='font-size:0.72rem;color:rgba(255,255,255,0.55);margin-top:1px;'>Tạo hợp đồng nhanh chóng – Chính xác – Bảo mật</div>"
+    "</div>"
+    "<div style='display:flex;align-items:center;gap:7px;'>"
+    "<span style='background:rgba(255,255,255,0.12);color:#fff;padding:3px 10px;border-radius:16px;font-size:0.65rem;font-weight:700;'>MT306</span>"
+    "<span style='background:#E31837;color:#fff;padding:3px 10px;border-radius:16px;font-size:0.65rem;font-weight:700;'>v7 Web</span>"
+    "<span style='background:rgba(34,197,94,0.2);color:#4ade80;padding:3px 10px;border-radius:16px;font-size:0.65rem;border:1px solid rgba(34,197,94,0.25);'>Cập nhật: 06/2026</span>"
+    "</div></div>",
+    unsafe_allow_html=True
+)
+
+# ══════════════════════════════════════════════════════
+# STEPPER
+# ══════════════════════════════════════════════════════
+_goi_filled = any(g.get("ten_goi") for g in st.session_state.goi_cuocs[:st.session_state.n_goi])
+if st.session_state.generated:       _cur = 5
+elif _goi_filled and draft.get("ten_hkd"): _cur = 4
+elif draft.get("ten_hkd"):           _cur = 3
+elif draft.get("so_hd"):             _cur = 2
+else:                                _cur = 1
+
+_steps = [("Chọn template","Đã chọn template"),("Nhập thông tin","Đang nhập liệu"),
+          ("Kiểm tra","Tất cả hợp lệ"),("Xem trước","Xem nội dung HĐ"),("Tạo hợp đồng","Sinh file & Tải xuống")]
+_scols = st.columns(5)
+for _i,((_sn,_ss),_sc) in enumerate(zip(_steps,_scols),1):
+    with _sc:
+        if _i < _cur:   _bg,_fg,_nc,_sc2="#22c55e","#fff","#16a34a","#86efac"; _ic="✓"
+        elif _i==_cur:  _bg,_fg,_nc,_sc2="#0d1f35","#fff","#0d1f35","#64748b"; _ic=str(_i)
+        else:           _bg,_fg,_nc,_sc2="#f1f5f9","#94a3b8","#94a3b8","#cbd5e1"; _ic=str(_i)
+        st.markdown(
+            "<div style='text-align:center;background:white;border-radius:8px;padding:10px 4px;"
+            "box-shadow:0 1px 3px rgba(0,0,0,0.06);'>"
+            "<div style='width:28px;height:28px;border-radius:50%;background:"+_bg+";color:"+_fg+";"
+            "display:inline-flex;align-items:center;justify-content:center;"
+            "font-size:0.75rem;font-weight:700;margin-bottom:4px;'>"+_ic+"</div>"
+            "<div style='font-size:0.68rem;font-weight:700;color:"+_nc+";'>"+_sn+"</div>"
+            "<div style='font-size:0.58rem;color:"+_sc2+";'>"+_ss+"</div>"
+            "</div>",
+            unsafe_allow_html=True
+        )
+
+st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+
+# ══════════════════════════════════════════════════════
+# MAIN LAYOUT
+# ══════════════════════════════════════════════════════
+_lc, _rc = st.columns([13, 8], gap="large")
+
+with _lc:
+    # ── Card 1: Thông tin HĐ
+    st.markdown("<div style='background:white;border-radius:10px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #f1f5f9;'><div style='font-size:0.65rem;font-weight:700;color:#0d1f35;letter-spacing:0.8px;text-transform:uppercase;padding-bottom:8px;border-bottom:2px solid #f8fafc;margin-bottom:10px;'>📋 Thông tin hợp đồng</div>", unsafe_allow_html=True)
+    _c1,_c2,_c3,_c4 = st.columns(4)
+    with _c1: so_hd    = st.text_input("Số hợp đồng ✱",  value=draft.get("so_hd",""),    placeholder="101",  key="f_so")
+    with _c2: ngay_ky  = st.text_input("Ngày ký",         value=draft.get("ngay_ky",datetime.now().strftime("%d")), placeholder="25", key="f_ng")
+    with _c3: thang_ky = st.text_input("Tháng ký ✱",     value=draft.get("thang_ky",datetime.now().strftime("%m")), placeholder="06", key="f_th")
+    with _c4: nam_ky   = st.text_input("Năm ký ✱",       value=draft.get("nam_ky",datetime.now().strftime("%Y")), placeholder="2026", key="f_nam")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # ── Card 2: Bên A
+    st.markdown("<div style='background:white;border-radius:10px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #f1f5f9;'><div style='font-size:0.65rem;font-weight:700;color:#0d1f35;letter-spacing:0.8px;text-transform:uppercase;padding-bottom:8px;border-bottom:2px solid #f8fafc;margin-bottom:10px;'>🏢 Bên A — Khách hàng</div>", unsafe_allow_html=True)
+    _a1,_a2 = st.columns(2)
+    with _a1:
+        ten_hkd    = st.text_input("Tên HKD đầy đủ ✱",  value=draft.get("ten_hkd",""),    placeholder="HKD Nhà Nghỉ Kim Liên", key="f_ten")
+        dia_chi_gd = st.text_input("Địa chỉ giao dịch",  value=draft.get("dia_chi_gd",""), placeholder="Để trống nếu giống trụ sở", key="f_dc")
+        ma_so_thue = st.text_input("Mã số thuế ✱",       value=draft.get("ma_so_thue",""), placeholder="049189011144", key="f_mst")
+        dai_dien   = st.text_input("Họ tên đại diện ✱",  value=draft.get("dai_dien",""),   placeholder="Nguyễn Văn A", key="f_dd")
+    with _a2:
+        tru_so     = st.text_input("Trụ sở chính ✱",     value=draft.get("tru_so",""),     placeholder="142/2 Phan Châu Trinh, Đà Nẵng", key="f_ts")
+        dien_thoai = st.text_input("Số điện thoại ✱",    value=draft.get("dien_thoai",""), placeholder="0904725978", key="f_dt")
+        email_kh   = st.text_input("Email khách hàng ✱", value=draft.get("email_kh",""),   placeholder="example@gmail.com", key="f_em")
+        chuc_vu    = st.text_input("Chức vụ ✱",          value=draft.get("chuc_vu","Chủ HKD"), placeholder="Chủ HKD", key="f_cv")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # ── Card 3: Điều 6
+    st.markdown("<div style='background:white;border-radius:10px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #f1f5f9;'><div style='font-size:0.65rem;font-weight:700;color:#0d1f35;letter-spacing:0.8px;text-transform:uppercase;padding-bottom:8px;border-bottom:2px solid #f8fafc;margin-bottom:10px;'>💰 Điều 6 — Giá trị hợp đồng</div>", unsafe_allow_html=True)
+
+    # Header bảng
+    _th = st.columns([0.25,2,0.7,0.65,1.1,0.75,1.1,0.28])
+    for _h,_hl in zip(_th,["#","Gói cước","ĐVT","SL","Giá gói (VNĐ)","SL HĐ/gói","Thành tiền (VNĐ)",""]):
+        with _h:
+            st.markdown(f"<div style='font-size:0.6rem;font-weight:700;color:#64748b;text-transform:uppercase;padding:4px 0;background:#f8fafc;border-radius:4px;text-align:center;'>{_hl}</div>", unsafe_allow_html=True)
+
+    _n = st.session_state.n_goi
+    _gl = st.session_state.goi_cuocs
+    while len(_gl) < _n:
+        _gl.append({"ten_goi":"","don_vi":"","so_luong":"","gia_goi":"","so_hd_trong_goi":""})
+
+    _tong = 0
+    for _i in range(_n):
+        _g = _gl[_i]
+        _rc2 = st.columns([0.25,2,0.7,0.65,1.1,0.75,1.1,0.28])
+        with _rc2[0]: st.markdown(f"<div style='padding-top:30px;text-align:center;font-size:0.7rem;color:#94a3b8;'>{_i+1}</div>", unsafe_allow_html=True)
+        with _rc2[1]: _g["ten_goi"]          = st.text_input("G",   value=_g.get("ten_goi",""),  key=f"g_ten_{_i}", placeholder="E-50",   label_visibility="collapsed")
+        with _rc2[2]: _g["don_vi"]           = st.text_input("D",   value=_g.get("don_vi",""),   key=f"g_dv_{_i}",  placeholder="Gói",   label_visibility="collapsed")
+        with _rc2[3]: _g["so_luong"]         = st.text_input("SL",  value=_g.get("so_luong",""), key=f"g_sl_{_i}",  placeholder="1",     label_visibility="collapsed")
+        with _rc2[4]: _g["gia_goi"]          = st.text_input("GG",  value=_g.get("gia_goi",""),  key=f"g_gg_{_i}",  placeholder="100000",label_visibility="collapsed")
+        try:
+            _sl  = int(str(_g.get("so_luong","0") or "0").replace(".","").replace(",",""))
+            _gia = int(str(_g.get("gia_goi","0")  or "0").replace(".","").replace(",",""))
+            _tt  = _sl * _gia; _tong += _tt
+        except: _tt = 0
+        _tts = "{:,}".format(_tt).replace(",",".") if _tt else ""
+        with _rc2[5]: _g["so_hd_trong_goi"] = st.text_input("HD", value=_g.get("so_hd_trong_goi",""), key=f"g_hd_{_i}", placeholder="50", label_visibility="collapsed")
+        with _rc2[6]: st.text_input("TT", value=_tts, key=f"g_tt_{_i}", label_visibility="collapsed", disabled=True)
+        with _rc2[7]:
+            st.markdown("<div style='padding-top:24px;'>", unsafe_allow_html=True)
+            if st.button("✕", key=f"del_{_i}") and _n > 1:
+                _gl.pop(_i); st.session_state.n_goi -= 1; st.session_state.goi_cuocs = _gl; st.rerun()
+            st.markdown("</div>", unsafe_allow_html=True)
+        if _i < len(_gl): _gl[_i] = _g
+        else: _gl.append(_g)
+    st.session_state.goi_cuocs = _gl
+
+    _ba1,_ba2,_ = st.columns([1.2,1.2,5])
+    with _ba1:
+        if st.button("➕ Thêm gói", use_container_width=True, key="add_p") and _n < 10:
+            st.session_state.n_goi += 1; st.session_state.goi_cuocs.append({"ten_goi":"","don_vi":"","so_luong":"","gia_goi":"","so_hd_trong_goi":""}); st.rerun()
+    with _ba2:
+        if st.button("➖ Bớt gói", use_container_width=True, key="rm_p") and _n > 1:
+            st.session_state.n_goi -= 1; st.session_state.goi_cuocs = st.session_state.goi_cuocs[:st.session_state.n_goi]; st.rerun()
+
+    _ts  = "{:,}".format(_tong).replace(",",".") + " đ" if _tong > 0 else "0 đ"
+    _bchu = so_tien_bang_chu(_tong) if _tong > 0 else "—"
+    st.markdown(
+        "<div style='background:linear-gradient(135deg,#f0f7ff,#e0edff);border:1.5px solid #93c5fd;"
+        "border-radius:10px;padding:12px 16px;margin-top:10px;display:flex;align-items:center;gap:14px;'>"
+        "<div style='width:38px;height:38px;background:linear-gradient(135deg,#0d1f35,#1a3a6b);"
+        "border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;'>💰</div>"
+        "<div><div style='font-size:0.6rem;font-weight:700;color:#1e40af;letter-spacing:1px;text-transform:uppercase;'>Tổng giá trị hợp đồng</div>"
+        "<div style='font-size:1.25rem;font-weight:800;color:#0d1f35;'>" + _ts + "</div>"
+        "<div style='font-size:0.68rem;color:#64748b;font-style:italic;'>" + _bchu + "</div>"
+        "</div></div>",
+        unsafe_allow_html=True
+    )
+    st.markdown("</div>", unsafe_allow_html=True)
+
     # current_data
     current_data = {
-        "so_hd": so_hd, "ngay_ky": ngay_ky, "thang_ky": thang_ky, "nam_ky": nam_ky,
-        "ten_hkd": ten_hkd, "tru_so": tru_so, "dia_chi_gd": dia_chi_gd,
-        "dien_thoai": dien_thoai, "ma_so_thue": ma_so_thue,
-        "dai_dien": dai_dien if dai_dien else "",
-        "chuc_vu": chuc_vu, "email_kh": email_kh,
-        "ten_nv_ben_b": draft.get("ten_nv_ben_b","Trương Thị Mỹ Châu"),
-        "email_ben_b":  draft.get("email_ben_b","cuong.danghuy.ctv@mobifone.vn"),
-        "sdt_ben_b":    draft.get("sdt_ben_b","0901959799"),
-        "goi_cuocs":    [g for g in st.session_state.goi_cuocs[:st.session_state.n_goi] if g.get("ten_goi")],
+        "so_hd":so_hd,"ngay_ky":ngay_ky,"thang_ky":thang_ky,"nam_ky":nam_ky,
+        "ten_hkd":ten_hkd,"tru_so":tru_so,"dia_chi_gd":dia_chi_gd,
+        "dien_thoai":dien_thoai,"ma_so_thue":ma_so_thue,
+        "dai_dien":dai_dien if dai_dien else "",
+        "chuc_vu":chuc_vu,"email_kh":email_kh,
+        "ten_nv_ben_b":draft.get("ten_nv_ben_b","Trương Thị Mỹ Châu"),
+        "email_ben_b": draft.get("email_ben_b","cuong.danghuy.ctv@mobifone.vn"),
+        "sdt_ben_b":   draft.get("sdt_ben_b","0901959799"),
+        "goi_cuocs":   [g for g in st.session_state.goi_cuocs[:st.session_state.n_goi] if g.get("ten_goi")],
     }
     errors    = validate(current_data)
     fname_str = filename_preview(so_hd, ten_hkd)
 
     # Buttons
-    _bb1, _bb2, _bb3 = st.columns([2, 1.5, 1.5])
-    with _bb1:
-        _gen = st.button("🚀  Tạo Hợp Đồng", use_container_width=True, type="primary", disabled=bool(errors), key="main_gen")
+    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+    _bb1,_bb2,_bb3 = st.columns([2,1.5,1.5])
+    with _bb1: _gen = st.button("🚀  Tạo Hợp Đồng", use_container_width=True, type="primary", disabled=bool(errors), key="gen_btn")
     with _bb2:
-        if st.button("💾  Lưu nháp", use_container_width=True, key="main_save"):
+        if st.button("💾  Lưu nháp", use_container_width=True, key="save_btn"):
             st.session_state.draft = current_data; st.success("Đã lưu nháp!")
     with _bb3:
-        _preview_label = "✕  Đóng preview" if st.session_state.show_preview else "👁  Xem trước"
-        if st.button(_preview_label, use_container_width=True, key="main_prev",
-                     disabled=not bool(st.session_state.result_bytes)):
+        _pl = "✕  Đóng preview" if st.session_state.show_preview else "👁  Xem trước"
+        if st.button(_pl, use_container_width=True, key="prev_btn", disabled=not bool(st.session_state.result_bytes)):
             st.session_state.show_preview = not st.session_state.show_preview; st.rerun()
 
     if _gen:
@@ -1201,7 +1334,7 @@ with left_col:
                 st.session_state.result_fname = fname_str
                 st.session_state.generated    = True
                 st.session_state.show_preview = False
-                st.session_state.history.append({"fname": fname_str, "time": datetime.now().strftime("%d/%m/%Y %H:%M")})
+                st.session_state.history.append({"fname":fname_str,"time":datetime.now().strftime("%d/%m/%Y %H:%M")})
                 st.success(f"✅ Tạo thành công: **{fname_str}**")
                 st.balloons(); st.rerun()
             except Exception as _ex:
@@ -1216,77 +1349,89 @@ with left_col:
             use_container_width=True, key="dl_btn",
         )
 
-# ══════════════════════════════════════════════
+# ══════════════════════════════════════════════════════
 # RIGHT COL
-# ══════════════════════════════════════════════
-with right_col:
+# ══════════════════════════════════════════════════════
+with _rc:
+    # Kiểm tra
+    _all_ok = not errors
+    _checks = [
+        ("Thông tin hợp đồng", not any(e in errors for e in ["Số hợp đồng","Tháng ký","Năm ký"])),
+        ("Thông tin Bên A – Khách hàng", not any(e in errors for e in ["Tên HKD","Trụ sở","Điện thoại","MST","Đại diện","Chức vụ","Email"])),
+        ("Thông tin gói cước",   bool(current_data.get("goi_cuocs"))),
+        ("Tính toán tổng giá trị", _tong > 0),
+    ]
+    _rows = "".join(
+        "<div style='display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f8fafc;font-size:0.78rem;color:#374151;'>"
+        "<span style='font-weight:700;color:"+("#22c55e" if ok else "#ef4444")+";font-size:0.85rem;'>"+("✓" if ok else "✕")+"</span>"+lbl+"</div>"
+        for lbl,ok in _checks
+    )
+    _ok_html = "<div style='background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;padding:9px 12px;color:#166534;font-weight:700;font-size:0.75rem;text-align:center;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px;'>✦ Tất cả hợp lệ – Sẵn sàng tạo HĐ</div>" if _all_ok else ""
+    _warn = "".join(f"<div style='font-size:0.7rem;color:#f59e0b;padding:2px 0 2px 20px;'>⚠ Thiếu: {e}</div>" for e in errors[:4])
+    st.markdown(
+        "<div style='background:white;border-radius:10px;padding:14px 16px;margin-bottom:10px;"
+        "box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #f1f5f9;'>"
+        "<div style='font-size:0.65rem;font-weight:700;color:#0d1f35;letter-spacing:0.8px;text-transform:uppercase;"
+        "padding-bottom:8px;border-bottom:2px solid #f8fafc;margin-bottom:10px;'>✅ Kiểm tra thông tin</div>"
+        + _ok_html + _rows + _warn +
+        "<div style='margin-top:8px;background:#f0f7ff;border-radius:7px;padding:8px 10px;"
+        "font-size:0.7rem;color:#3b82f6;cursor:pointer;'>👁 Xem chi tiết kiểm tra</div>"
+        "</div>",
+        unsafe_allow_html=True
+    )
 
-    # Kiểm tra thông tin
-    with st.container():
-        _all_ok = not errors
-        _checks = [
-            ("Thông tin hợp đồng", not any(e in errors for e in ["Số hợp đồng","Tháng ký","Năm ký"])),
-            ("Thông tin Bên A",    not any(e in errors for e in ["Tên HKD","Trụ sở","Điện thoại","MST","Đại diện","Chức vụ","Email"])),
-            ("Gói cước",           bool(current_data.get("goi_cuocs"))),
-        ]
-        _rows = ""
-        for _lbl, _ok in _checks:
-            _ic  = "✓" if _ok else "✕"
-            _col = "#16a34a" if _ok else "#ef4444"
-            _rows += "<div style='display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:0.8rem;color:#374151;'><span style='font-weight:700;color:" + _col + ";'>" + _ic + "</span>" + _lbl + "</div>"
-        _warn = ""
-        for _e in errors[:5]:
-            _warn += "<div style='font-size:0.72rem;color:#f59e0b;padding:3px 0 3px 20px;'>⚠ Thiếu: " + _e + "</div>"
-        _ok_html = ""
-        if _all_ok:
-            _ok_html = "<div style='background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;padding:10px;color:#166534;font-weight:600;font-size:0.8rem;text-align:center;margin-top:8px;'>✦ Tất cả hợp lệ — Sẵn sàng tạo HĐ</div>"
+    # Thao tác + File
+    st.markdown("<div style='background:white;border-radius:10px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #f1f5f9;'><div style='font-size:0.65rem;font-weight:700;color:#0d1f35;letter-spacing:0.8px;text-transform:uppercase;padding-bottom:8px;border-bottom:2px solid #f8fafc;margin-bottom:10px;'>⚡ Thao tác</div>", unsafe_allow_html=True)
+    _t1,_t2 = st.columns(2)
+    with _t1:
+        if st.button("💾 Lưu nháp", use_container_width=True, key="sv2"):
+            st.session_state.draft = current_data; st.success("Đã lưu!")
+    with _t2:
+        if st.button("🗑 Xoá nháp", use_container_width=True, key="dl2"):
+            st.session_state.draft = {}; st.session_state.generated = False; st.rerun()
+    _tb64 = base64.b64encode(DEFAULT_TEMPLATE_BYTES).decode()
+    st.markdown(f"<a href='data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{_tb64}' download='template.docx' style='display:block;text-align:center;padding:7px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;font-size:0.75rem;font-weight:600;color:#0d1f35;text-decoration:none;margin-top:6px;'>⬇ Tải template gốc</a>", unsafe_allow_html=True)
+    if st.session_state.result_fname:
         st.markdown(
-            "<div style='background:white;border-radius:12px;padding:16px 18px;margin-bottom:12px;"
-            "box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #f1f5f9;'>"
-            "<div style='font-size:0.7rem;font-weight:700;color:#0B2D4D;letter-spacing:0.8px;"
-            "text-transform:uppercase;padding-bottom:10px;border-bottom:2px solid #f1f5f9;margin-bottom:10px;'>✅ Kiểm tra thông tin</div>"
-            + _rows + _warn + _ok_html +
+            "<div style='background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;margin-top:8px;'>"
+            "<div style='display:flex;align-items:center;gap:7px;margin-bottom:5px;'>"
+            "<div style='width:22px;height:22px;border-radius:5px;background:#e0edff;display:flex;align-items:center;justify-content:center;font-size:0.65rem;'>📄</div>"
+            "<div><div style='font-size:0.65rem;color:#64748b;'>Tên file</div>"
+            "<div style='font-size:0.72rem;font-weight:600;color:#3b82f6;'>" + st.session_state.result_fname + "</div></div></div>"
+            "<div style='font-size:0.65rem;color:#64748b;'>🔑 Mã KH: <b style='color:#3b82f6;'>" + tao_ma_hd(draft.get("ten_hkd","?")) + "</b></div>"
+            "<div style='font-size:0.65rem;color:#64748b;margin-top:2px;'>🕐 " + (st.session_state.history[-1]["time"] if st.session_state.history else "") + "</div>"
             "</div>",
             unsafe_allow_html=True
         )
-
-    # Thao tác
-    with st.container():
-        st.markdown("<div style='background:white;border-radius:12px;padding:16px 18px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #f1f5f9;'><div style='font-size:0.7rem;font-weight:700;color:#0B2D4D;letter-spacing:0.8px;text-transform:uppercase;padding-bottom:10px;border-bottom:2px solid #f1f5f9;margin-bottom:10px;'>⚡ Thao tác</div>", unsafe_allow_html=True)
-        _t1, _t2 = st.columns(2)
-        with _t1:
-            if st.button("💾 Lưu nháp", use_container_width=True, key="sv2"):
-                st.session_state.draft = current_data; st.success("Đã lưu!")
-        with _t2:
-            if st.button("🗑 Xoá nháp", use_container_width=True, key="dl2"):
-                st.session_state.draft = {}; st.session_state.generated = False; st.rerun()
-        _tmpl_b64 = base64.b64encode(DEFAULT_TEMPLATE_BYTES).decode()
-        st.markdown(f"<a href='data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{_tmpl_b64}' download='template.docx' style='display:block;text-align:center;padding:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:0.78rem;font-weight:600;color:#0B2D4D;text-decoration:none;margin-top:8px;'>⬇ Tải template gốc</a>", unsafe_allow_html=True)
-        if st.session_state.result_fname:
-            st.markdown("<div style='background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;margin-top:8px;'><div style='font-weight:700;color:#0B2D4D;font-size:0.78rem;word-break:break-all;'>📄 " + st.session_state.result_fname + "</div><div style='font-size:0.68rem;color:#64748b;margin-top:2px;'>Mã KH: " + tao_ma_hd(draft.get("ten_hkd","?")) + "</div></div>", unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
     # Preview
     if st.session_state.show_preview and st.session_state.result_bytes:
-        with st.container():
-            st.markdown("<div style='background:white;border-radius:12px;padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #f1f5f9;'><div style='font-size:0.7rem;font-weight:700;color:#0B2D4D;letter-spacing:0.8px;text-transform:uppercase;padding-bottom:10px;border-bottom:2px solid #f1f5f9;margin-bottom:10px;'>👁 Xem trước hợp đồng</div>", unsafe_allow_html=True)
-            try:
-                import mammoth, tempfile, os as _os
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as _tmp:
-                    _tmp.write(st.session_state.result_bytes); _tmp_path = _tmp.name
-                with open(_tmp_path, "rb") as _f: _res = mammoth.convert_to_html(_f)
-                _os.unlink(_tmp_path)
-                _prev = "<!DOCTYPE html><html><head><meta charset='utf-8'><style>body{font-family:Times New Roman,serif;font-size:12pt;line-height:1.6;color:#111;padding:32px 48px;background:white;margin:0;}table{width:100%;border-collapse:collapse;}td,th{border:1px solid #444;padding:4px 8px;}p{margin:3px 0;}</style></head><body>" + _res.value + "</body></html>"
-                _zoomed = "<!DOCTYPE html><html><head><meta charset='utf-8'><style>html,body{margin:0;padding:0;background:#f0f2f5;}.w{transform:scale(0.58);transform-origin:top left;width:172%;}</style></head><body><div class='w'>" + _prev + "</div></body></html>"
-                st.components.v1.html(_zoomed, height=1000, scrolling=True)
-            except ImportError:
-                try:
-                    _ph = docx_to_html(st.session_state.result_bytes)
-                    _z = "<!DOCTYPE html><html><head><meta charset='utf-8'><style>html,body{margin:0;padding:0;background:#f0f2f5;}.w{transform:scale(0.58);transform-origin:top left;width:172%;}</style></head><body><div class='w'>" + _ph + "</div></body></html>"
-                    st.components.v1.html(_z, height=1000, scrolling=True)
-                except: st.error("Không thể hiển thị preview. Hãy tải file về xem.")
-            except: st.error("Không thể hiển thị preview. Hãy tải file về xem.")
-            st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("<div style='background:white;border-radius:10px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #f1f5f9;'><div style='font-size:0.65rem;font-weight:700;color:#0d1f35;letter-spacing:0.8px;text-transform:uppercase;padding-bottom:8px;border-bottom:2px solid #f8fafc;margin-bottom:10px;'>👁 Xem trước hợp đồng</div>", unsafe_allow_html=True)
+        st.markdown(
+            "<div style='display:flex;gap:4px;margin-bottom:8px;'>"
+            "<div style='padding:4px 12px;border-radius:6px;font-size:0.7rem;font-weight:600;background:#0d1f35;color:white;border:1.5px solid #0d1f35;'>📝 Word</div>"
+            "<div style='padding:4px 12px;border-radius:6px;font-size:0.7rem;font-weight:600;border:1.5px solid #e2e8f0;background:white;color:#64748b;opacity:0.4;'>📄 PDF</div>"
+            "</div>",
+            unsafe_allow_html=True
+        )
+        try:
+            import mammoth, tempfile, os as _os
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as _tmp:
+                _tmp.write(st.session_state.result_bytes); _tp = _tmp.name
+            with open(_tp,"rb") as _f: _res = mammoth.convert_to_html(_f)
+            _os.unlink(_tp)
+            _ph = ("<!DOCTYPE html><html><head><meta charset='utf-8'><style>"
+                   "body{font-family:'Times New Roman',serif;font-size:11pt;line-height:1.6;color:#111;padding:24px 32px;background:white;margin:0;}"
+                   "table{width:100%;border-collapse:collapse;}td,th{border:1px solid #444;padding:4px 8px;}p{margin:3px 0;}"
+                   "</style></head><body>"+_res.value+"</body></html>")
+        except:
+            _ph = docx_to_html(st.session_state.result_bytes)
+        _z = ("<!DOCTYPE html><html><head><meta charset='utf-8'><style>"
+              "html,body{margin:0;padding:0;background:#f0f2f5;}.w{transform:scale(0.58);transform-origin:top left;width:172%;}"
+              "</style></head><body><div class='w'>"+_ph+"</div></body></html>")
+        st.components.v1.html(_z, height=900, scrolling=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # Footer
-st.markdown("<div style='text-align:center;padding:20px 0;font-size:0.7rem;color:#94a3b8;border-top:1px solid #e2e8f0;margin-top:40px;'>© 2026 MobiFone Đà Nẵng · <span style='color:#E31837;font-weight:700;'>MobiFone Auto</span> · MT306 · v7 Web</div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align:center;padding:16px 0;font-size:0.62rem;color:#94a3b8;border-top:1px solid #e2e8f0;margin-top:20px;'>© 2026 MobiFone Đà Nẵng – <span style='color:#E31837;font-weight:700;'>MOBIFONE AUTO-MT306</span> – Developed by Minh Thông</div>", unsafe_allow_html=True)
