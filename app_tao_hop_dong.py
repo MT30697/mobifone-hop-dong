@@ -827,437 +827,724 @@ def validate(kh: dict) -> list:
         errors.append("Email nhân viên không đúng định dạng")
     return errors
 
-# ─────────────────────────────────────────────
-# SIDEBAR
-# ─────────────────────────────────────────────
-with st.sidebar:
-    # ── Branding ──
-    st.markdown("""
-    <div style="padding:10px 4px 14px;border-bottom:1px solid #1e3a55;margin-bottom:14px">
-        <div style="font-size:1rem;font-weight:800;color:#f1f5f9;letter-spacing:0.5px">MOBIFONE AUTO-MT306</div>
-        <div style="font-size:0.72rem;color:#64748b;margin-top:3px">Auto Create Contract · v7 Web</div>
-    </div>
-    <div style="font-size:0.72rem;font-weight:700;color:#94a3b8;letter-spacing:1px;margin-bottom:8px">TEMPLATE</div>
-    <div style="background:#0d3320;border:1px solid #166534;border-radius:8px;
-                padding:8px 12px;font-size:0.78rem;color:#4ade80;margin-bottom:10px;">
-        Template mặc định sẵn sàng
-    </div>
-    <div style="font-size:0.72rem;color:#475569;margin-bottom:6px">
-        Để dùng template khác, upload ở đây:
-    </div>
-    """, unsafe_allow_html=True)
+st.set_page_config(
+    page_title="MobiFone Auto Create Contract",
+    page_icon="📄",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
 
-    # File uploader — ẩn widget gốc, chỉ show khi user muốn
-    # Dùng CSS ẩn toàn bộ dropzone xấu
+# ═══════════════════════════════════════════════════════════════
+# UI LAYER — Enterprise MobiFone Design
+# ═══════════════════════════════════════════════════════════════
+
+# ── SESSION STATE ──────────────────────────────────────────────
+for k, default in [
+    ("history",      []),
+    ("draft",        {}),
+    ("generated",    False),
+    ("result_bytes", None),
+    ("result_fname", ""),
+    ("show_preview", False),
+    ("active_tab",   "contract"),
+    ("goi_cuocs",    [
+        {"ten_goi":"E-50","don_vi":"Gói","so_luong":"1","gia_goi":"100000","so_hd_trong_goi":"50"},
+        {"ten_goi":"",    "don_vi":"Gói","so_luong":"", "gia_goi":"",      "so_hd_trong_goi":""},
+        {"ten_goi":"",    "don_vi":"Gói","so_luong":"", "gia_goi":"",      "so_hd_trong_goi":""},
+    ]),
+    ("n_goi",        3),
+    ("current_step", 2),
+]:
+    if k not in st.session_state:
+        st.session_state[k] = default
+
+
+# ── INJECT CSS ─────────────────────────────────────────────────
+def inject_css():
     st.markdown("""
-    <style>
-    /* An toan bo dropzone cua file uploader trong sidebar */
-    section[data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"],
-    section[data-testid="stSidebar"] [data-testid="stFileUploaderDropzoneInstructions"],
-    section[data-testid="stSidebar"] [data-testid="stFileUploader"] > label,
-    section[data-testid="stSidebar"] [data-testid="stFileUploader"] > div > div {
-        display: none !important;
-        height: 0 !important;
-        overflow: hidden !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    section[data-testid="stSidebar"] [data-testid="stFileUploader"] {
-        margin: 0 !important;
-        padding: 0 !important;
-        min-height: 0 !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    template_file = st.file_uploader(
-        "tpl", type=["docx"], label_visibility="collapsed",
-    )
-    if template_file:
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+* { font-family: 'Inter', sans-serif !important; box-sizing: border-box; }
+
+/* ── APP BACKGROUND ── */
+[data-testid="stAppViewContainer"] { background: #F5F7FB !important; }
+[data-testid="stMainBlockContainer"] {
+    padding: 0 1.6rem 120px !important;
+    max-width: 1400px !important;
+}
+[data-testid="block-container"] { padding-top: 0 !important; }
+
+/* ── SIDEBAR ── */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #0B2D4D 0%, #123A72 100%) !important;
+    min-width: 240px !important; max-width: 260px !important;
+}
+[data-testid="stSidebar"] > div { padding: 0 !important; }
+[data-testid="stSidebar"] * { color: #cbd5e1 !important; }
+[data-testid="stSidebar"] input {
+    background: #1e3a55 !important;
+    border: 1px solid #2d5070 !important;
+    color: #e2e8f0 !important;
+    border-radius: 8px !important;
+}
+[data-testid="stSidebar"] label { font-size: 0.72rem !important; color: #94a3b8 !important; }
+[data-testid="stSidebar"] .stButton button {
+    background: #1e3a55 !important;
+    border: 1px solid #2d5070 !important;
+    color: #e2e8f0 !important;
+    border-radius: 8px !important;
+    font-size: 0.78rem !important;
+}
+
+/* ── HIDE STREAMLIT CHROME ── */
+#MainMenu, footer, header { visibility: hidden !important; }
+[data-testid="stToolbar"] { display: none !important; }
+
+/* ── CARDS ── */
+.card {
+    background: white;
+    border-radius: 14px;
+    padding: 20px 22px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    margin-bottom: 16px;
+}
+.card-head {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #0B2D4D;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ── STEP BAR ── */
+.step-bar {
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 12px;
+    padding: 16px 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    gap: 0;
+}
+.step-item {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    position: relative;
+}
+.step-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: calc(100% - 140px);
+    height: 2px;
+    background: #e2e8f0;
+    left: 140px;
+}
+.step-item.done::after  { background: #22c55e; }
+.step-item.active::after { background: #e2e8f0; }
+.step-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700;
+    background: #e2e8f0; color: #94a3b8;
+    flex-shrink: 0; z-index: 1;
+}
+.step-dot.done   { background: #22c55e; color: white; }
+.step-dot.active { background: #0B2D4D; color: white; box-shadow: 0 0 0 4px #dbeafe; }
+.step-label {
+    font-size: 0.72rem; font-weight: 600;
+    margin-left: 8px; white-space: nowrap;
+    color: #94a3b8;
+}
+.step-label.done   { color: #16a34a; }
+.step-label.active { color: #0B2D4D; }
+
+/* ── TABLE HEADER ── */
+.tbl-head {
+    display: grid;
+    grid-template-columns: 24px 1.8fr 0.7fr 0.7fr 1fr 0.9fr 1fr 28px;
+    gap: 6px;
+    padding: 8px 6px;
+    background: #f1f5f9;
+    border-radius: 8px 8px 0 0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+/* ── CHECK ITEMS ── */
+.check-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 0.8rem;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+}
+.check-row:last-child { border-bottom: none; }
+.check-ok   { color: #16a34a; font-weight: 700; font-size: 0.9rem; }
+.check-fail { color: #ef4444; font-weight: 700; font-size: 0.9rem; }
+
+/* ── INPUT STYLE ── */
+[data-testid="stTextInput"] input {
+    height: 42px !important;
+    border-radius: 10px !important;
+    border: 1.5px solid #e2e8f0 !important;
+    padding: 0 12px !important;
+    font-size: 0.85rem !important;
+    transition: border-color 0.2s;
+}
+[data-testid="stTextInput"] input:focus {
+    border-color: #123A72 !important;
+    box-shadow: 0 0 0 3px rgba(18,58,114,0.1) !important;
+}
+
+/* ── BUTTONS ── */
+.stButton > button {
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    font-size: 0.84rem !important;
+    height: 42px !important;
+    transition: all 0.2s !important;
+}
+.stButton > button[kind="primary"] {
+    background: #E31837 !important;
+    border: none !important;
+    color: white !important;
+    font-size: 0.95rem !important;
+}
+.stButton > button[kind="primary"]:hover { background: #c0122d !important; }
+
+/* ── BOTTOM BAR ── */
+.bottom-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: white;
+    border-top: 2px solid #e2e8f0;
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    z-index: 999;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.08);
+}
+.bottom-total {
+    flex: 1;
+}
+.bottom-total .amount {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #0B2D4D;
+}
+.bottom-total .words {
+    font-size: 0.78rem;
+    color: #64748b;
+    font-style: italic;
+}
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+.badge-navy { background: #0B2D4D; color: white; }
+.badge-red  { background: #E31837; color: white; }
+.badge-gray { background: #e2e8f0; color: #475569; }
+
+/* ── HIST ITEM ── */
+.hist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #1e3a55;
+}
+.hist-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    margin-top: 5px;
+    flex-shrink: 0;
+}
+.hist-name { font-size: 0.75rem; color: #e2e8f0 !important; font-weight: 600; word-break: break-all; }
+.hist-time { font-size: 0.68rem; color: #64748b !important; margin-top: 2px; }
+
+/* ── SUCCESS BOX ── */
+.ok-box {
+    background: #f0fdf4;
+    border: 1.5px solid #86efac;
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: #166534;
+    font-weight: 600;
+    font-size: 0.82rem;
+    text-align: center;
+}
+
+/* ── FILE BADGE ── */
+.file-badge {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px 14px;
+}
+.file-badge .fname { font-weight: 700; color: #0B2D4D; font-size: 0.82rem; word-break: break-all; }
+.file-badge .fmeta { font-size: 0.72rem; color: #64748b; margin-top: 4px; }
+
+/* ── PREVIEW TAB ── */
+.preview-tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+.preview-tab {
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border: 1.5px solid #e2e8f0;
+    background: white;
+    color: #64748b;
+    cursor: pointer;
+}
+.preview-tab.active {
+    background: #0B2D4D;
+    color: white;
+    border-color: #0B2D4D;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# ── RENDER SIDEBAR ─────────────────────────────────────────────
+def render_sidebar():
+    with st.sidebar:
+        # Logo + Title
         st.markdown("""
-        <div style="background:#0d3320;border:1px solid #166534;border-radius:7px;
-                    padding:6px 10px;font-size:0.75rem;color:#4ade80;">
-            Dang dung template tuy chinh
-        </div>""", unsafe_allow_html=True)
-    else:
-        # Nút giả mở file dialog — trigger vào input[type=file] thật của Streamlit
-        import streamlit.components.v1 as components
-        components.html("""
-        <button onclick="
-            var inp = window.parent.document.querySelector(
-                '[data-testid=stSidebar] input[type=file]'
-            );
-            if(inp) inp.click();
-        " style="
-            width:100%; padding:8px 0; background:#1a3550;
-            border:1px dashed #3b6b9a; border-radius:8px;
-            color:#94a3b8; font-size:0.78rem; cursor:pointer;
-            font-family:Arial,sans-serif;
-        ">+ Chọn file template khác</button>
-        """, height=44)
-
-    st.markdown("<hr style='border-color:#1e3a55;margin:12px 0'/>", unsafe_allow_html=True)
-
-    # Link huong dan — 1 dong gon
-    GUIDE_URL = "https://drive.google.com/file/d/1abANUPjJpZPUbgdwJWbUHRSbeTQ29Yvn/view?usp=sharing"  # ← thay link thật vào đây
-    st.markdown(f"""
-    <a href="{GUIDE_URL}" target="_blank" style="
-        display:flex;align-items:center;gap:8px;
-        background:#1a3550;border:1px solid #2a4a6b;border-radius:8px;
-        padding:9px 14px;text-decoration:none;
-        color:#e2e8f0;font-size:0.8rem;font-weight:600;
-        transition:background 0.15s;margin-bottom:0">
-        Hướng dẫn sử dụng
-        <span style="margin-left:auto;font-size:0.75rem;color:#64748b">&#8599;</span>
-    </a>
-    """, unsafe_allow_html=True)
-
-    st.markdown("<hr style='border-color:#1e3a55;margin:12px 0'/>\n<div style='font-size:0.72rem;font-weight:700;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px'>BÊN B — MẶC ĐỊNH</div>", unsafe_allow_html=True)
-    ten_nv_ben_b = st.text_input("Tên nhân viên",  value=st.session_state.draft.get("ten_nv_ben_b", "Trương Thị Mỹ Châu"))
-    email_ben_b  = st.text_input("Email nhân viên", value=st.session_state.draft.get("email_ben_b",  "cuong.danghuy.ctv@mobifone.vn"))
-    sdt_ben_b    = st.text_input("SĐT nhân viên",   value=st.session_state.draft.get("sdt_ben_b",    "0901959799"))
-
-    st.markdown("<hr style='border-color:#1e3a55;margin:12px 0'/>\n<div style='font-size:0.72rem;font-weight:700;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px'>LỊCH SỬ GẦN NHẤT</div>", unsafe_allow_html=True)
-    if not st.session_state.history:
-        st.markdown("<div style='color:#334155;font-size:0.78rem;padding:4px 0'>Chưa có hợp đồng nào</div>", unsafe_allow_html=True)
-    else:
-        for item in reversed(st.session_state.history[-6:]):
-            st.markdown(f"""
-            <div class="hist-item">
-                <div class="hist-dot"></div>
-                <div class="hist-info">
-                    <div class="hist-name">{item['fname']}</div>
-                    <div class="hist-time">{item['time']}</div>
+        <div style='padding:20px 16px 8px;'>
+            <div style='display:flex;align-items:center;gap:10px;margin-bottom:4px;'>
+                <div style='width:36px;height:36px;background:#E31837;border-radius:8px;
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:1rem;font-weight:900;color:white;flex-shrink:0;'>M</div>
+                <div>
+                    <div style='font-size:0.65rem;color:#94a3b8;letter-spacing:1px;'>MOBIFONE</div>
+                    <div style='font-size:0.82rem;font-weight:800;color:#f1f5f9;letter-spacing:0.3px;'>AUTO-MT306</div>
                 </div>
-            </div>""", unsafe_allow_html=True)
-        if st.button("🗑 Xoá lịch sử", use_container_width=True):
-            st.session_state.history = []
-            st.rerun()
-
-# ─────────────────────────────────────────────
-# HEADER
-# ─────────────────────────────────────────────
-st.markdown("""
-<div class="mbf-header">
-    <div class="mbf-header-inner">
-        <div class="mbf-logo-box">📄</div>
-        <div>
-            <h1>MobiFone Auto Create Contract</h1>
-            <div class="sub">
-                <span>MOBIFONE AUTO-MT306</span>
-                <span>Developed by Minh Thông · 0788 563 777</span>
-                <span>v7 Web</span>
-                <span>Cập nhật: 06/2026</span>
             </div>
         </div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+        <hr style='border:none;border-top:1px solid #1e3a55;margin:0 16px 12px;'/>
+        """, unsafe_allow_html=True)
 
-# ── SIDEBAR TOGGLE ──
-import streamlit.components.v1 as components
-components.html("""
-<script>
-(function() {
-    function initToggle() {
-        var doc = window.parent.document;
-        if (doc.getElementById('mbf-sidebar-btn')) return;
+        # Nav menu
+        menu_items = [
+            ("📝", "Tạo hợp đồng",     "contract"),
+            ("📁", "Hợp đồng đã tạo",  "history"),
+            ("💾", "Nháp",             "draft"),
+            ("🗂", "Template",         "template"),
+        ]
+        for icon, label, key in menu_items:
+            active = st.session_state.active_tab == key
+            bg = "background:#1e3a55;border-left:3px solid #E31837;" if active else "border-left:3px solid transparent;"
+            if st.button(f"{icon}  {label}", key=f"nav_{key}", use_container_width=True):
+                st.session_state.active_tab = key
+                st.rerun()
 
-        var sb = doc.querySelector('[data-testid="stSidebar"]');
-        if (!sb) return;
+        st.markdown("<hr style='border:none;border-top:1px solid #1e3a55;margin:8px 16px;'/>", unsafe_allow_html=True)
 
-        // Đọc width thật của sidebar
-        var sbWidth = sb.getBoundingClientRect().width;
-        if (sbWidth < 10) return; // chưa render xong
+        # Thông tin nhân viên
+        st.markdown("<div style='padding:0 16px;font-size:0.68rem;font-weight:700;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;'>THÔNG TIN NHÂN VIÊN</div>", unsafe_allow_html=True)
+        ten_nv   = st.text_input("Tên",   value=st.session_state.draft.get("ten_nv_ben_b",  "Trương Thị Mỹ Châu"), key="sb_ten")
+        email_nv = st.text_input("Email", value=st.session_state.draft.get("email_ben_b",   "cuong.danghuy.ctv@mobifone.vn"), key="sb_email")
+        sdt_nv   = st.text_input("SĐT",   value=st.session_state.draft.get("sdt_ben_b",     "0901959799"), key="sb_sdt")
+        st.session_state.draft["ten_nv_ben_b"] = ten_nv
+        st.session_state.draft["email_ben_b"]  = email_nv
+        st.session_state.draft["sdt_ben_b"]    = sdt_nv
 
-        var btn = doc.createElement('button');
-        btn.id = 'mbf-sidebar-btn';
-        btn.textContent = '<';
-        Object.assign(btn.style, {
-            position: 'fixed',
-            top: '50vh',
-            left: sbWidth + 'px',
-            transform: 'translateY(-50%)',
-            zIndex: '999999',
-            width: '18px',
-            height: '40px',
-            background: '#1a3a5c',
-            color: '#94a3b8',
-            border: 'none',
-            borderRadius: '0 8px 8px 0',
-            cursor: 'pointer',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            boxShadow: '2px 0 8px rgba(0,0,0,0.35)',
-            transition: 'background 0.2s',
-            padding: '0',
-            lineHeight: '1'
-        });
-        doc.body.appendChild(btn);
+        st.markdown("<hr style='border:none;border-top:1px solid #1e3a55;margin:8px 16px;'/>", unsafe_allow_html=True)
 
-        var open = true;
-        btn.addEventListener('click', function() {
-            if (open) {
-                sb.style.transition = 'transform 0.3s ease';
-                sb.style.transform = 'translateX(-110%)';
-                btn.style.left = '0px';
-                btn.textContent = '>';
-                open = false;
-            } else {
-                sb.style.transition = 'transform 0.3s ease';
-                sb.style.transform = 'translateX(0)';
-                btn.style.left = sbWidth + 'px';
-                btn.textContent = '<';
-                open = true;
-            }
-        });
-        btn.addEventListener('mouseenter', function() {
-            btn.style.background = '#e63946';
-            btn.style.color = '#fff';
-        });
-        btn.addEventListener('mouseleave', function() {
-            btn.style.background = '#1a3a5c';
-            btn.style.color = '#94a3b8';
-        });
-    }
-    // Thử nhiều lần đến khi sidebar render xong
-    var t = 0;
-    var iv = setInterval(function() {
-        initToggle();
-        if (++t > 40) clearInterval(iv);
-    }, 250);
-})();
-</script>
-""", height=0)
+        # Lịch sử
+        total       = len(st.session_state.history)
+        today_count = sum(1 for h in st.session_state.history
+                          if h.get("time","").startswith(datetime.now().strftime("%d/%m/%Y")))
+        st.markdown(f"""
+        <div style='padding:0 16px;'>
+            <div style='font-size:0.68rem;font-weight:700;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;'>LỊCH SỬ HỢP ĐỒNG</div>
+            <div style='display:flex;gap:12px;margin-bottom:10px;'>
+                <div style='text-align:center;'>
+                    <div style='font-size:1.2rem;font-weight:800;color:#f1f5f9;'>{total}</div>
+                    <div style='font-size:0.62rem;color:#94a3b8;'>Tổng</div>
+                </div>
+                <div style='text-align:center;'>
+                    <div style='font-size:1.2rem;font-weight:800;color:#22c55e;'>{today_count}</div>
+                    <div style='font-size:0.62rem;color:#94a3b8;'>Hôm nay</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────
-# STAT CARDS
-# ─────────────────────────────────────────────
-total       = len(st.session_state.history)
-today_count = sum(1 for h in st.session_state.history
-                  if h["time"].startswith(date.today().strftime("%d/%m/%Y")))
-tpl_ok      = "✅ Tùy chỉnh" if template_file else "✅ Mặc định"
+        if st.session_state.history:
+            for item in reversed(st.session_state.history[-5:]):
+                st.markdown(f"""
+                <div class="hist-item" style='padding:6px 16px;border-bottom:1px solid #1e3a55;'>
+                    <div class="hist-dot"></div>
+                    <div>
+                        <div class="hist-name">{item['fname']}</div>
+                        <div class="hist-time">{item['time']}</div>
+                    </div>
+                </div>""", unsafe_allow_html=True)
+            if st.button("🗑 Xoá lịch sử", use_container_width=True, key="clr_hist"):
+                st.session_state.history = []
+                st.rerun()
 
-st.markdown(f"""
-<div class="stat-row">
-    <div class="stat-card">
-        <div class="stat-icon red">📄</div>
-        <div><div class="stat-val">{total}</div><div class="stat-lbl">HĐ đã tạo</div></div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon blue">📅</div>
-        <div><div class="stat-val">{today_count}</div><div class="stat-lbl">Hôm nay</div></div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon green">🗂</div>
-        <div><div class="stat-val" style="font-size:0.9rem;margin-top:3px">{tpl_ok}</div><div class="stat-lbl">Template</div></div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+        # Template upload
+        st.markdown("<hr style='border:none;border-top:1px solid #1e3a55;margin:8px 16px;'/>", unsafe_allow_html=True)
+        st.markdown("<div style='padding:0 16px;font-size:0.68rem;font-weight:700;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;'>TEMPLATE</div>", unsafe_allow_html=True)
+        template_file = st.file_uploader("Upload template .docx", type=["docx"], key="tmpl_upload",
+                                         label_visibility="collapsed")
+        if template_file:
+            st.markdown("<div style='padding:0 16px;color:#22c55e;font-size:0.72rem;font-weight:600;'>✅ Template tuỳ chỉnh</div>", unsafe_allow_html=True)
+        else:
+            st.markdown("<div style='padding:0 16px;color:#64748b;font-size:0.72rem;'>📄 Template mặc định sẵn sàng</div>", unsafe_allow_html=True)
 
-# Dùng template tùy chỉnh nếu upload, ngược lại dùng mặc định
-template_bytes = template_file.read() if template_file else DEFAULT_TEMPLATE_BYTES
+        # Footer
+        st.markdown("""
+        <div style='padding:16px;margin-top:auto;'>
+            <div style='font-size:0.62rem;color:#475569;text-align:center;'>
+                © 2026 MobiFone Đà Nẵng<br>
+                <span style='color:#E31837;font-weight:700;'>MobiFone Auto</span> ·
+                <span style='color:#94a3b8;'>MT306</span> ·
+                <span style='color:#94a3b8;'>v7 Web</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-# ═══════════════════════════════════════════════════════
-# UI — ENTERPRISE REDESIGN
-# ═══════════════════════════════════════════════════════
+    return template_file
 
-# Tính toán trước
-total       = len(st.session_state.history)
-today_count = sum(1 for h in st.session_state.history
-                  if h.get("time", "").startswith(datetime.now().strftime("%d/%m/%Y")))
-errors_check_data = {
-    "so_hd": st.session_state.draft.get("so_hd", ""),
-    "ten_hkd": st.session_state.draft.get("ten_hkd", ""),
-    "tru_so": st.session_state.draft.get("tru_so", ""),
-    "dien_thoai": st.session_state.draft.get("dien_thoai", ""),
-    "ma_so_thue": st.session_state.draft.get("ma_so_thue", ""),
-    "dai_dien": st.session_state.draft.get("dai_dien", ""),
-    "chuc_vu": st.session_state.draft.get("chuc_vu", ""),
-    "email_kh": st.session_state.draft.get("email_kh", ""),
-    "ngay_ky": st.session_state.draft.get("ngay_ky", ""),
-    "thang_ky": st.session_state.draft.get("thang_ky", ""),
-    "nam_ky": st.session_state.draft.get("nam_ky", ""),
-    "ten_nv_ben_b": st.session_state.draft.get("ten_nv_ben_b", ""),
-    "email_ben_b": st.session_state.draft.get("email_ben_b", ""),
-    "sdt_ben_b": st.session_state.draft.get("sdt_ben_b", ""),
-    "goi_cuocs": [g for g in st.session_state.goi_cuocs[:st.session_state.n_goi] if g.get("ten_goi")],
-}
-preview_errors = validate(errors_check_data)
 
-# ── LAYOUT: left_col (form) | right_col (panel + preview)
-_col_ratio = [5, 7] if st.session_state.show_preview else [3, 1]
-if st.session_state.show_preview:
-    left_col, right_col = st.columns([5, 7], gap="large")
-else:
-    left_col, right_col = st.columns([3, 1], gap="large")
-
-# ═══════════════════════════════════
-# LEFT COL — FORM
-# ═══════════════════════════════════
-with left_col:
-
-    # ── Section: Thông tin HĐ
+# ── RENDER HEADER ──────────────────────────────────────────────
+def render_header():
     st.markdown("""
-    <div class="sec-block">
-        <div class="sec-head"><span>📋 Thông tin hợp đồng</span></div>
+    <div style='background:linear-gradient(135deg, #0B2D4D 0%, #123A72 60%, #E31837 100%);
+        border-radius:0 0 16px 16px;padding:22px 28px 18px;margin:0 -1.6rem 20px;
+        display:flex;align-items:center;justify-content:space-between;'>
+        <div>
+            <div style='font-size:1.35rem;font-weight:800;color:white;letter-spacing:-0.3px;'>
+                MobiFone Auto Create Contract
+            </div>
+            <div style='font-size:0.82rem;color:rgba(255,255,255,0.75);margin-top:3px;'>
+                Tạo hợp đồng nhanh chóng – Chính xác – Bảo mật
+            </div>
+        </div>
+        <div style='display:flex;gap:8px;align-items:center;'>
+            <span class="badge badge-navy">MT306</span>
+            <span class="badge badge-red">v7 Web</span>
+            <span class="badge badge-gray">06/2026</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+# ── RENDER STEPPER ─────────────────────────────────────────────
+def render_stepper(current_step: int, errors: list):
+    steps = ["Chọn template", "Nhập thông tin", "Kiểm tra", "Xem trước", "Tạo hợp đồng"]
+    items_html = ""
+    for i, label in enumerate(steps, 1):
+        if i < current_step:
+            dot_cls   = "done"
+            label_cls = "done"
+            dot_inner = "✓"
+        elif i == current_step:
+            dot_cls   = "active"
+            label_cls = "active"
+            dot_inner = str(i)
+        else:
+            dot_cls   = ""
+            label_cls = ""
+            dot_inner = str(i)
+        connector = f"<div style='flex:1;height:2px;background:{'#22c55e' if i < current_step else '#e2e8f0'};margin:0 4px;'></div>" if i < len(steps) else ""
+        items_html += f"""
+        <div style='display:flex;align-items:center;'>
+            <div style='display:flex;flex-direction:column;align-items:center;gap:4px;'>
+                <div class='step-dot {dot_cls}'>{dot_inner}</div>
+                <div class='step-label {label_cls}' style='font-size:0.65rem;'>{label}</div>
+            </div>
+            {connector}
+        </div>"""
+
+    st.markdown(f"""
+    <div style='background:white;border-radius:12px;padding:14px 24px;margin-bottom:16px;
+        box-shadow:0 1px 4px rgba(0,0,0,0.06);display:flex;align-items:flex-start;'>
+        {items_html}
     </div>""", unsafe_allow_html=True)
 
-    c1, c2, c3, c4 = st.columns([2, 2, 2, 2])
-    with c1:
-        so_hd    = st.text_input("Số hợp đồng ✱",  value=st.session_state.draft.get("so_hd", ""),               placeholder="101")
-    with c2:
-        ngay_ky  = st.text_input("Ngày ký",         value=st.session_state.draft.get("ngay_ky",  datetime.now().strftime("%d")), placeholder="28")
-    with c3:
-        thang_ky = st.text_input("Tháng ký ✱",     value=st.session_state.draft.get("thang_ky", datetime.now().strftime("%m")), placeholder="06")
-    with c4:
-        nam_ky   = st.text_input("Năm ký ✱",       value=st.session_state.draft.get("nam_ky",   datetime.now().strftime("%Y")), placeholder="2026")
 
-    # ── Section: Bên A
-    st.markdown("""
-    <div class="sec-block">
-        <div class="sec-head"><span>🏢 Bên A — Khách hàng</span></div>
-    </div>""", unsafe_allow_html=True)
+# ── RENDER CONTRACT FORM (left col) ───────────────────────────
+def render_contract_form(draft):
+    # Card 1: Thông tin HĐ
+    st.markdown('<div class="card"><div class="card-head">📋 Thông tin hợp đồng</div>', unsafe_allow_html=True)
+    c1, c2, c3, c4 = st.columns(4)
+    with c1: so_hd    = st.text_input("Số hợp đồng ✱",  value=draft.get("so_hd",""),    placeholder="101",  key="f_so_hd")
+    with c2: ngay_ky  = st.text_input("Ngày ký",         value=draft.get("ngay_ky",  datetime.now().strftime("%d")), placeholder="25", key="f_ngay")
+    with c3: thang_ky = st.text_input("Tháng ký ✱",     value=draft.get("thang_ky", datetime.now().strftime("%m")), placeholder="06", key="f_thang")
+    with c4: nam_ky   = st.text_input("Năm ký ✱",       value=draft.get("nam_ky",   datetime.now().strftime("%Y")), placeholder="2026", key="f_nam")
+    st.markdown('</div>', unsafe_allow_html=True)
 
+    # Card 2: Bên A
+    st.markdown('<div class="card"><div class="card-head">🏢 Bên A — Khách hàng</div>', unsafe_allow_html=True)
     a1, a2 = st.columns(2)
     with a1:
-        ten_hkd    = st.text_input("Tên đơn vị ✱",        value=st.session_state.draft.get("ten_hkd", ""),    placeholder="HKD Nhà Nghỉ Kim Liên")
-        dia_chi_gd = st.text_input("Địa chỉ giao dịch",   value=st.session_state.draft.get("dia_chi_gd", ""), placeholder="Để trống nếu giống trụ sở")
-        ma_so_thue = st.text_input("Mã số thuế ✱",        value=st.session_state.draft.get("ma_so_thue", ""), placeholder="049189011144")
+        ten_hkd    = st.text_input("Tên HKD đầy đủ ✱", value=draft.get("ten_hkd",""),    placeholder="HKD Nhà Nghỉ Kim Liên", key="f_ten")
+        dia_chi_gd = st.text_input("Địa chỉ giao dịch", value=draft.get("dia_chi_gd",""), placeholder="Để trống nếu giống trụ sở", key="f_dc")
+        ma_so_thue = st.text_input("Mã số thuế ✱",      value=draft.get("ma_so_thue",""), placeholder="049189011144", key="f_mst")
+        dai_dien   = st.text_input("Họ tên đại diện ✱", value=draft.get("dai_dien",""),   placeholder="Nguyễn Văn A", key="f_dd")
     with a2:
-        tru_so     = st.text_input("Trụ sở chính ✱",      value=st.session_state.draft.get("tru_so", ""),    placeholder="142/2 Phan Châu Trinh, P.Hải Châu, Đà Nẵng")
-        dien_thoai = st.text_input("Số điện thoại ✱",     value=st.session_state.draft.get("dien_thoai", ""), placeholder="0904725978")
-        email_kh   = st.text_input("Email khách hàng ✱",  value=st.session_state.draft.get("email_kh", ""),  placeholder="example@gmail.com")
+        tru_so     = st.text_input("Trụ sở chính ✱",    value=draft.get("tru_so",""),     placeholder="142/2 Phan Châu Trinh, Đà Nẵng", key="f_ts")
+        dien_thoai = st.text_input("Số điện thoại ✱",   value=draft.get("dien_thoai",""), placeholder="0904725978", key="f_dt")
+        email_kh   = st.text_input("Email khách hàng ✱",value=draft.get("email_kh",""),   placeholder="example@gmail.com", key="f_email")
+        chuc_vu    = st.text_input("Chức vụ ✱",         value=draft.get("chuc_vu","Chủ HKD"), placeholder="Chủ HKD", key="f_cv")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    a3, a4 = st.columns(2)
-    with a3:
-        dai_dien   = st.text_input("Họ tên đại diện ✱",   value=st.session_state.draft.get("dai_dien", ""),   placeholder="Nguyễn Văn A")
-    with a4:
-        chuc_vu    = st.text_input("Chức vụ ✱",           value=st.session_state.draft.get("chuc_vu", "Chủ HKD"), placeholder="Chủ HKD")
+    return so_hd, ngay_ky, thang_ky, nam_ky, ten_hkd, tru_so, dia_chi_gd, dien_thoai, ma_so_thue, dai_dien, chuc_vu, email_kh
 
-    # ── Section: Điều 6
+
+# ── RENDER PACKAGE TABLE ───────────────────────────────────────
+def render_package_table():
+    st.markdown('<div class="card"><div class="card-head">💰 Điều 6 — Giá trị hợp đồng</div>', unsafe_allow_html=True)
+
+    # Table header
     st.markdown("""
-    <div class="sec-block">
-        <div class="sec-head"><span>💰 Điều 6 — Giá trị hợp đồng</span></div>
-    </div>""", unsafe_allow_html=True)
-
-    # Header bảng
-    st.markdown("""
-    <div style="display:grid;grid-template-columns:28px 1.8fr 0.8fr 0.8fr 1.1fr 0.9fr 1.1fr 30px;
-        gap:4px;padding:6px 4px;background:#e2e8f0;border-radius:6px 6px 0 0;
-        font-size:0.72rem;font-weight:700;color:#475569;margin-bottom:2px;">
+    <div class="tbl-head">
         <div>#</div><div>Gói cước</div><div>ĐVT</div><div>SL</div>
         <div>Giá gói (VNĐ)</div><div>Thành tiền</div><div>SL HĐ/gói</div><div></div>
     </div>""", unsafe_allow_html=True)
 
-    n_goi = st.session_state.n_goi
+    n_goi    = st.session_state.n_goi
     goi_list = st.session_state.goi_cuocs
     while len(goi_list) < n_goi:
-        goi_list.append({"ten_goi": "", "don_vi": "Gói", "so_luong": "", "gia_goi": "", "so_hd_trong_goi": ""})
+        goi_list.append({"ten_goi":"","don_vi":"Gói","so_luong":"","gia_goi":"","so_hd_trong_goi":""})
 
     tong_tien = 0
     for i in range(n_goi):
         g = goi_list[i] if i < len(goi_list) else {}
-        cols = st.columns([0.3, 1.8, 0.8, 0.8, 1.1, 0.9, 1.1, 0.3])
-        with cols[0]:
-            st.markdown(f"<div style='padding-top:32px;font-size:0.78rem;color:#64748b;text-align:center'>{i+1}</div>", unsafe_allow_html=True)
-        with cols[1]:
-            g["ten_goi"] = st.text_input("Gói", value=g.get("ten_goi",""), key=f"gc_ten_{i}", placeholder="E-50", label_visibility="collapsed")
-        with cols[2]:
-            g["don_vi"] = st.text_input("ĐVT", value=g.get("don_vi","Gói"), key=f"gc_dv_{i}", label_visibility="collapsed")
-        with cols[3]:
-            g["so_luong"] = st.text_input("SL", value=g.get("so_luong",""), key=f"gc_sl_{i}", placeholder="1", label_visibility="collapsed")
-        with cols[4]:
-            g["gia_goi"] = st.text_input("Giá", value=g.get("gia_goi",""), key=f"gc_gia_{i}", placeholder="100000", label_visibility="collapsed")
+        r = st.columns([0.25, 1.8, 0.7, 0.7, 1.0, 0.9, 1.0, 0.25])
+        with r[0]: st.markdown(f"<div style='padding-top:30px;text-align:center;font-size:0.75rem;color:#94a3b8'>{i+1}</div>", unsafe_allow_html=True)
+        with r[1]: g["ten_goi"]          = st.text_input("Gói",  value=g.get("ten_goi",""),  key=f"gc_ten_{i}",  placeholder="E-50",   label_visibility="collapsed")
+        with r[2]: g["don_vi"]           = st.text_input("ĐVT",  value=g.get("don_vi","Gói"),key=f"gc_dv_{i}",   label_visibility="collapsed")
+        with r[3]: g["so_luong"]         = st.text_input("SL",   value=g.get("so_luong",""), key=f"gc_sl_{i}",   placeholder="1",      label_visibility="collapsed")
+        with r[4]: g["gia_goi"]          = st.text_input("Giá",  value=g.get("gia_goi",""),  key=f"gc_gia_{i}",  placeholder="100000", label_visibility="collapsed")
         try:
             sl  = int(str(g.get("so_luong","0") or "0").replace(".","").replace(",",""))
             gia = int(str(g.get("gia_goi","0")  or "0").replace(".","").replace(",",""))
-            tt  = sl * gia
-            tong_tien += tt
+            tt  = sl * gia; tong_tien += tt
         except: tt = 0
-        with cols[5]:
-            st.markdown(f"<div style='padding-top:32px;font-size:0.82rem;font-weight:600;color:#1e3a5c'>{tt:,}".replace(",",".")+f"</div>", unsafe_allow_html=True)
-        with cols[6]:
-            g["so_hd_trong_goi"] = st.text_input("SL HĐ", value=g.get("so_hd_trong_goi",""), key=f"gc_sohdgoi_{i}", placeholder="50", label_visibility="collapsed")
-        with cols[7]:
-            st.markdown("<div style='padding-top:28px'>", unsafe_allow_html=True)
-            if st.button("🗑", key=f"del_goi_{i}", help="Xóa gói này") and n_goi > 1:
-                goi_list.pop(i)
-                st.session_state.n_goi -= 1
-                st.session_state.goi_cuocs = goi_list
-                st.rerun()
+        with r[5]: st.markdown(f"<div style='padding-top:30px;font-size:0.82rem;font-weight:600;color:#0B2D4D'>{f'{tt:,}'.replace(',','.')}</div>", unsafe_allow_html=True)
+        with r[6]: g["so_hd_trong_goi"] = st.text_input("SL HĐ",value=g.get("so_hd_trong_goi",""), key=f"gc_sohdgoi_{i}", placeholder="50", label_visibility="collapsed")
+        with r[7]:
+            st.markdown("<div style='padding-top:24px'>", unsafe_allow_html=True)
+            if st.button("✕", key=f"del_{i}", help="Xóa") and n_goi > 1:
+                goi_list.pop(i); st.session_state.n_goi -= 1
+                st.session_state.goi_cuocs = goi_list; st.rerun()
             st.markdown("</div>", unsafe_allow_html=True)
         if i < len(goi_list): goi_list[i] = g
         else: goi_list.append(g)
 
     st.session_state.goi_cuocs = goi_list
 
-    ba1, ba2, _ = st.columns([1, 1, 4])
+    ba1, ba2, _ = st.columns([1.2, 1.2, 5])
     with ba1:
-        if st.button("➕ Thêm gói", use_container_width=True) and n_goi < 10:
+        if st.button("➕ Thêm gói", use_container_width=True, key="add_pkg") and n_goi < 10:
             st.session_state.n_goi += 1
             st.session_state.goi_cuocs.append({"ten_goi":"","don_vi":"Gói","so_luong":"","gia_goi":"","so_hd_trong_goi":""})
             st.rerun()
     with ba2:
-        if st.button("➖ Bớt gói", use_container_width=True) and n_goi > 1:
+        if st.button("➖ Bớt gói", use_container_width=True, key="rm_pkg") and n_goi > 1:
             st.session_state.n_goi -= 1
             st.session_state.goi_cuocs = st.session_state.goi_cuocs[:st.session_state.n_goi]
             st.rerun()
 
-    # Tổng tiền
-    bang_chu_preview = so_tien_bang_chu(tong_tien) if tong_tien > 0 else "—"
-    tong_str = f"{tong_tien:,}".replace(",", ".") + " đ" if tong_tien > 0 else "—"
+    st.markdown('</div>', unsafe_allow_html=True)
+    return tong_tien
+
+
+# ── RENDER VALIDATION PANEL ────────────────────────────────────
+def render_validation_panel(errors: list, current_data: dict):
+    st.markdown('<div class="card"><div class="card-head">✅ Kiểm tra thông tin</div>', unsafe_allow_html=True)
+    checks = [
+        ("Thông tin hợp đồng", not any(e in ["Số hợp đồng","Tháng ký","Năm ký"] for e in errors)),
+        ("Thông tin Bên A",    not any(e in ["Tên HKD","Trụ sở","Điện thoại","MST","Đại diện","Chức vụ","Email"] for e in errors)),
+        ("Gói cước",           bool(current_data.get("goi_cuocs"))),
+    ]
+    all_ok = not errors
+    for label, ok in checks:
+        icon = '<span class="check-ok">✓</span>' if ok else '<span class="check-fail">✕</span>'
+        st.markdown(f'<div class="check-row">{icon} {label}</div>', unsafe_allow_html=True)
+
+    if all_ok:
+        st.markdown('<div class="ok-box" style="margin-top:10px">✦ Tất cả hợp lệ — Sẵn sàng tạo HĐ</div>', unsafe_allow_html=True)
+    else:
+        for e in errors[:4]:
+            st.markdown(f"<div style='color:#ef4444;font-size:0.75rem;padding:2px 0;'>⚠ Thiếu: {e}</div>", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
+# ── RENDER ACTION PANEL ────────────────────────────────────────
+def render_action_panel(current_data: dict, fname_str: str):
+    st.markdown('<div class="card"><div class="card-head">⚡ Thao tác</div>', unsafe_allow_html=True)
+    a1, a2 = st.columns(2)
+    with a1:
+        if st.button("💾 Lưu nháp", use_container_width=True, key="save_draft"):
+            st.session_state.draft = current_data
+            st.success("Đã lưu nháp!")
+    with a2:
+        if st.button("🗑 Xoá nháp", use_container_width=True, key="del_draft"):
+            st.session_state.draft = {}; st.session_state.generated = False; st.rerun()
+
+    # Template download
+    tmpl_b64 = base64.b64encode(DEFAULT_TEMPLATE_BYTES).decode()
     st.markdown(f"""
-    <div style='background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;padding:12px 16px;margin-top:8px;'>
-        <div style='color:#1e3a5c;font-size:0.78rem;font-weight:600;margin-bottom:4px;'>TỔNG GIÁ TRỊ HỢP ĐỒNG</div>
-        <div style='color:#1a3a5c;font-size:1.1rem;font-weight:800;'>{tong_str}</div>
-        <div style='color:#334155;font-size:0.78rem;margin-top:4px;font-style:italic;'>{bang_chu_preview}</div>
+    <a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{tmpl_b64}"
+       download="template_hop_dong.docx"
+       style="display:block;text-align:center;padding:8px;background:#f1f5f9;border-radius:8px;
+              font-size:0.78rem;font-weight:600;color:#0B2D4D;text-decoration:none;margin-top:8px;">
+        ⬇ Tải template gốc
+    </a>""", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # File info
+    if st.session_state.result_fname:
+        st.markdown(f"""
+        <div class="card">
+            <div class="card-head">📄 Thông tin file</div>
+            <div class="file-badge">
+                <div class="fname">{st.session_state.result_fname}</div>
+                <div class="fmeta">Mã KH: {tao_ma_hd(st.session_state.draft.get("ten_hkd","?"))}</div>
+                <div class="fmeta">{st.session_state.history[-1]["time"] if st.session_state.history else ""}</div>
+            </div>
+        </div>""", unsafe_allow_html=True)
+
+
+# ── RENDER PREVIEW PANEL ───────────────────────────────────────
+def render_preview_panel():
+    if not (st.session_state.show_preview and st.session_state.result_bytes):
+        return
+
+    st.markdown('<div class="card"><div class="card-head">👁 Xem trước hợp đồng</div>', unsafe_allow_html=True)
+
+    # Tab bar Word / PDF
+    st.markdown("""
+    <div class="preview-tab-bar">
+        <div class="preview-tab active">📝 Word</div>
+        <div class="preview-tab" style="opacity:0.4;cursor:not-allowed" title="Chưa hỗ trợ">📄 PDF</div>
     </div>""", unsafe_allow_html=True)
 
+    try:
+        import mammoth, tempfile, os
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmp:
+            tmp.write(st.session_state.result_bytes)
+            tmp_path = tmp.name
+        with open(tmp_path, "rb") as f:
+            result = mammoth.convert_to_html(f)
+        os.unlink(tmp_path)
+        html_content = f"""<!DOCTYPE html><html><head><meta charset="utf-8">
+        <style>
+        body{{font-family:'Times New Roman',serif;font-size:12pt;line-height:1.6;
+             color:#111;padding:32px 48px;background:white;margin:0;}}
+        table{{width:100%;border-collapse:collapse;margin:6px 0;}}
+        td,th{{border:1px solid #444;padding:4px 8px;font-size:11pt;}}
+        p{{margin:3px 0;}}
+        </style></head><body>{result.value}</body></html>"""
+        zoomed = f"""<!DOCTYPE html><html><head><meta charset="utf-8">
+        <style>html,body{{margin:0;padding:0;background:#f0f2f5;}}
+        .wrap{{transform:scale(0.6);transform-origin:top left;width:167%;}}</style>
+        </head><body><div class="wrap">{html_content}</div></body></html>"""
+        st.components.v1.html(zoomed, height=1050, scrolling=True)
+    except ImportError:
+        # Fallback về docx_to_html nếu không có mammoth
+        try:
+            preview_html = docx_to_html(st.session_state.result_bytes)
+            zoomed = f"""<!DOCTYPE html><html><head><meta charset="utf-8">
+            <style>html,body{{margin:0;padding:0;background:#f0f2f5;}}
+            .wrap{{transform:scale(0.6);transform-origin:top left;width:167%;}}</style>
+            </head><body><div class="wrap">{preview_html}</div></body></html>"""
+            st.components.v1.html(zoomed, height=1050, scrolling=True)
+        except Exception as ex2:
+            st.error(f"Không thể hiển thị preview. Vui lòng tải file về xem trực tiếp.")
+    except Exception as ex:
+        st.error("Không thể hiển thị preview. Vui lòng tải file về xem trực tiếp.")
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
+# ── RENDER BOTTOM BAR ──────────────────────────────────────────
+def render_bottom_bar(tong_tien: int, errors: list, fname_str: str, current_data: dict, template_bytes_local):
+    tong_str  = f"{tong_tien:,}".replace(",",".") + " đ" if tong_tien > 0 else "0 đ"
+    bang_chu  = so_tien_bang_chu(tong_tien) if tong_tien > 0 else "—"
+
+    # Bottom bar HTML
+    st.markdown(f"""
+    <div class="bottom-bar">
+        <div class="bottom-total">
+            <div class="amount">{tong_str}</div>
+            <div class="words">{bang_chu}</div>
+        </div>
+    </div>""", unsafe_allow_html=True)
+
+    # Buttons trong columns (không sticky nhưng gần cuối form)
     st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+    bb1, bb2, bb3 = st.columns([2, 1.5, 1.5])
 
-    # current_data
-    current_data = {
-        "so_hd": so_hd, "ngay_ky": ngay_ky, "thang_ky": thang_ky, "nam_ky": nam_ky,
-        "ten_hkd": ten_hkd, "tru_so": tru_so, "dia_chi_gd": dia_chi_gd,
-        "dien_thoai": dien_thoai, "ma_so_thue": ma_so_thue,
-        "dai_dien": dai_dien if dai_dien else "",
-        "chuc_vu": chuc_vu, "email_kh": email_kh,
-        "ten_nv_ben_b": st.session_state.draft.get("ten_nv_ben_b", "Trương Thị Mỹ Châu"),
-        "email_ben_b":  st.session_state.draft.get("email_ben_b",  "cuong.danghuy.ctv@mobifone.vn"),
-        "sdt_ben_b":    st.session_state.draft.get("sdt_ben_b",    "0901959799"),
-        "goi_cuocs": [g for g in st.session_state.goi_cuocs[:st.session_state.n_goi] if g.get("ten_goi")],
-    }
-    errors    = validate(current_data)
-    fname_str = filename_preview(so_hd, ten_hkd)
-
-    # ── Buttons
-    b1, b2 = st.columns([1, 1])
-    with b1:
-        generate = st.button("🚀  Tạo Hợp Đồng", use_container_width=True,
-                             disabled=bool(errors), type="primary")
-    with b2:
+    with bb1:
+        generate_btn = st.button("🚀  Tạo Hợp Đồng", use_container_width=True,
+                                  type="primary", disabled=bool(errors), key="main_gen")
+    with bb2:
+        if st.button("💾  Lưu nháp", use_container_width=True, key="main_save"):
+            st.session_state.draft = current_data
+            st.success("Đã lưu!")
+    with bb3:
         if st.button("✕  Đóng preview" if st.session_state.show_preview else "👁  Xem trước",
-                     use_container_width=True,
+                     use_container_width=True, key="main_preview",
                      disabled=not bool(st.session_state.result_bytes)):
             st.session_state.show_preview = not st.session_state.show_preview
             st.rerun()
 
-    if generate:
-        try:
-            result_bytes = tao_mot_hop_dong(current_data, template_bytes)
-            st.session_state.result_bytes = result_bytes
-            st.session_state.result_fname = fname_str
-            st.session_state.generated    = True
-            st.session_state.show_preview = False
-            st.session_state.history.append({
-                "fname": fname_str,
-                "time":  datetime.now().strftime("%d/%m/%Y %H:%M"),
-            })
-            st.success(f"✅ Tạo thành công: **{fname_str}**")
-            st.rerun()
-        except Exception as ex:
-            st.error(f"❌ Lỗi: {ex}")
-            st.session_state.generated = False
+    if generate_btn:
+        with st.spinner("⏳ Đang tạo hợp đồng..."):
+            import time; time.sleep(0.4)
+            try:
+                result_bytes = tao_mot_hop_dong(current_data, template_bytes_local)
+                st.session_state.result_bytes = result_bytes
+                st.session_state.result_fname = fname_str
+                st.session_state.generated    = True
+                st.session_state.show_preview = False
+                st.session_state.current_step = 5
+                st.session_state.history.append({
+                    "fname": fname_str,
+                    "time":  datetime.now().strftime("%d/%m/%Y %H:%M"),
+                })
+                st.success(f"✅ Tạo thành công: **{fname_str}**")
+                st.balloons()
+                st.rerun()
+            except Exception as ex:
+                st.error(f"❌ Lỗi khi tạo hợp đồng: {ex}")
+                st.session_state.generated = False
 
     if st.session_state.generated and st.session_state.result_bytes:
         st.download_button(
@@ -1266,83 +1553,71 @@ with left_col:
             file_name=st.session_state.result_fname,
             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             use_container_width=True,
+            key="dl_btn",
         )
 
-# ═══════════════════════════════════
-# RIGHT COL — KIỂM TRA + PREVIEW
-# ═══════════════════════════════════
+
+# ══════════════════════════════════════════════════════════════
+# MAIN APP
+# ══════════════════════════════════════════════════════════════
+inject_css()
+template_file = render_sidebar()
+template_bytes = template_file.read() if template_file else DEFAULT_TEMPLATE_BYTES
+render_header()
+
+# Tính current_step từ state
+draft = st.session_state.draft
+if st.session_state.generated:
+    cur_step = 5
+elif draft.get("goi_cuocs") or st.session_state.goi_cuocs[0].get("ten_goi"):
+    cur_step = 3
+elif draft.get("ten_hkd"):
+    cur_step = 2
+else:
+    cur_step = 1
+
+# Main columns
+left_col, right_col = st.columns([13, 7], gap="large")
+
+with left_col:
+    render_stepper(cur_step, [])
+
+    (so_hd, ngay_ky, thang_ky, nam_ky,
+     ten_hkd, tru_so, dia_chi_gd, dien_thoai,
+     ma_so_thue, dai_dien, chuc_vu, email_kh) = render_contract_form(draft)
+
+    tong_tien = render_package_table()
+
+    # Build current_data
+    current_data = {
+        "so_hd": so_hd, "ngay_ky": ngay_ky, "thang_ky": thang_ky, "nam_ky": nam_ky,
+        "ten_hkd": ten_hkd, "tru_so": tru_so, "dia_chi_gd": dia_chi_gd,
+        "dien_thoai": dien_thoai, "ma_so_thue": ma_so_thue,
+        "dai_dien": dai_dien if dai_dien else "",
+        "chuc_vu": chuc_vu, "email_kh": email_kh,
+        "ten_nv_ben_b": draft.get("ten_nv_ben_b", "Trương Thị Mỹ Châu"),
+        "email_ben_b":  draft.get("email_ben_b",  "cuong.danghuy.ctv@mobifone.vn"),
+        "sdt_ben_b":    draft.get("sdt_ben_b",    "0901959799"),
+        "goi_cuocs":    [g for g in st.session_state.goi_cuocs[:st.session_state.n_goi] if g.get("ten_goi")],
+    }
+    errors    = validate(current_data)
+    fname_str = filename_preview(so_hd, ten_hkd)
+
+    render_bottom_bar(tong_tien, errors, fname_str, current_data, template_bytes)
+
 with right_col:
-
-    # Kiểm tra thông tin
-    st.markdown("""
-    <div class="sec-block">
-        <div class="sec-head"><span>✅ Kiểm tra thông tin</span></div>
-    </div>""", unsafe_allow_html=True)
-
-    if preview_errors:
-        for e in preview_errors:
-            st.markdown(f"<div style='color:#ef4444;font-size:0.78rem;padding:2px 0'>✕ Thiếu: {e}</div>", unsafe_allow_html=True)
-    else:
-        st.markdown("<div style='color:#22c55e;font-size:0.82rem;font-weight:600'>✦ Tất cả hợp lệ</div>", unsafe_allow_html=True)
-
-    # Lưu nháp
-    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
-    n1, n2 = st.columns(2)
-    with n1:
-        if st.button("💾 Lưu nháp", use_container_width=True):
-            st.session_state.draft = current_data
-            st.success("Đã lưu!")
-    with n2:
-        if st.button("🗑 Xoá nháp", use_container_width=True):
-            st.session_state.draft = {}
-            st.session_state.generated = False
-            st.rerun()
-
-    # Thông tin file
-    if st.session_state.result_fname:
-        st.markdown(f"""
-        <div style='background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;
-            padding:10px 14px;margin-top:12px;font-size:0.78rem;'>
-            <div style='font-weight:700;color:#1e3a5c;margin-bottom:4px;'>📄 File gần nhất</div>
-            <div style='color:#334155'>{st.session_state.result_fname}</div>
-        </div>""", unsafe_allow_html=True)
-
-    # Preview hợp đồng
-    if st.session_state.show_preview and st.session_state.result_bytes:
-        st.markdown("""
-        <div class="sec-block" style='margin-top:16px'>
-            <div class="sec-head"><span>👁 Xem trước hợp đồng</span></div>
-        </div>""", unsafe_allow_html=True)
-        try:
-            preview_html = docx_to_html(st.session_state.result_bytes)
-            zoomed = f"""<!DOCTYPE html><html><head><meta charset="utf-8">
-            <style>html,body{{margin:0;padding:0;background:#e8eaf0;}}
-            .zoom-wrap{{transform:scale(0.58);transform-origin:top left;width:172%;}}</style>
-            </head><body><div class="zoom-wrap">{preview_html}</div></body></html>"""
-            st.components.v1.html(zoomed, height=1100, scrolling=True)
-        except Exception as ex:
-            st.error(f"Không thể render preview: {ex}")
-
-# ─────────────────────────────────────────────
-# FOOTER
-# ─────────────────────────────────────────────
+    render_validation_panel(errors, current_data)
+    render_action_panel(current_data, fname_str)
+    render_preview_panel()
 
 # ─────────────────────────────────────────────
 # FOOTER
 # ─────────────────────────────────────────────
 st.markdown("""
-<div style="margin-top:40px;padding:14px 0;border-top:1px solid #e2e8f0;
-            display:flex;align-items:center;justify-content:space-between;">
-    <div style="color:#94a3b8;font-size:0.74rem">
-        © 2026 MobiFone Đà Nẵng · MOBIFONE AUTO-MT306 · Developed by Minh Thông
-    </div>
-    <div style="display:flex;gap:6px">
-        <span style="background:#fff1f2;color:#e63946;font-size:0.7rem;
-                     font-weight:700;padding:3px 10px;border-radius:20px">MobiFone Auto</span>
-        <span style="background:#eff6ff;color:#1d4ed8;font-size:0.7rem;
-                     font-weight:700;padding:3px 10px;border-radius:20px">MT306</span>
-        <span style="background:#f0fdf4;color:#166534;font-size:0.7rem;
-                     font-weight:700;padding:3px 10px;border-radius:20px">v7 Web</span>
-    </div>
+<div style="margin-top:80px;padding:14px 0;border-top:1px solid #e2e8f0;
+    text-align:center;font-size:0.72rem;color:#94a3b8;">
+    © 2026 MobiFone Đà Nẵng &nbsp;·&nbsp;
+    <span style="color:#E31837;font-weight:700;">MobiFone Auto</span> &nbsp;·&nbsp;
+    MT306 &nbsp;·&nbsp; v7 Web
 </div>
 """, unsafe_allow_html=True)
