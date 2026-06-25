@@ -1060,7 +1060,9 @@ template_bytes = template_file.read() if template_file else DEFAULT_TEMPLATE_BYT
 # ─────────────────────────────────────────────
 # FORM — 2 columns
 # ─────────────────────────────────────────────
-col_l, col_r = st.columns([11, 7], gap="large")
+# Tỷ lệ columns: khi preview mở thì col_l thu hẹp lại
+_col_ratio = [5, 7] if st.session_state.show_preview else [11, 7]
+col_l, col_r = st.columns(_col_ratio, gap="large")
 
 with col_l:
 
@@ -1284,7 +1286,16 @@ with col_r:
         st.markdown('<div class="panel-card"><div class="panel-head">👁 Xem trước hợp đồng</div></div>', unsafe_allow_html=True)
         try:
             preview_html = docx_to_html(st.session_state.result_bytes)
-            st.components.v1.html(preview_html, height=1000, scrolling=True)
+            # Wrap với zoom để fit vừa col_r
+            zoomed = f"""<!DOCTYPE html><html><head><meta charset="utf-8">
+            <style>
+            html,body{{margin:0;padding:0;background:#e8eaf0;}}
+            .zoom-wrap{{transform:scale(0.62);transform-origin:top left;
+                width:161%;}}
+            </style></head><body>
+            <div class="zoom-wrap">{preview_html}</div>
+            </body></html>"""
+            st.components.v1.html(zoomed, height=1100, scrolling=True)
         except Exception as ex:
             st.error(f"Không thể render preview: {ex}")
 
