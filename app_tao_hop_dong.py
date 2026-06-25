@@ -1072,9 +1072,10 @@ with col_l:
     bang_chu_preview = so_tien_bang_chu(tong_tien) if tong_tien > 0 else "—"
     tong_str = f"{tong_tien:,}".replace(",", ".") + " đ" if tong_tien > 0 else "—"
     preview_html = f"""
-    <div style='background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 16px;margin-top:8px;font-size:0.82rem;'>
-        <b>Tổng giá trị HĐ:</b> <span style='color:#14532d;font-weight:800;font-size:0.9rem'>{tong_str}</span><br>
-        <b>Bằng chữ:</b> <span style='color:#1a1a1a'><i>{bang_chu_preview}</i></span>
+    <div style='background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;padding:12px 16px;margin-top:8px;'>
+        <div style='color:#1e3a5c;font-size:0.78rem;font-weight:600;margin-bottom:4px;'>TỔNG GIÁ TRỊ HỢP ĐỒNG</div>
+        <div style='color:#1a3a5c;font-size:1.1rem;font-weight:800;'>{tong_str}</div>
+        <div style='color:#334155;font-size:0.78rem;margin-top:4px;font-style:italic;'>{bang_chu_preview}</div>
     </div>"""
     st.markdown(preview_html, unsafe_allow_html=True)
 
