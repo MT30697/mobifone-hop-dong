@@ -375,6 +375,10 @@ for k, default in [
     ("generated", False),
     ("result_bytes", None),
     ("result_fname", ""),
+    ("goi_cuocs", [{"ten_goi": "E-50", "don_vi": "Gói", "so_luong": "1", "gia_goi": "100000", "so_hd_trong_goi": "50"},
+                  {"ten_goi": "", "don_vi": "Gói", "so_luong": "", "gia_goi": "", "so_hd_trong_goi": ""},
+                  {"ten_goi": "", "don_vi": "Gói", "so_luong": "", "gia_goi": "", "so_hd_trong_goi": ""}]),
+    ("n_goi", 3),
 ]:
     if k not in st.session_state:
         st.session_state[k] = default
@@ -438,6 +442,171 @@ def _xoa_ngay_ky(doc, ngay: str, thang: str, nam: str):
             replace_in_para(para, f"{TEMPLATE_DAY}/05/",           f"{ngay_str}/{thang}/")
             replace_in_para(para, f"Ngày {TEMPLATE_DAY} tháng",    f"Ngày {ngay_str} tháng")
 
+# ─────────────────────────────────────────────
+# ĐỌC SỐ TIỀN BẰNG CHỮ TIẾNG VIỆT
+# ─────────────────────────────────────────────
+def so_tien_bang_chu(so: int) -> str:
+    """Chuyển số nguyên → chuỗi tiền Việt Nam (đồng)."""
+    if so == 0:
+        return "Không đồng"
+    don_vi = ["", "nghìn", "triệu", "tỷ"]
+    doc = ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"]
+
+    def doc_3so(n: int, is_first: bool = False) -> str:
+        tram = n // 100
+        chuc = (n % 100) // 10
+        dv   = n % 10
+        s = ""
+        if tram:
+            s += doc[tram] + " trăm"
+        if chuc == 0 and dv == 0:
+            return s
+        if tram and chuc == 0:
+            s += " linh"
+        elif tram or not is_first:
+            s += " " + (doc[chuc] + " mươi" if chuc != 1 else "mười")
+        else:
+            s += doc[chuc] + (" mươi" if chuc > 1 else " mười" if chuc == 1 else "")
+        if dv:
+            if chuc == 0 and not tram and is_first:
+                s += " " + doc[dv]
+            elif dv == 5 and chuc:
+                s += " lăm"
+            elif dv == 1 and chuc and chuc != 0:
+                s += " mốt"
+            else:
+                s += " " + doc[dv]
+        return s.strip()
+
+    chunks, i = [], 0
+    while so > 0:
+        chunks.append((so % 1000, i))
+        so //= 1000
+        i += 1
+
+    parts = []
+    for idx, (chunk, power) in enumerate(reversed(chunks)):
+        if chunk == 0:
+            continue
+        is_first = (idx == len(chunks) - 1)
+        part = doc_3so(chunk, is_first)
+        if don_vi[power]:
+            part += " " + don_vi[power]
+        parts.append(part)
+
+    result = " ".join(parts).strip()
+    # Chuẩn hóa
+    result = result[0].upper() + result[1:] if result else ""
+    return result + " đồng chẵn"
+
+
+# ─────────────────────────────────────────────
+# CẬP NHẬT BẢNG ĐIỀU 6 TRONG DOCX
+# ─────────────────────────────────────────────
+def _set_cell_text(cell, text: str):
+    """Ghi text vào cell, giữ font/size của run đầu tiên."""
+    para = cell.paragraphs[0]
+    # Lấy rPr từ run hiện có (nếu có)
+    rpr_xml = None
+    if para.runs:
+        rpr_xml = para.runs[0]._r.find(
+            "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}rPr"
+        )
+    # Xóa toàn bộ nội dung
+    for p in cell.paragraphs:
+        for run in p.runs:
+            run.text = ""
+    # Ghi text vào run đầu tiên
+    if para.runs:
+        para.runs[0].text = text
+        if rpr_xml is not None:
+            para.runs[0]._r.find(
+                "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}rPr"
+            )  # no-op, đã có
+    else:
+        run = para.add_run(text)
+
+
+def dieu_6_update_table(doc, goi_cuocs: list[dict]):
+    """
+    Tìm bảng Điều 6 trong doc và điền dữ liệu.
+    goi_cuocs: list of {ten_goi, don_vi, so_luong, gia_goi, so_hd_trong_goi}
+    """
+    WNS = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+    target_table = None
+
+    # Tìm bảng có header "Gói cước"
+    for table in doc.tables:
+        header_text = ""
+        if table.rows:
+            for cell in table.rows[0].cells:
+                header_text += cell.text
+        if "Gói cước" in header_text or "Gói" in header_text and "STT" in header_text:
+            target_table = table
+            break
+
+    if target_table is None:
+        return  # Không tìm thấy bảng → bỏ qua
+
+    # Xác định hàng dữ liệu bắt đầu từ đâu (bỏ qua header rows)
+    # Template có: hàng header (STT|Gói cước|...) + hàng label (1|2|3|...) + hàng data
+    data_rows = []
+    for i, row in enumerate(target_table.rows):
+        cells = [c.text.strip() for c in row.cells]
+        # Hàng dữ liệu là hàng có STT là số 1, 2, 3, ...
+        if cells[0] in ["1", "2", "3", "4", "5", "…", "..."]:
+            data_rows.append((i, row))
+
+    # Tính tổng và bằng chữ
+    tong = 0
+    for g in goi_cuocs:
+        try:
+            tong += int(g.get("so_luong", 0) or 0) * int(g.get("gia_goi", 0) or 0)
+        except:
+            pass
+
+    # Điền từng hàng data
+    for idx, (row_i, row) in enumerate(data_rows):
+        cells = row.cells
+        if idx < len(goi_cuocs):
+            g = goi_cuocs[idx]
+            try:
+                sl  = int(g.get("so_luong", 0) or 0)
+                gia = int(g.get("gia_goi", 0) or 0)
+                tt  = sl * gia
+            except:
+                sl, gia, tt = 0, 0, 0
+
+            _set_cell_text(cells[0], str(idx + 1))
+            _set_cell_text(cells[1], g.get("ten_goi", ""))
+            _set_cell_text(cells[2], g.get("don_vi", "Gói"))
+            _set_cell_text(cells[3], str(sl) if sl else "")
+            _set_cell_text(cells[4], f"{gia:,}".replace(",", ".") if gia else "")
+            _set_cell_text(cells[5], f"{tt:,}".replace(",", ".") if tt else "")
+            _set_cell_text(cells[6], g.get("so_hd_trong_goi", ""))
+        else:
+            # Xóa hàng dư
+            for c in row.cells:
+                _set_cell_text(c, "")
+
+    # Cập nhật tổng và bằng chữ — tìm cell chứa "Tổng giá trị"
+    tong_str = f"{tong:,}".replace(",", ".") + " Đ"
+    bang_chu = so_tien_bang_chu(tong)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                ct = cell.text.strip()
+                if "Tổng giá trị Hợp đồng" in ct or "Tổng giá trị" in ct and "không chịu thuế" in ct:
+                    # Cell kế bên chứa số tiền
+                    row_cells = row.cells
+                    for ci, c in enumerate(row_cells):
+                        if c == cell and ci + 1 < len(row_cells):
+                            _set_cell_text(row_cells[ci + 1], tong_str)
+                if "Bằng chữ" in ct:
+                    _set_cell_text(cell, f"Bằng chữ: {bang_chu}")
+
+
+
 def tao_mot_hop_dong(kh: dict, template_bytes: bytes) -> bytes:
     doc = Document(io.BytesIO(template_bytes))
     email_kh = kh.get("email_kh", "")
@@ -488,6 +657,12 @@ def tao_mot_hop_dong(kh: dict, template_bytes: bytes) -> bytes:
                     break
 
     _xoa_ngay_ky(doc, ngay, thang, nam)
+
+    # Cập nhật bảng Điều 6 nếu có dữ liệu gói cước
+    goi_cuocs = kh.get("goi_cuocs", [])
+    if goi_cuocs:
+        dieu_6_update_table(doc, goi_cuocs)
+
     buf = io.BytesIO()
     doc.save(buf)
     return buf.getvalue()
@@ -811,6 +986,72 @@ with col_l:
     with cd2:
         email_kh   = st.text_input("Email khách hàng ✱", value=st.session_state.draft.get("email_kh", ""),   placeholder="kimlienpham@gmail.com")
 
+    st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
+
+    # ── SECTION: ĐIỀU 6 — GIÁ TRỊ HỢP ĐỒNG ─
+    st.markdown("""
+    <div class="sec-block">
+        <div class="sec-head">
+            <span>💰 Điều 6 — Giá trị hợp đồng</span>
+        </div>
+    </div>""", unsafe_allow_html=True)
+
+    n_goi = st.session_state.n_goi
+    goi_list = st.session_state.goi_cuocs
+
+    # Đảm bảo list đủ dài
+    while len(goi_list) < n_goi:
+        goi_list.append({"ten_goi": "", "don_vi": "Gói", "so_luong": "", "gia_goi": "", "so_hd_trong_goi": ""})
+
+    tong_tien = 0
+    for i in range(n_goi):
+        g = goi_list[i] if i < len(goi_list) else {}
+        g6c1, g6c2, g6c3, g6c4, g6c5 = st.columns([2.5, 1.2, 1.8, 1.8, 1.8])
+        with g6c1:
+            g["ten_goi"] = st.text_input(f"Gói cước {i+1}", value=g.get("ten_goi",""), key=f"gc_ten_{i}", placeholder="E-50")
+        with g6c2:
+            g["don_vi"] = st.text_input("ĐVT", value=g.get("don_vi","Gói"), key=f"gc_dv_{i}", placeholder="Gói")
+        with g6c3:
+            g["so_luong"] = st.text_input("Số lượng", value=g.get("so_luong",""), key=f"gc_sl_{i}", placeholder="1")
+        with g6c4:
+            g["gia_goi"] = st.text_input("Giá gói (VNĐ)", value=g.get("gia_goi",""), key=f"gc_gia_{i}", placeholder="100000")
+        with g6c5:
+            g["so_hd_trong_goi"] = st.text_input("SL HĐ/gói", value=g.get("so_hd_trong_goi",""), key=f"gc_sohdgoi_{i}", placeholder="50")
+        try:
+            tong_tien += int(g.get("so_luong") or 0) * int(g.get("gia_goi") or 0)
+        except:
+            pass
+        if i < len(goi_list):
+            goi_list[i] = g
+        else:
+            goi_list.append(g)
+
+    st.session_state.goi_cuocs = goi_list
+
+    # Nút thêm/bớt gói
+    btn_add, btn_rm, _ = st.columns([1, 1, 4])
+    with btn_add:
+        if st.button("➕ Thêm gói", use_container_width=True) and n_goi < 10:
+            st.session_state.n_goi += 1
+            st.session_state.goi_cuocs.append({"ten_goi": "", "don_vi": "Gói", "so_luong": "", "gia_goi": "", "so_hd_trong_goi": ""})
+            st.rerun()
+    with btn_rm:
+        if st.button("➖ Bớt gói", use_container_width=True) and n_goi > 1:
+            st.session_state.n_goi -= 1
+            st.session_state.goi_cuocs = st.session_state.goi_cuocs[:st.session_state.n_goi]
+            st.rerun()
+
+    # Preview tổng
+    bang_chu_preview = so_tien_bang_chu(tong_tien) if tong_tien > 0 else "—"
+    tong_str = f"{tong_tien:,}".replace(",", ".") + " đ" if tong_tien > 0 else "—"
+    preview_html = f"""
+    <div style='background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 16px;margin-top:8px;font-size:0.82rem;'>
+        <b>Tổng giá trị HĐ:</b> <span style='color:#166534;font-weight:700'>{tong_str}</span><br>
+        <b>Bằng chữ:</b> <i>{bang_chu_preview}</i>
+    </div>"""
+    st.markdown(preview_html, unsafe_allow_html=True)
+
+
 # ── Current data dict ──
 current_data = {
     "so_hd": so_hd, "ngay_ky": ngay_ky, "thang_ky": thang_ky, "nam_ky": nam_ky,
@@ -819,6 +1060,7 @@ current_data = {
     "dai_dien": dai_dien.upper() if dai_dien else "",
     "chuc_vu": chuc_vu, "email_kh": email_kh,
     "ten_nv_ben_b": ten_nv_ben_b, "email_ben_b": email_ben_b, "sdt_ben_b": sdt_ben_b,
+    "goi_cuocs": [g for g in st.session_state.goi_cuocs[:st.session_state.n_goi] if g.get("ten_goi")],
 }
 errors      = validate(current_data)
 fname_str   = filename_preview(so_hd, ten_hkd)
