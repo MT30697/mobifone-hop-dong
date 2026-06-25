@@ -634,6 +634,109 @@ def dieu_6_update_table(doc, goi_cuocs: list):
         _clear_and_set_tc(tcs_bangchu[0], f"Bằng chữ: {bang_chu}", center=False)
 
 
+# ─────────────────────────────────────────────
+# DOCX → HTML PREVIEW
+# ─────────────────────────────────────────────
+def docx_to_html(doc_bytes: bytes) -> str:
+    """Convert docx bytes → HTML giữ đúng format Word."""
+    from lxml import etree as _et
+    doc = Document(io.BytesIO(doc_bytes))
+    WNS2 = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+
+    CSS = """
+    <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#f5f5f5}
+    .page{
+        font-family:'Times New Roman',serif;font-size:13pt;line-height:1.55;
+        color:#111;background:white;
+        padding:72px 80px;width:794px;margin:0 auto;
+        box-shadow:0 1px 8px rgba(0,0,0,0.12);
+    }
+    p{margin:1px 0;min-height:1.2em}
+    .tc{text-align:center}.tr{text-align:right}
+    .tj{text-align:justify}.tl{text-align:left}
+    .b{font-weight:bold}.i{font-style:italic}
+    .ul{text-decoration:underline}
+    table{width:100%;border-collapse:collapse;margin:4px 0}
+    td{border:1px solid #333;padding:4px 8px;vertical-align:middle;font-size:12pt}
+    .no-border td{border:none}
+    </style>
+    """
+
+    def run_html(r_el):
+        t = r_el.find(f"{WNS2}t")
+        if t is None or not (t.text or ""): return ""
+        txt = (t.text or "").replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("	","    ")
+        rpr = r_el.find(f"{WNS2}rPr")
+        b  = rpr is not None and rpr.find(f"{WNS2}b")  is not None
+        it = rpr is not None and rpr.find(f"{WNS2}i")  is not None
+        ul = rpr is not None and rpr.find(f"{WNS2}u")  is not None
+        cls = " ".join(c for c,v in [("b",b),("i",it),("ul",ul)] if v)
+        return f'<span class="{cls}">{txt}</span>' if cls else txt
+
+    def para_html(p_el, no_space=False):
+        ppr = p_el.find(f"{WNS2}pPr")
+        jc_el = ppr.find(f"{WNS2}jc") if ppr is not None else None
+        jcv = jc_el.get(f"{WNS2}val") if jc_el is not None else ""
+        align = {"center":"tc","right":"tr","both":"tj","left":"tl"}.get(jcv,"")
+        # Spacing before/after
+        spacing = ppr.find(f"{WNS2}spacing") if ppr is not None else None
+        mb = "0"
+        if spacing is not None:
+            after = spacing.get(f"{WNS2}after","")
+            if after and after != "0": mb = f"{int(after)//20}pt"
+        runs = "".join(run_html(r) for r in p_el.findall(f".//{WNS2}r"))
+        style = f'margin-bottom:{mb}' if mb != "0" else ""
+        sattr = f' style="{style}"' if style else ""
+        return f'<p class="{align}"{sattr}>{runs if runs.strip() else "&nbsp;"}</p>'
+
+    def table_html(tbl_el):
+        # Kiểm tra có phải bảng quốc hiệu không (1 cột, 2 hàng đầu)
+        rows = tbl_el.findall(f"{WNS2}tr")
+        all_tcs = [tc for tr in rows for tc in tr.findall(f"{WNS2}tc")]
+        is_header_table = len(rows) <= 2 and len(all_tcs) <= 2
+        no_border_cls = " no-border" if is_header_table else ""
+
+        html = [f'<table class="{no_border_cls.strip()}">']
+        for tr in rows:
+            html.append("<tr>")
+            tcs = tr.findall(f"{WNS2}tc")
+            for tc in tcs:
+                tcPr = tc.find(f"{WNS2}tcPr")
+                gs = tcPr.find(f"{WNS2}gridSpan") if tcPr is not None else None
+                colspan = int(gs.get(f"{WNS2}val",1)) if gs is not None else 1
+                vMerge = tcPr.find(f"{WNS2}vMerge") if tcPr is not None else None
+                if vMerge is not None and vMerge.get(f"{WNS2}val","") != "restart":
+                    continue
+                cs_attr = f' colspan="{colspan}"' if colspan > 1 else ""
+                cell_content = "".join(para_html(p) for p in tc.findall(f"{WNS2}p"))
+                html.append(f"<td{cs_attr}>{cell_content}</td>")
+            html.append("</tr>")
+        html.append("</table>")
+        return "\n".join(html)
+
+    body = doc.element.body
+    parts = [CSS, '<div class="page">']
+    for child in body:
+        tag = child.tag.split("}")[-1] if "}" in child.tag else child.tag
+        if tag == "p":
+            parts.append(para_html(child))
+        elif tag == "tbl":
+            parts.append(table_html(child))
+        elif tag == "sdt":
+            # Content control — render inner content
+            sdtContent = child.find(f".//{WNS2}sdtContent")
+            if sdtContent is not None:
+                for sub in sdtContent:
+                    stag = sub.tag.split("}")[-1] if "}" in sub.tag else sub.tag
+                    if stag == "p": parts.append(para_html(sub))
+                    elif stag == "tbl": parts.append(table_html(sub))
+    parts.append("</div>")
+    return "\n".join(parts)
+
+
+
 def tao_mot_hop_dong(kh: dict, template_bytes: bytes) -> bytes:
     doc = Document(io.BytesIO(template_bytes))
     email_kh = kh.get("email_kh", "")
@@ -1093,6 +1196,53 @@ current_data = {
 errors      = validate(current_data)
 fname_str   = filename_preview(so_hd, ten_hkd)
 
+# ── BUTTONS: Tạo HĐ + Xem trước ──────────────
+with col_l:
+    st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
+    g6b1, g6b2 = st.columns([1, 1], gap="small")
+    with g6b1:
+        generate = st.button(
+            "✦  Tạo Hợp Đồng",
+            use_container_width=True,
+            disabled=bool(errors),
+            type="primary",
+        )
+    with g6b2:
+        preview_btn = st.button(
+            "✕  Đóng preview" if st.session_state.show_preview else "👁  Xem trước",
+            use_container_width=True,
+            disabled=not bool(st.session_state.result_bytes),
+        )
+        if preview_btn:
+            st.session_state.show_preview = not st.session_state.show_preview
+            st.rerun()
+
+    if generate:
+        try:
+            result_bytes = tao_mot_hop_dong(current_data, template_bytes)
+            st.session_state.result_bytes = result_bytes
+            st.session_state.result_fname = fname_str
+            st.session_state.generated    = True
+            st.session_state.show_preview = False
+            st.session_state.history.append({
+                "fname": fname_str,
+                "time":  datetime.now().strftime("%d/%m/%Y %H:%M"),
+            })
+            st.success(f"✅ Tạo thành công: **{fname_str}**")
+            st.rerun()
+        except Exception as ex:
+            st.error(f"❌ Lỗi: {ex}")
+            st.session_state.generated = False
+
+    if st.session_state.generated and st.session_state.result_bytes:
+        st.download_button(
+            label=f"⬇️  Tải xuống {st.session_state.result_fname}",
+            data=st.session_state.result_bytes,
+            file_name=st.session_state.result_fname,
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            use_container_width=True,
+        )
+
 with col_r:
 
     # ── Preview file ──────────────────────────
@@ -1138,160 +1288,12 @@ with col_r:
         except Exception as ex:
             st.error(f"Không thể render preview: {ex}")
 
-# ─────────────────────────────────────────────
-# DOCX → HTML PREVIEW
-# ─────────────────────────────────────────────
-def docx_to_html(doc_bytes: bytes) -> str:
-    """Convert docx bytes → HTML giữ đúng format Word."""
-    from lxml import etree as _et
-    doc = Document(io.BytesIO(doc_bytes))
-    WNS2 = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
-
-    CSS = """
-    <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{background:#f5f5f5}
-    .page{
-        font-family:'Times New Roman',serif;font-size:13pt;line-height:1.55;
-        color:#111;background:white;
-        padding:72px 80px;width:794px;margin:0 auto;
-        box-shadow:0 1px 8px rgba(0,0,0,0.12);
-    }
-    p{margin:1px 0;min-height:1.2em}
-    .tc{text-align:center}.tr{text-align:right}
-    .tj{text-align:justify}.tl{text-align:left}
-    .b{font-weight:bold}.i{font-style:italic}
-    .ul{text-decoration:underline}
-    table{width:100%;border-collapse:collapse;margin:4px 0}
-    td{border:1px solid #333;padding:4px 8px;vertical-align:middle;font-size:12pt}
-    .no-border td{border:none}
-    </style>
-    """
-
-    def run_html(r_el):
-        t = r_el.find(f"{WNS2}t")
-        if t is None or not (t.text or ""): return ""
-        txt = (t.text or "").replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("	","    ")
-        rpr = r_el.find(f"{WNS2}rPr")
-        b  = rpr is not None and rpr.find(f"{WNS2}b")  is not None
-        it = rpr is not None and rpr.find(f"{WNS2}i")  is not None
-        ul = rpr is not None and rpr.find(f"{WNS2}u")  is not None
-        cls = " ".join(c for c,v in [("b",b),("i",it),("ul",ul)] if v)
-        return f'<span class="{cls}">{txt}</span>' if cls else txt
-
-    def para_html(p_el, no_space=False):
-        ppr = p_el.find(f"{WNS2}pPr")
-        jc_el = ppr.find(f"{WNS2}jc") if ppr is not None else None
-        jcv = jc_el.get(f"{WNS2}val") if jc_el is not None else ""
-        align = {"center":"tc","right":"tr","both":"tj","left":"tl"}.get(jcv,"")
-        # Spacing before/after
-        spacing = ppr.find(f"{WNS2}spacing") if ppr is not None else None
-        mb = "0"
-        if spacing is not None:
-            after = spacing.get(f"{WNS2}after","")
-            if after and after != "0": mb = f"{int(after)//20}pt"
-        runs = "".join(run_html(r) for r in p_el.findall(f".//{WNS2}r"))
-        style = f'margin-bottom:{mb}' if mb != "0" else ""
-        sattr = f' style="{style}"' if style else ""
-        return f'<p class="{align}"{sattr}>{runs if runs.strip() else "&nbsp;"}</p>'
-
-    def table_html(tbl_el):
-        # Kiểm tra có phải bảng quốc hiệu không (1 cột, 2 hàng đầu)
-        rows = tbl_el.findall(f"{WNS2}tr")
-        all_tcs = [tc for tr in rows for tc in tr.findall(f"{WNS2}tc")]
-        is_header_table = len(rows) <= 2 and len(all_tcs) <= 2
-        no_border_cls = " no-border" if is_header_table else ""
-
-        html = [f'<table class="{no_border_cls.strip()}">']
-        for tr in rows:
-            html.append("<tr>")
-            tcs = tr.findall(f"{WNS2}tc")
-            for tc in tcs:
-                tcPr = tc.find(f"{WNS2}tcPr")
-                gs = tcPr.find(f"{WNS2}gridSpan") if tcPr is not None else None
-                colspan = int(gs.get(f"{WNS2}val",1)) if gs is not None else 1
-                vMerge = tcPr.find(f"{WNS2}vMerge") if tcPr is not None else None
-                if vMerge is not None and vMerge.get(f"{WNS2}val","") != "restart":
-                    continue
-                cs_attr = f' colspan="{colspan}"' if colspan > 1 else ""
-                cell_content = "".join(para_html(p) for p in tc.findall(f"{WNS2}p"))
-                html.append(f"<td{cs_attr}>{cell_content}</td>")
-            html.append("</tr>")
-        html.append("</table>")
-        return "\n".join(html)
-
-    body = doc.element.body
-    parts = [CSS, '<div class="page">']
-    for child in body:
-        tag = child.tag.split("}")[-1] if "}" in child.tag else child.tag
-        if tag == "p":
-            parts.append(para_html(child))
-        elif tag == "tbl":
-            parts.append(table_html(child))
-        elif tag == "sdt":
-            # Content control — render inner content
-            sdtContent = child.find(f".//{WNS2}sdtContent")
-            if sdtContent is not None:
-                for sub in sdtContent:
-                    stag = sub.tag.split("}")[-1] if "}" in sub.tag else sub.tag
-                    if stag == "p": parts.append(para_html(sub))
-                    elif stag == "tbl": parts.append(table_html(sub))
-    parts.append("</div>")
-    return "\n".join(parts)
-
-
 
 # ─────────────────────────────────────────────
 # GENERATE ROW
 # ─────────────────────────────────────────────
 st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
-gb, pb, db = st.columns([1, 1, 1], gap="large")
 
-with gb:
-    generate = st.button(
-        "✦  Tạo Hợp Đồng",
-        use_container_width=True,
-        disabled=bool(errors),
-        type="primary",
-    )
-
-with pb:
-    preview_btn = st.button(
-        "👁  Xem trước" if not st.session_state.show_preview else "✕  Đóng preview",
-        use_container_width=True,
-        disabled=not bool(st.session_state.result_bytes),
-    )
-    if preview_btn:
-        st.session_state.show_preview = not st.session_state.show_preview
-        st.rerun()
-
-if generate:
-    try:
-        result_bytes = tao_mot_hop_dong(current_data, template_bytes)
-        st.session_state.result_bytes = result_bytes
-        st.session_state.result_fname = fname_str
-        st.session_state.generated    = True
-        st.session_state.show_preview = False
-        st.session_state.history.append({
-            "fname": fname_str,
-            "time":  datetime.now().strftime("%d/%m/%Y %H:%M"),
-        })
-        st.success(f"✅ Tạo thành công: **{fname_str}**")
-    except Exception as ex:
-        st.error(f"❌ Lỗi: {ex}")
-        st.session_state.generated = False
-
-if st.session_state.generated and st.session_state.result_bytes:
-    with db:
-        st.download_button(
-            label=f"⬇️  Tải xuống {st.session_state.result_fname}",
-            data=st.session_state.result_bytes,
-            file_name=st.session_state.result_fname,
-            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            use_container_width=True,
-        )
-
-# Preview section đã được tích hợp vào col_r bên dưới
 
 # ─────────────────────────────────────────────
 # FOOTER
