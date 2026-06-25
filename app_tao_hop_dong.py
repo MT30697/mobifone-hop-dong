@@ -418,24 +418,25 @@ def get_all_paras(doc):
     return paras
 
 def _xoa_ngay_ky(doc, ngay: str, thang: str, nam: str):
+    TEMPLATE_DAY = "28"  # Ngày placeholder trong file template gốc
     ngay_str = ngay if ngay else "  "
     all_paras = get_all_paras(doc)
     for para in all_paras:
         full = "".join(r.text for r in para.runs)
         if (
             "lập vào ngày" in full
-            or ("từ ngày" in full and "28" in full)
+            or ("từ ngày" in full and TEMPLATE_DAY in full)
             or (
                 "Ngày" in full and "tháng" in full and nam in full
                 and "Luật" not in full and "Quốc Hội" not in full
             )
         ):
             for run in para.runs:
-                if run.text == "28":
+                if run.text == TEMPLATE_DAY:
                     run.text = ngay_str
-            replace_in_para(para, "lập vào ngày 28", f"lập vào ngày {ngay_str}")
-            replace_in_para(para, "28/05/",           f"{ngay_str}/{thang}/")
-            replace_in_para(para, "Ngày 28 tháng",    f"Ngày {ngay_str} tháng")
+            replace_in_para(para, f"lập vào ngày {TEMPLATE_DAY}", f"lập vào ngày {ngay_str}")
+            replace_in_para(para, f"{TEMPLATE_DAY}/05/",           f"{ngay_str}/{thang}/")
+            replace_in_para(para, f"Ngày {TEMPLATE_DAY} tháng",    f"Ngày {ngay_str} tháng")
 
 def tao_mot_hop_dong(kh: dict, template_bytes: bytes) -> bytes:
     doc = Document(io.BytesIO(template_bytes))
@@ -465,6 +466,7 @@ def tao_mot_hop_dong(kh: dict, template_bytes: bytes) -> bytes:
         ("Trương Thị Mỹ Châu",                           kh.get("ten_nv_ben_b", "")),
         ("0901959799",                                    kh.get("sdt_ben_b", "")),
         ("cuong.danghuy.ctv@mobifone.vn",                 kh.get("email_ben_b", "")),
+        ("2550/UQ-MBF",                                       "2565/UQ-MBF"),   # Cập nhật số GUQ
         ("tháng 05",                                      f"tháng {thang}"),
         ("năm 2026",                                      f"năm {nam}"),
         ("/2026",                                         f"/{nam}"),
