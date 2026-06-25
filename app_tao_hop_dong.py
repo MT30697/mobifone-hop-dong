@@ -1279,7 +1279,8 @@ def render_stepper(current_step: int, errors: list):
             dot_cls   = ""
             label_cls = ""
             dot_inner = str(i)
-        connector = f"<div style='flex:1;height:2px;background:{'#22c55e' if i < current_step else '#e2e8f0'};margin:0 4px;'></div>" if i < len(steps) else ""
+        conn_color = '#22c55e' if i < current_step else '#e2e8f0'
+        connector = f"<div style='flex:1;height:2px;background:{conn_color};margin:0 4px;'></div>" if i < len(steps) else ""
         items_html += f"""
         <div style='display:flex;align-items:center;'>
             <div style='display:flex;flex-direction:column;align-items:center;gap:4px;'>
