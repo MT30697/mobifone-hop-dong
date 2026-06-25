@@ -1128,178 +1128,116 @@ with col_r:
             st.rerun()
     st.markdown("</div></div>", unsafe_allow_html=True)
 
+    # ── Preview HĐ (sticky bên phải) ─────────
+    if st.session_state.show_preview and st.session_state.result_bytes:
+        st.markdown('<div class="panel-card"><div class="panel-head">👁 Xem trước hợp đồng</div></div>', unsafe_allow_html=True)
+        try:
+            preview_html = docx_to_html(st.session_state.result_bytes)
+            st.components.v1.html(preview_html, height=1000, scrolling=True)
+        except Exception as ex:
+            st.error(f"Không thể render preview: {ex}")
+
 # ─────────────────────────────────────────────
 # DOCX → HTML PREVIEW
 # ─────────────────────────────────────────────
 def docx_to_html(doc_bytes: bytes) -> str:
-    """Convert docx bytes sang HTML đơn giản để preview."""
+    """Convert docx bytes → HTML giữ đúng format Word."""
+    from lxml import etree as _et
     doc = Document(io.BytesIO(doc_bytes))
-    html_parts = []
-    html_parts.append("""
-    <style>
-    .preview-wrap {
-        font-family: 'Times New Roman', serif;
-        font-size: 13pt;
-        line-height: 1.6;
-        color: #111;
-        background: white;
-        padding: 40px 60px;
-        max-width: 800px;
-        margin: 0 auto;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-        border-radius: 4px;
-    }
-    .preview-wrap p { margin: 4px 0; }
-    .preview-wrap table {
-        width: 100%; border-collapse: collapse; margin: 8px 0;
-    }
-    .preview-wrap td, .preview-wrap th {
-        border: 1px solid #333; padding: 4px 6px; font-size: 12pt;
-    }
-    .preview-wrap .center { text-align: center; }
-    .preview-wrap .right  { text-align: right; }
-    .preview-wrap .bold   { font-weight: bold; }
-    .preview-wrap .italic { font-style: italic; }
-    </style>
-    <div class="preview-wrap">
-    """)
-
-    def runs_to_html(para):
-        """Convert runs thành HTML giữ bold/italic."""
-        parts = []
-        for run in para.runs:
-            text = run.text.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
-            if not text:
-                continue
-            classes = []
-            if run.bold:   classes.append("bold")
-            if run.italic: classes.append("italic")
-            if classes:
-                parts.append(f'<span class="{" ".join(classes)}">{text}</span>')
-            else:
-                parts.append(text)
-        return "".join(parts)
-
-    def get_para_align(para):
-        try:
-            from docx.enum.text import WD_ALIGN_PARAGRAPH
-            if para.alignment == WD_ALIGN_PARAGRAPH.CENTER: return "center"
-            if para.alignment == WD_ALIGN_PARAGRAPH.RIGHT:  return "right"
-        except: pass
-        return ""
-
-    # Paragraphs ngoài bảng
-    para_idx = 0
-    table_paras = set()
-    for table in doc.tables:
-        for row in table.rows:
-            for cell in row.cells:
-                for p in cell.paragraphs:
-                    table_paras.add(id(p))
-
-    for para in doc.paragraphs:
-        text_html = runs_to_html(para)
-        align = get_para_align(para)
-        style = f' style="text-align:{align}"' if align else ""
-        if text_html.strip():
-            html_parts.append(f"<p{style}>{text_html}</p>")
-        else:
-            html_parts.append("<p>&nbsp;</p>")
-
-        # Nếu para này ngay trước bảng → chèn bảng
-        para_idx += 1
-        for ti, table in enumerate(doc.tables):
-            # Tìm bảng theo vị trí tương đối
-            pass
-
-    # Chèn bảng riêng (đơn giản: render sau các paragraph)
-    # Cách tốt hơn: dùng body XML order
-    from lxml import etree
     WNS2 = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+
+    CSS = """
+    <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#f5f5f5}
+    .page{
+        font-family:'Times New Roman',serif;font-size:13pt;line-height:1.55;
+        color:#111;background:white;
+        padding:72px 80px;width:794px;margin:0 auto;
+        box-shadow:0 1px 8px rgba(0,0,0,0.12);
+    }
+    p{margin:1px 0;min-height:1.2em}
+    .tc{text-align:center}.tr{text-align:right}
+    .tj{text-align:justify}.tl{text-align:left}
+    .b{font-weight:bold}.i{font-style:italic}
+    .ul{text-decoration:underline}
+    table{width:100%;border-collapse:collapse;margin:4px 0}
+    td{border:1px solid #333;padding:4px 8px;vertical-align:middle;font-size:12pt}
+    .no-border td{border:none}
+    </style>
+    """
+
+    def run_html(r_el):
+        t = r_el.find(f"{WNS2}t")
+        if t is None or not (t.text or ""): return ""
+        txt = (t.text or "").replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("	","    ")
+        rpr = r_el.find(f"{WNS2}rPr")
+        b  = rpr is not None and rpr.find(f"{WNS2}b")  is not None
+        it = rpr is not None and rpr.find(f"{WNS2}i")  is not None
+        ul = rpr is not None and rpr.find(f"{WNS2}u")  is not None
+        cls = " ".join(c for c,v in [("b",b),("i",it),("ul",ul)] if v)
+        return f'<span class="{cls}">{txt}</span>' if cls else txt
+
+    def para_html(p_el, no_space=False):
+        ppr = p_el.find(f"{WNS2}pPr")
+        jc_el = ppr.find(f"{WNS2}jc") if ppr is not None else None
+        jcv = jc_el.get(f"{WNS2}val") if jc_el is not None else ""
+        align = {"center":"tc","right":"tr","both":"tj","left":"tl"}.get(jcv,"")
+        # Spacing before/after
+        spacing = ppr.find(f"{WNS2}spacing") if ppr is not None else None
+        mb = "0"
+        if spacing is not None:
+            after = spacing.get(f"{WNS2}after","")
+            if after and after != "0": mb = f"{int(after)//20}pt"
+        runs = "".join(run_html(r) for r in p_el.findall(f".//{WNS2}r"))
+        style = f'margin-bottom:{mb}' if mb != "0" else ""
+        sattr = f' style="{style}"' if style else ""
+        return f'<p class="{align}"{sattr}>{runs if runs.strip() else "&nbsp;"}</p>'
+
+    def table_html(tbl_el):
+        # Kiểm tra có phải bảng quốc hiệu không (1 cột, 2 hàng đầu)
+        rows = tbl_el.findall(f"{WNS2}tr")
+        all_tcs = [tc for tr in rows for tc in tr.findall(f"{WNS2}tc")]
+        is_header_table = len(rows) <= 2 and len(all_tcs) <= 2
+        no_border_cls = " no-border" if is_header_table else ""
+
+        html = [f'<table class="{no_border_cls.strip()}">']
+        for tr in rows:
+            html.append("<tr>")
+            tcs = tr.findall(f"{WNS2}tc")
+            for tc in tcs:
+                tcPr = tc.find(f"{WNS2}tcPr")
+                gs = tcPr.find(f"{WNS2}gridSpan") if tcPr is not None else None
+                colspan = int(gs.get(f"{WNS2}val",1)) if gs is not None else 1
+                vMerge = tcPr.find(f"{WNS2}vMerge") if tcPr is not None else None
+                if vMerge is not None and vMerge.get(f"{WNS2}val","") != "restart":
+                    continue
+                cs_attr = f' colspan="{colspan}"' if colspan > 1 else ""
+                cell_content = "".join(para_html(p) for p in tc.findall(f"{WNS2}p"))
+                html.append(f"<td{cs_attr}>{cell_content}</td>")
+            html.append("</tr>")
+        html.append("</table>")
+        return "\n".join(html)
+
     body = doc.element.body
-    html_parts2 = ['<div class="preview-wrap">']
-    html_parts2.append("""<style>
-    .preview-wrap { font-family: 'Times New Roman', serif; font-size: 13pt;
-        line-height: 1.6; color: #111; background: white;
-        padding: 40px 60px; max-width: 800px; margin: 0 auto; }
-    .preview-wrap p { margin: 3px 0; }
-    .preview-wrap table { width: 100%; border-collapse: collapse; margin: 6px 0; }
-    .preview-wrap td, .preview-wrap th {
-        border: 1px solid #444; padding: 4px 8px; font-size: 12pt; vertical-align: middle; }
-    .b { font-weight: bold; } .i { font-style: italic; }
-    .tc { text-align: center; } .tl { text-align: left; }
-    .tr { text-align: right; } .tj { text-align: justify; }
-    </style>""")
-
+    parts = [CSS, '<div class="page">']
     for child in body:
-        tag = child.tag.split('}')[-1] if '}' in child.tag else child.tag
-        if tag == 'p':
-            # Paragraph
-            runs_html = []
-            for r in child.findall(f".//{WNS2}r"):
-                t_el = r.find(f"{WNS2}t")
-                if t_el is None or not t_el.text: continue
-                txt = t_el.text.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("	","&nbsp;&nbsp;&nbsp;&nbsp;")
-                rpr = r.find(f"{WNS2}rPr")
-                bold = rpr is not None and rpr.find(f"{WNS2}b") is not None
-                ital = rpr is not None and rpr.find(f"{WNS2}i") is not None
-                span_class = " ".join(filter(None, ["b" if bold else "", "i" if ital else ""]))
-                if span_class:
-                    runs_html.append(f'<span class="{span_class}">{txt}</span>')
-                else:
-                    runs_html.append(txt)
-            ppr = child.find(f"{WNS2}pPr")
-            jc_el = ppr.find(f"{WNS2}jc") if ppr is not None else None
-            jcv = jc_el.get(f"{WNS2}val") if jc_el is not None else ""
-            align_map = {"center":"tc","right":"tr","both":"tj","left":"tl"}
-            align_cls = align_map.get(jcv,"")
-            content_html = "".join(runs_html)
-            if content_html.strip():
-                html_parts2.append(f'<p class="{align_cls}">{content_html}</p>')
-            else:
-                html_parts2.append('<p>&nbsp;</p>')
+        tag = child.tag.split("}")[-1] if "}" in child.tag else child.tag
+        if tag == "p":
+            parts.append(para_html(child))
+        elif tag == "tbl":
+            parts.append(table_html(child))
+        elif tag == "sdt":
+            # Content control — render inner content
+            sdtContent = child.find(f".//{WNS2}sdtContent")
+            if sdtContent is not None:
+                for sub in sdtContent:
+                    stag = sub.tag.split("}")[-1] if "}" in sub.tag else sub.tag
+                    if stag == "p": parts.append(para_html(sub))
+                    elif stag == "tbl": parts.append(table_html(sub))
+    parts.append("</div>")
+    return "\n".join(parts)
 
-        elif tag == 'tbl':
-            # Table
-            html_parts2.append('<table>')
-            for tr in child.findall(f"{WNS2}tr"):
-                html_parts2.append('<tr>')
-                for tc in tr.findall(f"{WNS2}tc"):
-                    # Merge check
-                    tcPr = tc.find(f"{WNS2}tcPr")
-                    gridSpan_el = tcPr.find(f"{WNS2}gridSpan") if tcPr is not None else None
-                    colspan = int(gridSpan_el.get(f"{WNS2}val",1)) if gridSpan_el is not None else 1
-                    vMerge_el = tcPr.find(f"{WNS2}vMerge") if tcPr is not None else None
-                    if vMerge_el is not None and vMerge_el.get(f"{WNS2}val","") != "restart":
-                        continue  # skip merged cells
-                    # Cell content
-                    cell_parts = []
-                    for p_el in tc.findall(f"{WNS2}p"):
-                        ppr = p_el.find(f"{WNS2}pPr")
-                        jc_el = ppr.find(f"{WNS2}jc") if ppr is not None else None
-                        jcv = jc_el.get(f"{WNS2}val") if jc_el is not None else ""
-                        align_cls = {"center":"tc","right":"tr","both":"tj"}.get(jcv,"")
-                        runs = []
-                        for r in p_el.findall(f".//{WNS2}r"):
-                            t_el = r.find(f"{WNS2}t")
-                            if t_el is None or not t_el.text: continue
-                            txt = t_el.text.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
-                            rpr = r.find(f"{WNS2}rPr")
-                            bold = rpr is not None and rpr.find(f"{WNS2}b") is not None
-                            ital = rpr is not None and rpr.find(f"{WNS2}i") is not None
-                            sc = " ".join(filter(None,["b" if bold else "","i" if ital else ""]))
-                            runs.append(f'<span class="{sc}">{txt}</span>' if sc else txt)
-                        line = "".join(runs)
-                        if line.strip():
-                            cell_parts.append(f'<span class="{align_cls}">{line}</span>' if align_cls else line)
-                    colspan_attr = f' colspan="{colspan}"' if colspan > 1 else ""
-                    cell_html = "<br>".join(cell_parts) if cell_parts else "&nbsp;"
-                    html_parts2.append(f'<td{colspan_attr}>{cell_html}</td>')
-                html_parts2.append('</tr>')
-            html_parts2.append('</table>')
-
-    html_parts2.append('</div>')
-    return "\n".join(html_parts2)
 
 
 # ─────────────────────────────────────────────
@@ -1351,15 +1289,7 @@ if st.session_state.generated and st.session_state.result_bytes:
             use_container_width=True,
         )
 
-# ── PREVIEW PANEL ─────────────────────────────
-if st.session_state.show_preview and st.session_state.result_bytes:
-    st.markdown("---")
-    st.markdown("### 👁 Xem trước hợp đồng")
-    try:
-        preview_html = docx_to_html(st.session_state.result_bytes)
-        st.components.v1.html(preview_html, height=900, scrolling=True)
-    except Exception as ex:
-        st.error(f"Không thể render preview: {ex}")
+# Preview section đã được tích hợp vào col_r bên dưới
 
 # ─────────────────────────────────────────────
 # FOOTER
