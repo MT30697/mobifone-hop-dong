@@ -1057,24 +1057,52 @@ st.markdown(f"""
 # Dùng template tùy chỉnh nếu upload, ngược lại dùng mặc định
 template_bytes = template_file.read() if template_file else DEFAULT_TEMPLATE_BYTES
 
-# ─────────────────────────────────────────────
-# FORM — 2 columns
-# ─────────────────────────────────────────────
-# Tỷ lệ columns: khi preview mở thì col_l thu hẹp lại
-_col_ratio = [5, 7] if st.session_state.show_preview else [11, 7]
-col_l, col_r = st.columns(_col_ratio, gap="large")
+# ═══════════════════════════════════════════════════════
+# UI — ENTERPRISE REDESIGN
+# ═══════════════════════════════════════════════════════
 
-with col_l:
+# Tính toán trước
+total       = len(st.session_state.history)
+today_count = sum(1 for h in st.session_state.history
+                  if h.get("time", "").startswith(datetime.now().strftime("%d/%m/%Y")))
+errors_check_data = {
+    "so_hd": st.session_state.draft.get("so_hd", ""),
+    "ten_hkd": st.session_state.draft.get("ten_hkd", ""),
+    "tru_so": st.session_state.draft.get("tru_so", ""),
+    "dien_thoai": st.session_state.draft.get("dien_thoai", ""),
+    "ma_so_thue": st.session_state.draft.get("ma_so_thue", ""),
+    "dai_dien": st.session_state.draft.get("dai_dien", ""),
+    "chuc_vu": st.session_state.draft.get("chuc_vu", ""),
+    "email_kh": st.session_state.draft.get("email_kh", ""),
+    "ngay_ky": st.session_state.draft.get("ngay_ky", ""),
+    "thang_ky": st.session_state.draft.get("thang_ky", ""),
+    "nam_ky": st.session_state.draft.get("nam_ky", ""),
+    "ten_nv_ben_b": st.session_state.draft.get("ten_nv_ben_b", ""),
+    "email_ben_b": st.session_state.draft.get("email_ben_b", ""),
+    "sdt_ben_b": st.session_state.draft.get("sdt_ben_b", ""),
+    "goi_cuocs": [g for g in st.session_state.goi_cuocs[:st.session_state.n_goi] if g.get("ten_goi")],
+}
+preview_errors = validate(errors_check_data)
 
-    # ── SECTION: THÔNG TIN HỢP ĐỒNG ──────────
+# ── LAYOUT: left_col (form) | right_col (panel + preview)
+_col_ratio = [5, 7] if st.session_state.show_preview else [3, 1]
+if st.session_state.show_preview:
+    left_col, right_col = st.columns([5, 7], gap="large")
+else:
+    left_col, right_col = st.columns([3, 1], gap="large")
+
+# ═══════════════════════════════════
+# LEFT COL — FORM
+# ═══════════════════════════════════
+with left_col:
+
+    # ── Section: Thông tin HĐ
     st.markdown("""
     <div class="sec-block">
-        <div class="sec-head">
-            <span>📋 Thông tin hợp đồng</span>
-        </div>
+        <div class="sec-head"><span>📋 Thông tin hợp đồng</span></div>
     </div>""", unsafe_allow_html=True)
 
-    c1, c2, c3, c4 = st.columns([2, 1.2, 1.2, 1.5])
+    c1, c2, c3, c4 = st.columns([2, 2, 2, 2])
     with c1:
         so_hd    = st.text_input("Số hợp đồng ✱",  value=st.session_state.draft.get("so_hd", ""),               placeholder="101")
     with c2:
@@ -1084,138 +1112,133 @@ with col_l:
     with c4:
         nam_ky   = st.text_input("Năm ký ✱",       value=st.session_state.draft.get("nam_ky",   datetime.now().strftime("%Y")), placeholder="2026")
 
-    st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
-
-    # ── SECTION: BÊN A ───────────────────────
+    # ── Section: Bên A
     st.markdown("""
     <div class="sec-block">
-        <div class="sec-head">
-            <span>🏪 Bên A — Khách hàng</span>
-        </div>
+        <div class="sec-head"><span>🏢 Bên A — Khách hàng</span></div>
     </div>""", unsafe_allow_html=True)
 
-    ca1, ca2 = st.columns(2)
-    with ca1:
-        ten_hkd    = st.text_input("Tên HKD đầy đủ ✱",  value=st.session_state.draft.get("ten_hkd", ""),    placeholder="HKD Nhà Nghỉ Kim Liên")
-    with ca2:
-        tru_so     = st.text_input("Trụ sở chính ✱",     value=st.session_state.draft.get("tru_so", ""),    placeholder="142/2 Phan Châu Trinh, P.Hải Châu, Đà Nẵng")
+    a1, a2 = st.columns(2)
+    with a1:
+        ten_hkd    = st.text_input("Tên đơn vị ✱",        value=st.session_state.draft.get("ten_hkd", ""),    placeholder="HKD Nhà Nghỉ Kim Liên")
+        dia_chi_gd = st.text_input("Địa chỉ giao dịch",   value=st.session_state.draft.get("dia_chi_gd", ""), placeholder="Để trống nếu giống trụ sở")
+        ma_so_thue = st.text_input("Mã số thuế ✱",        value=st.session_state.draft.get("ma_so_thue", ""), placeholder="049189011144")
+    with a2:
+        tru_so     = st.text_input("Trụ sở chính ✱",      value=st.session_state.draft.get("tru_so", ""),    placeholder="142/2 Phan Châu Trinh, P.Hải Châu, Đà Nẵng")
+        dien_thoai = st.text_input("Số điện thoại ✱",     value=st.session_state.draft.get("dien_thoai", ""), placeholder="0904725978")
+        email_kh   = st.text_input("Email khách hàng ✱",  value=st.session_state.draft.get("email_kh", ""),  placeholder="example@gmail.com")
 
-    cb1, cb2 = st.columns(2)
-    with cb1:
-        dia_chi_gd = st.text_input("Địa chỉ giao dịch",  value=st.session_state.draft.get("dia_chi_gd", ""), placeholder="Để trống nếu giống trụ sở")
-    with cb2:
-        dien_thoai = st.text_input("Số điện thoại ✱",    value=st.session_state.draft.get("dien_thoai", ""), placeholder="0904725978")
+    a3, a4 = st.columns(2)
+    with a3:
+        dai_dien   = st.text_input("Họ tên đại diện ✱",   value=st.session_state.draft.get("dai_dien", ""),   placeholder="Nguyễn Văn A")
+    with a4:
+        chuc_vu    = st.text_input("Chức vụ ✱",           value=st.session_state.draft.get("chuc_vu", "Chủ HKD"), placeholder="Chủ HKD")
 
-    cc1, cc2 = st.columns(2)
-    with cc1:
-        ma_so_thue = st.text_input("Mã số thuế ✱",       value=st.session_state.draft.get("ma_so_thue", ""), placeholder="049189011144")
-    with cc2:
-        dai_dien   = st.text_input("Họ tên đại diện ✱",  value=st.session_state.draft.get("dai_dien", ""),   placeholder="PHẠM THỊ KIM LIÊN")
-
-    cd1, cd2 = st.columns(2)
-    with cd1:
-        chuc_vu    = st.text_input("Chức vụ ✱",          value=st.session_state.draft.get("chuc_vu", "Chủ HKD"), placeholder="Chủ HKD")
-    with cd2:
-        email_kh   = st.text_input("Email khách hàng ✱", value=st.session_state.draft.get("email_kh", ""),   placeholder="kimlienpham@gmail.com")
-
-    st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
-
-    # ── SECTION: ĐIỀU 6 — GIÁ TRỊ HỢP ĐỒNG ─
+    # ── Section: Điều 6
     st.markdown("""
     <div class="sec-block">
-        <div class="sec-head">
-            <span>💰 Điều 6 — Giá trị hợp đồng</span>
-        </div>
+        <div class="sec-head"><span>💰 Điều 6 — Giá trị hợp đồng</span></div>
+    </div>""", unsafe_allow_html=True)
+
+    # Header bảng
+    st.markdown("""
+    <div style="display:grid;grid-template-columns:28px 1.8fr 0.8fr 0.8fr 1.1fr 0.9fr 1.1fr 30px;
+        gap:4px;padding:6px 4px;background:#e2e8f0;border-radius:6px 6px 0 0;
+        font-size:0.72rem;font-weight:700;color:#475569;margin-bottom:2px;">
+        <div>#</div><div>Gói cước</div><div>ĐVT</div><div>SL</div>
+        <div>Giá gói (VNĐ)</div><div>Thành tiền</div><div>SL HĐ/gói</div><div></div>
     </div>""", unsafe_allow_html=True)
 
     n_goi = st.session_state.n_goi
     goi_list = st.session_state.goi_cuocs
-
-    # Đảm bảo list đủ dài
     while len(goi_list) < n_goi:
         goi_list.append({"ten_goi": "", "don_vi": "Gói", "so_luong": "", "gia_goi": "", "so_hd_trong_goi": ""})
 
     tong_tien = 0
     for i in range(n_goi):
         g = goi_list[i] if i < len(goi_list) else {}
-        g6c1, g6c2, g6c3, g6c4, g6c5 = st.columns([2.5, 1.2, 1.8, 1.8, 1.8])
-        with g6c1:
-            g["ten_goi"] = st.text_input(f"Gói cước {i+1}", value=g.get("ten_goi",""), key=f"gc_ten_{i}", placeholder="E-50")
-        with g6c2:
-            g["don_vi"] = st.text_input("ĐVT", value=g.get("don_vi","Gói"), key=f"gc_dv_{i}", placeholder="Gói")
-        with g6c3:
-            g["so_luong"] = st.text_input("Số lượng", value=g.get("so_luong",""), key=f"gc_sl_{i}", placeholder="1")
-        with g6c4:
-            g["gia_goi"] = st.text_input("Giá gói (VNĐ)", value=g.get("gia_goi",""), key=f"gc_gia_{i}", placeholder="100000")
-        with g6c5:
-            g["so_hd_trong_goi"] = st.text_input("SL HĐ/gói", value=g.get("so_hd_trong_goi",""), key=f"gc_sohdgoi_{i}", placeholder="50")
+        cols = st.columns([0.3, 1.8, 0.8, 0.8, 1.1, 0.9, 1.1, 0.3])
+        with cols[0]:
+            st.markdown(f"<div style='padding-top:32px;font-size:0.78rem;color:#64748b;text-align:center'>{i+1}</div>", unsafe_allow_html=True)
+        with cols[1]:
+            g["ten_goi"] = st.text_input("Gói", value=g.get("ten_goi",""), key=f"gc_ten_{i}", placeholder="E-50", label_visibility="collapsed")
+        with cols[2]:
+            g["don_vi"] = st.text_input("ĐVT", value=g.get("don_vi","Gói"), key=f"gc_dv_{i}", label_visibility="collapsed")
+        with cols[3]:
+            g["so_luong"] = st.text_input("SL", value=g.get("so_luong",""), key=f"gc_sl_{i}", placeholder="1", label_visibility="collapsed")
+        with cols[4]:
+            g["gia_goi"] = st.text_input("Giá", value=g.get("gia_goi",""), key=f"gc_gia_{i}", placeholder="100000", label_visibility="collapsed")
         try:
-            tong_tien += int(g.get("so_luong") or 0) * int(g.get("gia_goi") or 0)
-        except:
-            pass
-        if i < len(goi_list):
-            goi_list[i] = g
-        else:
-            goi_list.append(g)
+            sl  = int(str(g.get("so_luong","0") or "0").replace(".","").replace(",",""))
+            gia = int(str(g.get("gia_goi","0")  or "0").replace(".","").replace(",",""))
+            tt  = sl * gia
+            tong_tien += tt
+        except: tt = 0
+        with cols[5]:
+            st.markdown(f"<div style='padding-top:32px;font-size:0.82rem;font-weight:600;color:#1e3a5c'>{tt:,}".replace(",",".")+f"</div>", unsafe_allow_html=True)
+        with cols[6]:
+            g["so_hd_trong_goi"] = st.text_input("SL HĐ", value=g.get("so_hd_trong_goi",""), key=f"gc_sohdgoi_{i}", placeholder="50", label_visibility="collapsed")
+        with cols[7]:
+            st.markdown("<div style='padding-top:28px'>", unsafe_allow_html=True)
+            if st.button("🗑", key=f"del_goi_{i}", help="Xóa gói này") and n_goi > 1:
+                goi_list.pop(i)
+                st.session_state.n_goi -= 1
+                st.session_state.goi_cuocs = goi_list
+                st.rerun()
+            st.markdown("</div>", unsafe_allow_html=True)
+        if i < len(goi_list): goi_list[i] = g
+        else: goi_list.append(g)
 
     st.session_state.goi_cuocs = goi_list
 
-    # Nút thêm/bớt gói
-    btn_add, btn_rm, _ = st.columns([1, 1, 4])
-    with btn_add:
+    ba1, ba2, _ = st.columns([1, 1, 4])
+    with ba1:
         if st.button("➕ Thêm gói", use_container_width=True) and n_goi < 10:
             st.session_state.n_goi += 1
-            st.session_state.goi_cuocs.append({"ten_goi": "", "don_vi": "Gói", "so_luong": "", "gia_goi": "", "so_hd_trong_goi": ""})
+            st.session_state.goi_cuocs.append({"ten_goi":"","don_vi":"Gói","so_luong":"","gia_goi":"","so_hd_trong_goi":""})
             st.rerun()
-    with btn_rm:
+    with ba2:
         if st.button("➖ Bớt gói", use_container_width=True) and n_goi > 1:
             st.session_state.n_goi -= 1
             st.session_state.goi_cuocs = st.session_state.goi_cuocs[:st.session_state.n_goi]
             st.rerun()
 
-    # Preview tổng
+    # Tổng tiền
     bang_chu_preview = so_tien_bang_chu(tong_tien) if tong_tien > 0 else "—"
     tong_str = f"{tong_tien:,}".replace(",", ".") + " đ" if tong_tien > 0 else "—"
-    preview_html = f"""
+    st.markdown(f"""
     <div style='background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;padding:12px 16px;margin-top:8px;'>
         <div style='color:#1e3a5c;font-size:0.78rem;font-weight:600;margin-bottom:4px;'>TỔNG GIÁ TRỊ HỢP ĐỒNG</div>
         <div style='color:#1a3a5c;font-size:1.1rem;font-weight:800;'>{tong_str}</div>
         <div style='color:#334155;font-size:0.78rem;margin-top:4px;font-style:italic;'>{bang_chu_preview}</div>
-    </div>"""
-    st.markdown(preview_html, unsafe_allow_html=True)
+    </div>""", unsafe_allow_html=True)
 
+    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
-# ── Current data dict ──
-current_data = {
-    "so_hd": so_hd, "ngay_ky": ngay_ky, "thang_ky": thang_ky, "nam_ky": nam_ky,
-    "ten_hkd": ten_hkd, "tru_so": tru_so, "dia_chi_gd": dia_chi_gd,
-    "dien_thoai": dien_thoai, "ma_so_thue": ma_so_thue,
-    "dai_dien": dai_dien if dai_dien else "",
-    "chuc_vu": chuc_vu, "email_kh": email_kh,
-    "ten_nv_ben_b": ten_nv_ben_b, "email_ben_b": email_ben_b, "sdt_ben_b": sdt_ben_b,
-    "goi_cuocs": [g for g in st.session_state.goi_cuocs[:st.session_state.n_goi] if g.get("ten_goi")],
-}
-errors      = validate(current_data)
-fname_str   = filename_preview(so_hd, ten_hkd)
+    # current_data
+    current_data = {
+        "so_hd": so_hd, "ngay_ky": ngay_ky, "thang_ky": thang_ky, "nam_ky": nam_ky,
+        "ten_hkd": ten_hkd, "tru_so": tru_so, "dia_chi_gd": dia_chi_gd,
+        "dien_thoai": dien_thoai, "ma_so_thue": ma_so_thue,
+        "dai_dien": dai_dien if dai_dien else "",
+        "chuc_vu": chuc_vu, "email_kh": email_kh,
+        "ten_nv_ben_b": st.session_state.draft.get("ten_nv_ben_b", "Trương Thị Mỹ Châu"),
+        "email_ben_b":  st.session_state.draft.get("email_ben_b",  "cuong.danghuy.ctv@mobifone.vn"),
+        "sdt_ben_b":    st.session_state.draft.get("sdt_ben_b",    "0901959799"),
+        "goi_cuocs": [g for g in st.session_state.goi_cuocs[:st.session_state.n_goi] if g.get("ten_goi")],
+    }
+    errors    = validate(current_data)
+    fname_str = filename_preview(so_hd, ten_hkd)
 
-# ── BUTTONS: Tạo HĐ + Xem trước ──────────────
-with col_l:
-    st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
-    g6b1, g6b2 = st.columns([1, 1], gap="small")
-    with g6b1:
-        generate = st.button(
-            "✦  Tạo Hợp Đồng",
-            use_container_width=True,
-            disabled=bool(errors),
-            type="primary",
-        )
-    with g6b2:
-        preview_btn = st.button(
-            "✕  Đóng preview" if st.session_state.show_preview else "👁  Xem trước",
-            use_container_width=True,
-            disabled=not bool(st.session_state.result_bytes),
-        )
-        if preview_btn:
+    # ── Buttons
+    b1, b2 = st.columns([1, 1])
+    with b1:
+        generate = st.button("🚀  Tạo Hợp Đồng", use_container_width=True,
+                             disabled=bool(errors), type="primary")
+    with b2:
+        if st.button("✕  Đóng preview" if st.session_state.show_preview else "👁  Xem trước",
+                     use_container_width=True,
+                     disabled=not bool(st.session_state.result_bytes)):
             st.session_state.show_preview = not st.session_state.show_preview
             st.rerun()
 
@@ -1245,66 +1268,64 @@ with col_l:
             use_container_width=True,
         )
 
-with col_r:
+# ═══════════════════════════════════
+# RIGHT COL — KIỂM TRA + PREVIEW
+# ═══════════════════════════════════
+with right_col:
 
-    # ── Preview file ──────────────────────────
-    st.markdown('<div class="panel-card"><div class="panel-head">👁 Preview tên file</div><div class="panel-body">', unsafe_allow_html=True)
-    st.markdown(f"""
-    <div class="file-preview">
-        <div class="icon">📄</div>
-        <div class="name">{fname_str}</div>
+    # Kiểm tra thông tin
+    st.markdown("""
+    <div class="sec-block">
+        <div class="sec-head"><span>✅ Kiểm tra thông tin</span></div>
     </div>""", unsafe_allow_html=True)
-    if ten_hkd:
-        st.markdown(f'<div class="ma-badge">🔑 Mã KH: {tao_ma_hd(ten_hkd)}</div>', unsafe_allow_html=True)
-    st.markdown("</div></div>", unsafe_allow_html=True)
 
-    # ── Validation ────────────────────────────
-    st.markdown('<div class="panel-card"><div class="panel-head">✅ Kiểm tra thông tin</div><div class="panel-body">', unsafe_allow_html=True)
-    if errors:
-        err_html = "".join(f'<div class="err-row">✕ Thiếu: {e}</div>' for e in errors)
-        st.markdown(f'<div class="err-list">{err_html}</div>', unsafe_allow_html=True)
+    if preview_errors:
+        for e in preview_errors:
+            st.markdown(f"<div style='color:#ef4444;font-size:0.78rem;padding:2px 0'>✕ Thiếu: {e}</div>", unsafe_allow_html=True)
     else:
-        st.markdown('<div class="ok-box">✦ Tất cả hợp lệ — Sẵn sàng tạo HĐ</div>', unsafe_allow_html=True)
-    st.markdown("</div></div>", unsafe_allow_html=True)
+        st.markdown("<div style='color:#22c55e;font-size:0.82rem;font-weight:600'>✦ Tất cả hợp lệ</div>", unsafe_allow_html=True)
 
-    # ── Nháp ─────────────────────────────────
-    st.markdown('<div class="panel-card"><div class="panel-head">💾 Lưu nháp</div><div class="panel-body">', unsafe_allow_html=True)
-    bn1, bn2 = st.columns(2)
-    with bn1:
+    # Lưu nháp
+    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+    n1, n2 = st.columns(2)
+    with n1:
         if st.button("💾 Lưu nháp", use_container_width=True):
             st.session_state.draft = current_data
             st.success("Đã lưu!")
-    with bn2:
+    with n2:
         if st.button("🗑 Xoá nháp", use_container_width=True):
             st.session_state.draft = {}
             st.session_state.generated = False
             st.rerun()
-    st.markdown("</div></div>", unsafe_allow_html=True)
 
-    # ── Preview HĐ (sticky bên phải) ─────────
+    # Thông tin file
+    if st.session_state.result_fname:
+        st.markdown(f"""
+        <div style='background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;
+            padding:10px 14px;margin-top:12px;font-size:0.78rem;'>
+            <div style='font-weight:700;color:#1e3a5c;margin-bottom:4px;'>📄 File gần nhất</div>
+            <div style='color:#334155'>{st.session_state.result_fname}</div>
+        </div>""", unsafe_allow_html=True)
+
+    # Preview hợp đồng
     if st.session_state.show_preview and st.session_state.result_bytes:
-        st.markdown('<div class="panel-card"><div class="panel-head">👁 Xem trước hợp đồng</div></div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="sec-block" style='margin-top:16px'>
+            <div class="sec-head"><span>👁 Xem trước hợp đồng</span></div>
+        </div>""", unsafe_allow_html=True)
         try:
             preview_html = docx_to_html(st.session_state.result_bytes)
-            # Wrap với zoom để fit vừa col_r
             zoomed = f"""<!DOCTYPE html><html><head><meta charset="utf-8">
-            <style>
-            html,body{{margin:0;padding:0;background:#e8eaf0;}}
-            .zoom-wrap{{transform:scale(0.62);transform-origin:top left;
-                width:161%;}}
-            </style></head><body>
-            <div class="zoom-wrap">{preview_html}</div>
-            </body></html>"""
+            <style>html,body{{margin:0;padding:0;background:#e8eaf0;}}
+            .zoom-wrap{{transform:scale(0.58);transform-origin:top left;width:172%;}}</style>
+            </head><body><div class="zoom-wrap">{preview_html}</div></body></html>"""
             st.components.v1.html(zoomed, height=1100, scrolling=True)
         except Exception as ex:
             st.error(f"Không thể render preview: {ex}")
 
-
 # ─────────────────────────────────────────────
-# GENERATE ROW
+# FOOTER
 # ─────────────────────────────────────────────
-st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
-
 
 # ─────────────────────────────────────────────
 # FOOTER
