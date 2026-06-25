@@ -1073,8 +1073,8 @@ with col_l:
     tong_str = f"{tong_tien:,}".replace(",", ".") + " đ" if tong_tien > 0 else "—"
     preview_html = f"""
     <div style='background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 16px;margin-top:8px;font-size:0.82rem;'>
-        <b>Tổng giá trị HĐ:</b> <span style='color:#166534;font-weight:700'>{tong_str}</span><br>
-        <b>Bằng chữ:</b> <i>{bang_chu_preview}</i>
+        <b>Tổng giá trị HĐ:</b> <span style='color:#14532d;font-weight:800;font-size:0.9rem'>{tong_str}</span><br>
+        <b>Bằng chữ:</b> <span style='color:#1a1a1a'><i>{bang_chu_preview}</i></span>
     </div>"""
     st.markdown(preview_html, unsafe_allow_html=True)
 
