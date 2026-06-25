@@ -240,7 +240,184 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-s
     <span style="color:#3b82f6;font-size:0.6rem;cursor:pointer;">Xem tất cả</span>
   </div>
   <div class="hist-list" id="hist_list">
+  </div>
+
+  <div class="sb-collapse">
+    <button class="btn-collapse">◀ Thu gọn menu</button>
+  </div>
+  <div class="sb-foot">
+    © 2026 MobiFone Đà Nẵng – <span>MOBIFONE AUTO-MT306</span>
+    <div class="dev">Developed by Minh Thông</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-l">
+      <div class="t">MobiFone Auto Create Contract</div>
+      <div class="s">Tạo hợp đồng nhanh chóng – Chính xác – Bảo mật</div>
     </div>
+    <div class="hdr-r">
+      <span class="bdg bdg-o">MT306</span>
+      <span class="bdg bdg-r">v7 Web</span>
+      <span class="bdg bdg-g">Cập nhật: 06/2026</span>
+      <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);margin:0 4px;"></div>
+      <div class="hdr-icon">🔔<div class="hdr-badge">3</div></div>
+      <div class="hdr-icon">❓</div>
+      <div class="hdr-nv">
+        <div class="hdr-av">VL</div>
+        <div class="hdr-nv-info">
+          <div class="hn">Võ Thị Lê</div>
+          <div class="hr">Nhân viên kinh doanh</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- STEPPER -->
+    <div class="stepper">
+      <div class="step">
+        <div class="sdot done">✓</div>
+        <div class="si"><div class="sn done">Chọn template</div><div class="ss done">Đã chọn template</div></div>
+      </div>
+      <div class="sline done"></div>
+      <div class="step">
+        <div class="sdot done">✓</div>
+        <div class="si"><div class="sn done">Nhập thông tin</div><div class="ss done">Đang nhập liệu</div></div>
+      </div>
+      <div class="sline done"></div>
+      <div class="step">
+        <div class="sdot act">3</div>
+        <div class="si"><div class="sn act">Kiểm tra</div><div class="ss act">Tất cả hợp lệ</div></div>
+      </div>
+      <div class="sline todo"></div>
+      <div class="step">
+        <div class="sdot todo">4</div>
+        <div class="si"><div class="sn todo">Xem trước</div><div class="ss todo">Xem nội dung HĐ</div></div>
+      </div>
+      <div class="sline todo"></div>
+      <div class="step">
+        <div class="sdot todo">5</div>
+        <div class="si"><div class="sn todo">Tạo hợp đồng</div><div class="ss todo">Sinh file & Tải xuống</div></div>
+      </div>
+    </div>
+
+    <!-- LAYOUT 2 CỘT -->
+    <div class="layout">
+
+      <!-- CỘT TRÁI -->
+      <div>
+        <!-- Card 1 -->
+        <div class="card">
+          <div class="ch">📋 Thông tin hợp đồng</div>
+          <div class="fr c4">
+            <div class="fg"><label>Số hợp đồng <span class="req">✱</span></label><input id="f_so_hd" value="" placeholder="101"/></div>
+            <div class="fg"><label>Ngày ký <span class="req">✱</span></label><input id="f_ngay" value="" placeholder="25"/></div>
+            <div class="fg"><label>Tháng ký <span class="req">✱</span></label><input id="f_thang" value="" placeholder="06"/></div>
+            <div class="fg"><label>Năm ký <span class="req">✱</span></label><input id="f_nam" value="" placeholder="2026"/></div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="card">
+          <div class="ch">🏢 Bên A — Khách hàng</div>
+          <div class="fr c2">
+            <div class="fg"><label>Tên HKD đầy đủ <span class="req">✱</span></label><input id="f_ten_hkd" value="" placeholder="HKD Nhà Nghỉ Kim Liên"/></div>
+            <div class="fg"><label>Trụ sở chính <span class="req">✱</span></label><input id="f_tru_so" value="" placeholder="142/2 Phan Châu Trinh"/></div>
+          </div>
+          <div class="fr c2">
+            <div class="fg"><label>Địa chỉ giao dịch</label><input id="f_dia_chi" placeholder="Để trống nếu giống trụ sở"/></div>
+            <div class="fg"><label>Số điện thoại <span class="req">✱</span></label><input id="f_dien_thoai" value="" placeholder="0904725978"/></div>
+          </div>
+          <div class="fr c4">
+            <div class="fg"><label>Mã số thuế <span class="req">✱</span></label><input id="f_ma_so_thue" value="" placeholder="049189011144"/></div>
+            <div class="fg"><label>Họ tên đại diện <span class="req">✱</span></label><input id="f_dai_dien" value="" placeholder="Nguyễn Văn A"/></div>
+            <div class="fg"><label>Chức vụ <span class="req">✱</span></label><input id="f_chuc_vu" value="Chủ HKD"/></div>
+            <div class="fg"><label>Email</label><input id="f_email_kh" value="" placeholder="example@gmail.com"/></div>
+          </div>
+        </div>
+
+        <!-- Card 3: Điều 6 -->
+        <div class="card">
+          <div class="ch">💰 Điều 6 — Giá trị hợp đồng</div>
+          <table class="tbl">
+            <thead><tr>
+              <th style="width:26px">#</th>
+              <th>Gói cước</th>
+              <th style="width:70px">ĐVT</th>
+              <th style="width:55px">Số lượng</th>
+              <th>Giá gói (VNĐ)</th>
+              <th style="width:65px">SL HĐ/gói</th>
+              <th>Thành tiền (VNĐ)</th>
+              <th style="width:30px">Xoá</th>
+            </tr></thead>
+            <tbody id="pkg_tbody">
+              <tr>
+                <td><div class="rn">1</div></td>
+                <td><select><option>E-50</option><option>MTT-500</option><option>E-100</option></select></td>
+                <td><select><option>Gói</option><option>Tháng</option></select></td>
+                <td><input value="2"/></td>
+                <td><input value="100.000"/></td>
+                <td><input value="50"/></td>
+                <td><input class="tt" value="200.000" readonly/></td>
+                <td><button class="xbtn">✕</button></td>
+              </tr>
+              <tr>
+                <td><div class="rn">2</div></td>
+                <td><select><option>E-50</option></select></td>
+                <td><select><option>Gói</option></select></td>
+                <td><input value="1"/></td>
+                <td><input value="100.000"/></td>
+                <td><input value="50"/></td>
+                <td><input class="tt" value="100.000" readonly/></td>
+                <td><button class="xbtn">✕</button></td>
+              </tr>
+              <tr>
+                <td><div class="rn">3</div></td>
+                <td><select><option value="">-- Chọn gói --</option><option>E-50</option></select></td>
+                <td><select><option>Gói</option></select></td>
+                <td><input placeholder="1"/></td>
+                <td><input placeholder="100.000"/></td>
+                <td><input placeholder="50"/></td>
+                <td><input class="tt" readonly/></td>
+                <td><button class="xbtn">✕</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pa">
+            <button class="pb add" onclick="addGoi()">➕ Thêm gói cước</button>
+            <button class="pb rm" onclick="removeLastGoi()">➖ Bớt gói cước</button>
+          </div>
+          <div class="tbox">
+            <div class="tbox-icon">💰</div>
+            <div>
+              <div class="tl">Tổng giá trị hợp đồng</div>
+              <div class="ta"><span class="tong-val">0 đ</span></div>
+              <div class="tw"><span class="bangchu-val">—</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CỘT PHẢI -->
+      <div>
+        <!-- Kiểm tra -->
+        <div class="card">
+          <div class="ch">✅ Kiểm tra thông tin</div>
+          <div id="validation_panel"><div class="okbox">✦ Điền đầy đủ thông tin để kiểm tra</div></div>
+          <div class="ci"><span class="ico ok">✓</span> Thông tin hợp đồng</div>
+          <div class="ci"><span class="ico ok">✓</span> Thông tin Bên A – Khách hàng</div>
+          <div class="ci"><span class="ico ok">✓</span> Thông tin gói cước</div>
+          <div class="ci"><span class="ico ok">✓</span> Tính toán tổng giá trị</div>
+          <div class="ci-detail">👁 Xem chi tiết kiểm tra</div>
+        </div>
+
         <!-- Thao tác -->
         <div class="card">
           <div class="ch">⚡ Thao tác</div>
@@ -338,48 +515,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-s
       <div class="prog"><div class="progb" id="prog_bar"></div></div>
     </div>
     <div class="bb-btns">
-      <button class="btn-gen" id="btn_gen" onclick="generateContract()"><div class="bt">🚀 TẠO HỢP ĐỒNG</div><div class="bs">Sinh file Word & Lưu vào hệ thống</div></button>
-      <button class="btn-sav" onclick="saveDraft()"><div class="bt">💾 LƯU NHÁP</div><div class="bs">Lưu thông tin hợp đồng</div></button>
+      <button class="btn-gen" id="btn_gen" onclick="generateContract()">
+        <div class="bt">🚀 TẠO HỢP ĐỒNG</div>
+        <div class="bs">Sinh file Word & Lưu vào hệ thống</div>
+      </button>
+      <button class="btn-sav" onclick="saveDraft()">
+        <div class="bt">💾 LƯU NHÁP</div>
+        <div class="bs">Lưu thông tin hợp đồng</div>
+      </button>
     </div>
   </div>
 
 </div><!-- end main -->
 
 <script>
-// ══ STATE ══════════════════════════════════════
 const state = {
-  so_hd: "", ngay_ky: new Date().getDate().toString().padStart(2,"0"),
-  thang_ky: (new Date().getMonth()+1).toString().padStart(2,"0"),
-  nam_ky: new Date().getFullYear().toString(),
-  ten_hkd: "", tru_so: "", dia_chi_gd: "", dien_thoai: "",
-  ma_so_thue: "", dai_dien: "", chuc_vu: "Chủ HKD", email_kh: "",
-  ten_nv_ben_b: "Trương Thị Mỹ Châu",
-  email_ben_b: "cuong.danghuy.ctv@mobifone.vn",
-  sdt_ben_b: "0901959799",
   goi_cuocs: [
     {ten_goi:"",don_vi:"Gói",so_luong:"",gia_goi:"",so_hd_trong_goi:""},
     {ten_goi:"",don_vi:"Gói",so_luong:"",gia_goi:"",so_hd_trong_goi:""},
     {ten_goi:"",don_vi:"Gói",so_luong:"",gia_goi:"",so_hd_trong_goi:""},
   ],
-  history: JSON.parse(localStorage.getItem("hd_history") || "[]"),
-  draft: JSON.parse(localStorage.getItem("hd_draft") || "null"),
-  last_file_id: null, last_filename: null,
+  history: JSON.parse(localStorage.getItem("hd_history")||"[]"),
 };
 
-// ══ HELPERS ════════════════════════════════════
 const $ = id => document.getElementById(id);
-const fmtNum = n => n.toLocaleString("vi-VN");
-function saveHistory() { localStorage.setItem("hd_history", JSON.stringify(state.history)); }
-function saveDraft()   { localStorage.setItem("hd_draft", JSON.stringify(collectData())); }
-function loadDraft()   {
-  const d = JSON.parse(localStorage.getItem("hd_draft") || "null");
-  if (!d) { alert("Không có nháp nào!"); return; }
-  Object.assign(state, d);
-  renderPackages();
-  populateForm();
-  alert("Đã tải nháp!");
-}
-function clearDraft()  { localStorage.removeItem("hd_draft"); alert("Đã xoá nháp!"); }
+const fmtVND = n => n.toLocaleString("vi-VN");
 
 function collectData() {
   return {
@@ -395,235 +555,184 @@ function collectData() {
     dai_dien:   $("f_dai_dien")?.value||"",
     chuc_vu:    $("f_chuc_vu")?.value||"Chủ HKD",
     email_kh:   $("f_email_kh")?.value||"",
-    ten_nv_ben_b: $("sb_ten")?.value||"",
-    email_ben_b:  $("sb_email")?.value||"",
-    sdt_ben_b:    $("sb_sdt")?.value||"",
+    ten_nv_ben_b: document.querySelector("#sb_ten")?.value||"Trương Thị Mỹ Châu",
+    email_ben_b:  document.querySelector("#sb_email")?.value||"cuong.danghuy.ctv@mobifone.vn",
+    sdt_ben_b:    document.querySelector("#sb_sdt")?.value||"0901959799",
     goi_cuocs: state.goi_cuocs.filter(g=>g.ten_goi),
   };
 }
 
-function populateForm() {
-  const d = state.draft || state;
-  if ($("f_so_hd"))       $("f_so_hd").value       = d.so_hd||"";
-  if ($("f_ngay"))        $("f_ngay").value         = d.ngay_ky||"";
-  if ($("f_thang"))       $("f_thang").value        = d.thang_ky||"";
-  if ($("f_nam"))         $("f_nam").value          = d.nam_ky||"";
-  if ($("f_ten_hkd"))     $("f_ten_hkd").value      = d.ten_hkd||"";
-  if ($("f_tru_so"))      $("f_tru_so").value       = d.tru_so||"";
-  if ($("f_dia_chi"))     $("f_dia_chi").value      = d.dia_chi_gd||"";
-  if ($("f_dien_thoai"))  $("f_dien_thoai").value   = d.dien_thoai||"";
-  if ($("f_ma_so_thue"))  $("f_ma_so_thue").value   = d.ma_so_thue||"";
-  if ($("f_dai_dien"))    $("f_dai_dien").value      = d.dai_dien||"";
-  if ($("f_chuc_vu"))     $("f_chuc_vu").value       = d.chuc_vu||"Chủ HKD";
-  if ($("f_email_kh"))    $("f_email_kh").value      = d.email_kh||"";
-}
-
-// ══ PACKAGE TABLE ══════════════════════════════
 function renderPackages() {
   const tbody = $("pkg_tbody");
-  if (!tbody) return;
+  if(!tbody) return;
   tbody.innerHTML = "";
-  state.goi_cuocs.forEach((g, i) => {
-    let sl  = parseFloat(g.so_luong)||0;
-    let gia = parseFloat((g.gia_goi||"").replace(/\./g,"").replace(",","."))||0;
-    let tt  = sl * gia;
+  state.goi_cuocs.forEach((g,i)=>{
+    const sl = parseFloat(g.so_luong)||0;
+    const gia = parseFloat((g.gia_goi||"").replace(/\./g,""))||0;
+    const tt = sl*gia;
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td><div class="rn">${i+1}</div></td>
-      <td><input value="${g.ten_goi}" placeholder="E-50" onchange="updateGoi(${i},'ten_goi',this.value)"/></td>
-      <td><select onchange="updateGoi(${i},'don_vi',this.value)">
+      <td><input value="${g.ten_goi}" placeholder="E-50" onchange="state.goi_cuocs[${i}].ten_goi=this.value;recalc()"/></td>
+      <td><select onchange="state.goi_cuocs[${i}].don_vi=this.value">
         <option ${g.don_vi=="Gói"?"selected":""}>Gói</option>
         <option ${g.don_vi=="Tháng"?"selected":""}>Tháng</option>
       </select></td>
-      <td><input value="${g.so_luong}" placeholder="1" onchange="updateGoi(${i},'so_luong',this.value); recalc()"/></td>
-      <td><input value="${g.gia_goi}" placeholder="100000" onchange="updateGoi(${i},'gia_goi',this.value); recalc()"/></td>
-      <td><input value="${g.so_hd_trong_goi}" placeholder="50" onchange="updateGoi(${i},'so_hd_trong_goi',this.value)"/></td>
-      <td><input class="tt" value="${tt?fmtNum(tt):""}" readonly/></td>
+      <td><input value="${g.so_luong}" placeholder="1" onchange="state.goi_cuocs[${i}].so_luong=this.value;recalc()"/></td>
+      <td><input value="${g.gia_goi}" placeholder="100000" onchange="state.goi_cuocs[${i}].gia_goi=this.value;recalc()"/></td>
+      <td><input value="${g.so_hd_trong_goi}" placeholder="50" onchange="state.goi_cuocs[${i}].so_hd_trong_goi=this.value"/></td>
+      <td><input class="tt" value="${tt?fmtVND(tt):""}" readonly/></td>
       <td><button class="xbtn" onclick="removeGoi(${i})">✕</button></td>`;
     tbody.appendChild(tr);
   });
   recalc();
 }
 
-function updateGoi(i, field, val) { state.goi_cuocs[i][field] = val; }
-function addGoi()    { if(state.goi_cuocs.length<10){state.goi_cuocs.push({ten_goi:"",don_vi:"Gói",so_luong:"",gia_goi:"",so_hd_trong_goi:""}); renderPackages();} }
-function removeGoi(i){ if(state.goi_cuocs.length>1){state.goi_cuocs.splice(i,1); renderPackages();} }
-
 function recalc() {
-  let tong = 0;
-  state.goi_cuocs.forEach(g => {
-    const sl  = parseFloat(g.so_luong)||0;
-    const gia = parseFloat((g.gia_goi||"").replace(/\./g,"").replace(",","."))||0;
-    tong += sl * gia;
+  let tong=0;
+  state.goi_cuocs.forEach(g=>{
+    tong+=(parseFloat(g.so_luong)||0)*(parseFloat((g.gia_goi||"").replace(/\./g,""))||0);
   });
-  const ts = tong ? fmtNum(tong)+" đ" : "0 đ";
-  document.querySelectorAll(".tong-val").forEach(el => el.textContent = ts);
-  document.querySelectorAll(".bangchu-val").forEach(el => el.textContent = tong ? numberToWords(tong) : "—");
+  const ts=tong?fmtVND(tong)+" đ":"0 đ";
+  document.querySelectorAll(".tong-val").forEach(el=>el.textContent=ts);
+  document.querySelectorAll(".bangchu-val").forEach(el=>el.textContent=tong?numberToWords(tong):"—");
 }
 
-// ══ VALIDATE ═══════════════════════════════════
-async function validateForm() {
-  const data = collectData();
-  try {
-    const res = await fetch("/api/validate", {
-      method: "POST", headers: {"Content-Type":"application/json"},
-      body: JSON.stringify(data)
-    });
-    const json = await res.json();
-    updateValidation(json);
-    return json.valid;
-  } catch(e) {
-    // offline fallback
-    const errors = [];
-    if(!data.so_hd)       errors.push("Số hợp đồng");
-    if(!data.ten_hkd)     errors.push("Tên HKD");
-    if(!data.tru_so)      errors.push("Trụ sở chính");
-    if(!data.dien_thoai)  errors.push("Số điện thoại");
-    if(!data.ma_so_thue)  errors.push("Mã số thuế");
-    if(!data.dai_dien)    errors.push("Đại diện");
-    if(!data.chuc_vu)     errors.push("Chức vụ");
-    if(!data.goi_cuocs.length) errors.push("Gói cước");
-    updateValidation({valid: errors.length===0, errors});
-    return errors.length === 0;
+function addGoi(){
+  if(state.goi_cuocs.length<10){
+    state.goi_cuocs.push({ten_goi:"",don_vi:"Gói",so_luong:"",gia_goi:"",so_hd_trong_goi:""});
+    renderPackages();
   }
 }
+function removeGoi(i){
+  if(state.goi_cuocs.length>1){state.goi_cuocs.splice(i,1);renderPackages();}
+}
+function removeLastGoi(){
+  if(state.goi_cuocs.length>1){state.goi_cuocs.pop();renderPackages();}
+}
 
-function updateValidation({valid, errors}) {
-  const panel = $("validation_panel");
-  if (!panel) return;
-  const checks = [
-    ["Thông tin hợp đồng", !errors.some(e=>["Số hợp đồng","Tháng ký","Năm ký"].includes(e))],
-    ["Thông tin Bên A – Khách hàng", !errors.some(e=>["Tên HKD","Trụ sở","Điện thoại","MST","Đại diện","Chức vụ","Email"].includes(e))],
-    ["Thông tin gói cước", !errors.includes("Gói cước")],
-    ["Tính toán tổng giá trị", true],
+function saveDraft(){
+  localStorage.setItem("hd_draft",JSON.stringify(collectData()));
+  showToast("✅ Đã lưu nháp!","success");
+}
+function clearDraft(){
+  localStorage.removeItem("hd_draft");
+  showToast("🗑 Đã xoá nháp","info");
+}
+
+async function validateForm(){
+  const data=collectData();
+  const errors=[];
+  if(!data.so_hd) errors.push("Số hợp đồng");
+  if(!data.ten_hkd) errors.push("Tên HKD");
+  if(!data.tru_so) errors.push("Trụ sở chính");
+  if(!data.dien_thoai) errors.push("Số điện thoại");
+  if(!data.ma_so_thue) errors.push("Mã số thuế");
+  if(!data.dai_dien) errors.push("Đại diện");
+  if(!data.chuc_vu) errors.push("Chức vụ");
+  if(!data.goi_cuocs.length) errors.push("Gói cước");
+  updateValidation({valid:errors.length===0,errors});
+  return errors.length===0;
+}
+
+function updateValidation({valid,errors}){
+  const panel=$("validation_panel");
+  if(!panel) return;
+  const checks=[
+    ["Thông tin hợp đồng",!errors.some(e=>["Số hợp đồng","Tháng ký","Năm ký"].includes(e))],
+    ["Thông tin Bên A",!errors.some(e=>["Tên HKD","Trụ sở","Điện thoại","MST","Đại diện"].includes(e))],
+    ["Thông tin gói cước",!errors.includes("Gói cước")],
+    ["Tính toán tổng giá trị",true],
   ];
-  const okHtml = valid
-    ? `<div class="okbox">✦ Tất cả hợp lệ – Sẵn sàng tạo HĐ</div>`
-    : errors.slice(0,4).map(e=>`<div style="font-size:0.7rem;color:#f59e0b;padding:2px 0 2px 20px;">⚠ Thiếu: ${e}</div>`).join("");
-  panel.innerHTML = okHtml + checks.map(([lbl,ok])=>`
-    <div class="ci"><span class="ico ${ok?"ok":"fail"}">${ok?"✓":"✕"}</span>${lbl}</div>`
-  ).join("") + `<div class="ci-detail">👁 Xem chi tiết kiểm tra</div>`;
+  const okHtml=valid?`<div class="okbox">✦ Tất cả hợp lệ – Sẵn sàng tạo HĐ</div>`:
+    errors.slice(0,4).map(e=>`<div style="font-size:0.7rem;color:#f59e0b;padding:2px 0 2px 16px;">⚠ Thiếu: ${e}</div>`).join("");
+  panel.innerHTML=okHtml+checks.map(([l,ok])=>
+    `<div class="ci"><span class="ico ${ok?"ok":"fail"}">${ok?"✓":"✕"}</span>${l}</div>`
+  ).join("")+`<div class="ci-detail">👁 Xem chi tiết kiểm tra</div>`;
 }
 
-// ══ GENERATE ═══════════════════════════════════
-async function generateContract() {
-  const valid = await validateForm();
-  if (!valid) { alert("Vui lòng điền đủ thông tin bắt buộc!"); return; }
-
-  const btnGen = $("btn_gen");
-  btnGen.disabled = true;
-  btnGen.innerHTML = `<div class="bt">⏳ Đang tạo...</div>`;
-
-  const prog = $("prog_bar");
-  if(prog) { prog.style.width="0%"; prog.parentElement.style.display="block"; }
-  let pct = 0;
-  const progTimer = setInterval(()=>{ pct = Math.min(pct+8,90); if(prog) prog.style.width=pct+"%"; },200);
-
-  try {
-    const data = collectData();
-    const res = await fetch("/api/generate", {
-      method: "POST", headers: {"Content-Type":"application/json"},
-      body: JSON.stringify(data)
+async function generateContract(){
+  const valid=await validateForm();
+  if(!valid){showToast("⚠ Vui lòng điền đủ thông tin!","error");return;}
+  const btn=$("btn_gen");
+  btn.disabled=true;
+  const prog=$("prog_bar");
+  let pct=0;
+  const t=setInterval(()=>{pct=Math.min(pct+8,90);if(prog)prog.style.width=pct+"%";},200);
+  try{
+    const res=await fetch("/api/generate",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(collectData())
     });
-    if (!res.ok) { const err = await res.json(); throw new Error(err.detail||"Lỗi server"); }
-    const json = await res.json();
-
-    clearInterval(progTimer);
-    if(prog) prog.style.width="100%";
-
-    state.last_file_id  = json.file_id;
-    state.last_filename = json.filename;
-
-    // Cập nhật lịch sử
-    state.history.unshift({fname:json.filename, time:json.created_at});
-    if(state.history.length>10) state.history.pop();
-    saveHistory();
+    if(!res.ok) throw new Error((await res.json()).detail||"Lỗi server");
+    const json=await res.json();
+    clearInterval(t);
+    if(prog)prog.style.width="100%";
+    state.history.unshift({fname:json.filename,time:json.created_at});
+    if(state.history.length>10)state.history.pop();
+    localStorage.setItem("hd_history",JSON.stringify(state.history));
     renderHistory();
-
-    // Hiện nút tải
-    const dlArea = $("dl_area");
-    if (dlArea) {
-      dlArea.innerHTML = `<a href="/api/download/${json.file_id}/${json.filename}"
-        download="${json.filename}"
-        style="display:flex;align-items:center;justify-content:center;gap:8px;
-               background:#0d1f35;color:white;padding:10px 20px;border-radius:9px;
-               text-decoration:none;font-size:0.85rem;font-weight:700;margin-top:8px;">
-        ⬇️ Tải xuống ${json.filename}</a>`;
-    }
-
-    // Cập nhật file info
-    updateFileInfo(json);
-    showToast("✅ Tạo hợp đồng thành công!", "success");
-    if(prog) setTimeout(()=>{ prog.style.width="0%"; },1000);
-
-  } catch(e) {
-    clearInterval(progTimer);
-    if(prog) prog.style.width="0%";
-    showToast("❌ Lỗi: "+e.message, "error");
-  } finally {
-    btnGen.disabled = false;
-    btnGen.innerHTML = `<div class="bt">🚀 TẠO HỢP ĐỒNG</div><div class="bs">Sinh file Word & Lưu vào hệ thống</div>`;
+    const dl=$("dl_area");
+    if(dl)dl.innerHTML=`<a href="/api/download/${json.file_id}/${json.filename}" download="${json.filename}"
+      style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;
+      background:#0d1f35;color:white;padding:11px 20px;border-radius:9px;text-decoration:none;
+      font-size:0.85rem;font-weight:700;">⬇️ Tải xuống ${json.filename}</a>`;
+    const fi=$("file_info");
+    if(fi)fi.innerHTML=`<div class="fi-row"><div class="fi-icon">📄</div>
+      <div><div class="fi-label">File</div><a class="fi-link" href="/api/download/${json.file_id}/${json.filename}" download>${json.filename}</a></div></div>
+      <div class="fi-row"><div class="fi-icon">🕐</div><div><div class="fi-label">Thời gian</div><div class="fi-val">${json.created_at}</div></div></div>`;
+    showToast("✅ Tạo hợp đồng thành công!","success");
+    setTimeout(()=>{if(prog)prog.style.width="0%";},1500);
+  }catch(e){
+    clearInterval(t);
+    if(prog)prog.style.width="0%";
+    showToast("❌ Lỗi: "+e.message,"error");
+  }finally{
+    btn.disabled=false;
   }
 }
 
-function updateFileInfo(json) {
-  const fi = $("file_info");
-  if (!fi) return;
-  fi.innerHTML = `
-    <div class="fi-row"><div class="fi-icon">📄</div>
-      <div><div class="fi-label">Tên file</div>
-      <a class="fi-link" href="/api/download/${json.file_id}/${json.filename}" download>${json.filename}</a></div></div>
-    <div class="fi-row"><div class="fi-icon">🕐</div>
-      <div><div class="fi-label">Thời gian tạo</div><div class="fi-val">${json.created_at}</div></div></div>`;
-}
-
-// ══ HISTORY ════════════════════════════════════
-function renderHistory() {
-  const hist = $("hist_list");
-  if (!hist) return;
-  if (!state.history.length) {
-    hist.innerHTML = `<div style="padding:6px 14px;font-size:0.7rem;color:#475569;">Chưa có hợp đồng nào</div>`;
+function renderHistory(){
+  const hist=$("hist_list");
+  if(!hist) return;
+  if(!state.history.length){
+    hist.innerHTML=`<div style="padding:6px 14px;font-size:0.7rem;color:#475569;">Chưa có hợp đồng nào</div>`;
     return;
   }
-  hist.innerHTML = state.history.slice(0,5).map(h=>`
-    <div class="hi">
-      <div class="hi-icon">📄</div>
-      <div class="hi-info">
-        <div class="hi-name">${h.fname}</div>
-        <div class="hi-meta"><span class="hi-time">${h.time}</span>
-        <span class="hbdg g">Thành công</span></div>
-      </div>
-    </div>`).join("");
+  hist.innerHTML=state.history.slice(0,5).map(h=>`
+    <div class="hi"><div class="hi-icon">📄</div>
+    <div class="hi-info">
+      <div class="hi-name">${h.fname}</div>
+      <div class="hi-meta"><span class="hi-time">${h.time}</span><span class="hbdg g">Thành công</span></div>
+    </div></div>`).join("");
 }
 
-// ══ TOAST ══════════════════════════════════════
-function showToast(msg, type="success") {
-  const t = document.createElement("div");
-  t.style.cssText = `position:fixed;top:20px;right:20px;z-index:9999;
-    padding:12px 20px;border-radius:10px;font-size:0.82rem;font-weight:600;
-    box-shadow:0 4px 20px rgba(0,0,0,0.15);animation:fadeIn 0.3s ease;
-    background:${type==="success"?"#0d1f35":"#E31837"};color:white;`;
-  t.textContent = msg;
+function showToast(msg,type="success"){
+  const t=document.createElement("div");
+  const colors={success:"#0d1f35",error:"#E31837",info:"#475569"};
+  t.style.cssText=`position:fixed;top:20px;right:20px;z-index:9999;padding:12px 20px;
+    border-radius:10px;font-size:0.82rem;font-weight:600;color:white;
+    background:${colors[type]||colors.success};box-shadow:0 4px 20px rgba(0,0,0,0.2);`;
+  t.textContent=msg;
   document.body.appendChild(t);
-  setTimeout(()=>t.remove(), 3500);
+  setTimeout(()=>t.remove(),3000);
 }
 
-// ══ NUMBER TO WORDS ════════════════════════════
-function numberToWords(n) {
-  if (n===0) return "Không đồng";
-  const units = ["","nghìn","triệu","tỷ"];
-  const d = ["không","một","hai","ba","bốn","năm","sáu","bảy","tám","chín"];
+function numberToWords(n){
+  if(n===0)return"Không đồng";
+  const d=["không","một","hai","ba","bốn","năm","sáu","bảy","tám","chín"];
+  const dv=["","nghìn","triệu","tỷ"];
   function d3(n,first=false){
     let tr=Math.floor(n/100),ch=Math.floor((n%100)/10),dv=n%10,s="";
-    if(tr) s+=d[tr]+" trăm";
-    if(ch===0&&dv===0) return s;
-    if(tr&&ch===0) s+=" linh";
-    else if(tr||!first) s+=" "+(ch===1?"mười":ch?d[ch]+" mươi":"");
+    if(tr)s+=d[tr]+" trăm";
+    if(ch===0&&dv===0)return s;
+    if(tr&&ch===0)s+=" linh";
+    else if(tr||!first)s+=" "+(ch===1?"mười":ch?d[ch]+" mươi":"");
     else s+=(ch===1?"mười":ch>1?d[ch]+" mươi":"");
     if(dv){
-      if(ch===0&&!tr&&first) s+=" "+d[dv];
-      else if(dv===5&&ch) s+=" lăm";
-      else if(dv===1&&ch) s+=" mốt";
+      if(ch===0&&!tr&&first)s+=" "+d[dv];
+      else if(dv===5&&ch)s+=" lăm";
+      else if(dv===1&&ch)s+=" mốt";
       else s+=" "+d[dv];
     }
     return s.trim();
@@ -632,32 +741,28 @@ function numberToWords(n) {
   while(num>0){chunks.push([num%1000,i]);num=Math.floor(num/1000);i++;}
   const parts=[];
   chunks.reverse().forEach(([chunk,power],idx)=>{
-    if(!chunk) return;
+    if(!chunk)return;
     let p=d3(chunk,idx===chunks.length-1);
-    if(units[power]) p+=" "+units[power];
+    if(dv[power])p+=" "+dv[power];
     parts.push(p);
   });
   let r=parts.join(" ").trim();
   return r[0].toUpperCase()+r.slice(1)+" đồng chẵn";
 }
 
-// ══ INIT ═══════════════════════════════════════
-document.addEventListener("DOMContentLoaded", ()=>{
+document.addEventListener("DOMContentLoaded",()=>{
   renderPackages();
   renderHistory();
-  populateForm();
-
-  // Validate on input change
-  document.querySelectorAll("input,select").forEach(el=>{
-    el.addEventListener("change", ()=>{ validateForm(); recalc(); });
-  });
-
-  // Initial validate
-  setTimeout(validateForm, 500);
+  // Load draft nếu có
+  const draft=JSON.parse(localStorage.getItem("hd_draft")||"null");
+  if(draft&&draft.goi_cuocs){state.goi_cuocs=draft.goi_cuocs;renderPackages();}
+  // Validate khi thay đổi
+  document.addEventListener("input",()=>{validateForm();recalc();});
+  setTimeout(validateForm,300);
 });
 </script>
 <style>
-@keyframes fadeIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
 </style>
 
 </body>
