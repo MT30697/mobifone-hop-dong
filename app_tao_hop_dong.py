@@ -1265,37 +1265,29 @@ def render_header():
 # ── RENDER STEPPER ─────────────────────────────────────────────
 def render_stepper(current_step: int, errors: list):
     steps = ["Chọn template", "Nhập thông tin", "Kiểm tra", "Xem trước", "Tạo hợp đồng"]
-    items_html = ""
-    for i, label in enumerate(steps, 1):
-        if i < current_step:
-            dot_cls   = "done"
-            label_cls = "done"
-            dot_inner = "✓"
-        elif i == current_step:
-            dot_cls   = "active"
-            label_cls = "active"
-            dot_inner = str(i)
-        else:
-            dot_cls   = ""
-            label_cls = ""
-            dot_inner = str(i)
-        conn_color = '#22c55e' if i < current_step else '#e2e8f0'
-        connector = f"<div style='flex:1;height:2px;background:{conn_color};margin:0 4px;'></div>" if i < len(steps) else ""
-        items_html += f"""
-        <div style='display:flex;align-items:center;'>
-            <div style='display:flex;flex-direction:column;align-items:center;gap:4px;'>
-                <div class='step-dot {dot_cls}'>{dot_inner}</div>
-                <div class='step-label {label_cls}' style='font-size:0.65rem;'>{label}</div>
-            </div>
-            {connector}
-        </div>"""
-
-    st.markdown(f"""
-    <div style='background:white;border-radius:12px;padding:14px 24px;margin-bottom:16px;
-        box-shadow:0 1px 4px rgba(0,0,0,0.06);display:flex;align-items:flex-start;'>
-        {items_html}
-    </div>""", unsafe_allow_html=True)
-
+    cols = st.columns(len(steps))
+    for idx, (col, label) in enumerate(zip(cols, steps), 1):
+        with col:
+            if idx < current_step:
+                color, bg, border = "#16a34a", "#dcfce7", "2px solid #22c55e"
+                icon = "✓"
+            elif idx == current_step:
+                color, bg, border = "#ffffff", "#0B2D4D", "2px solid #0B2D4D"
+                icon = str(idx)
+            else:
+                color, bg, border = "#94a3b8", "#f1f5f9", "2px solid #e2e8f0"
+                icon = str(idx)
+            lbl_color = "#16a34a" if idx < current_step else ("#0B2D4D" if idx == current_step else "#94a3b8")
+            st.markdown(
+                "<div style='text-align:center;padding:8px 0;'>"
+                "<div style='width:32px;height:32px;border-radius:50%;"
+                "background:" + bg + ";color:" + color + ";border:" + border + ";"
+                "display:inline-flex;align-items:center;justify-content:center;"
+                "font-size:0.78rem;font-weight:700;margin-bottom:4px;'>" + icon + "</div>"
+                "<div style='font-size:0.62rem;font-weight:600;color:" + lbl_color + ";'>" + label + "</div>"
+                "</div>",
+                unsafe_allow_html=True
+            )
 
 # ── RENDER CONTRACT FORM (left col) ───────────────────────────
 def render_contract_form(draft):
