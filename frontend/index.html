@@ -228,11 +228,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-s
       </div>
     </div>
     <div class="nv-rows">
-      <div class="nv-row">SĐT <span>0905 424 214</span></div>
-      <div class="nv-row">Email <span>vothile@mobifone.vn</span></div>
+      <div class="nv-row">SĐT <span id="nv_sdt_display">0905 424 214</span></div>
+      <div class="nv-row">Email <span id="nv_email_display">vothile@mobifone.vn</span></div>
 
     </div>
-    <button class="btn-edit">✏️ Chỉnh sửa thông tin</button>
+    <button class="btn-edit" onclick="openEditNV()">✏️ Chỉnh sửa thông tin</button>
   </div>
 
   <div class="sb-sec" style="display:flex;align-items:center;justify-content:space-between;">
@@ -411,11 +411,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-s
         <div class="card">
           <div class="ch">✅ Kiểm tra thông tin</div>
           <div id="validation_panel"><div class="okbox">✦ Điền đầy đủ thông tin để kiểm tra</div></div>
-          <div class="ci"><span class="ico ok">✓</span> Thông tin hợp đồng</div>
-          <div class="ci"><span class="ico ok">✓</span> Thông tin Bên A – Khách hàng</div>
-          <div class="ci"><span class="ico ok">✓</span> Thông tin gói cước</div>
-          <div class="ci"><span class="ico ok">✓</span> Tính toán tổng giá trị</div>
-          <div class="ci-detail">👁 Xem chi tiết kiểm tra</div>
         </div>
 
         <!-- Thao tác -->
@@ -568,19 +563,19 @@ function renderPackages() {
   tbody.innerHTML = "";
   state.goi_cuocs.forEach((g,i)=>{
     const sl = parseFloat(g.so_luong)||0;
-    const gia = parseFloat((g.gia_goi||"").replace(/\./g,""))||0;
+    const gia = parseFloat((g.gia_goi||"").replace(/\./g,"").replace(/,/g,"."))||0;
     const tt = sl*gia;
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td><div class="rn">${i+1}</div></td>
-      <td><input value="${g.ten_goi}" placeholder="E-50" onchange="state.goi_cuocs[${i}].ten_goi=this.value;recalc()"/></td>
-      <td><select onchange="state.goi_cuocs[${i}].don_vi=this.value">
+      <td><input value="${g.ten_goi}" placeholder="E-50" oninput="state.goi_cuocs[${i}].ten_goi=this.value;recalc()"/></td>
+      <td><select onchange="state.goi_cuocs[${i}].don_vi=this.value;recalc()">
         <option ${g.don_vi=="Gói"?"selected":""}>Gói</option>
         <option ${g.don_vi=="Tháng"?"selected":""}>Tháng</option>
       </select></td>
-      <td><input value="${g.so_luong}" placeholder="1" onchange="state.goi_cuocs[${i}].so_luong=this.value;recalc()"/></td>
-      <td><input value="${g.gia_goi}" placeholder="100000" onchange="state.goi_cuocs[${i}].gia_goi=this.value;recalc()"/></td>
-      <td><input value="${g.so_hd_trong_goi}" placeholder="50" onchange="state.goi_cuocs[${i}].so_hd_trong_goi=this.value"/></td>
+      <td><input value="${g.so_luong}" placeholder="1" oninput="state.goi_cuocs[${i}].so_luong=this.value;recalc()"/></td>
+      <td><input value="${g.gia_goi}" placeholder="100000" oninput="state.goi_cuocs[${i}].gia_goi=this.value;recalc()"/></td>
+      <td><input value="${g.so_hd_trong_goi}" placeholder="50" oninput="state.goi_cuocs[${i}].so_hd_trong_goi=this.value"/></td>
       <td><input class="tt" value="${tt?fmtVND(tt):""}" readonly/></td>
       <td><button class="xbtn" onclick="removeGoi(${i})">✕</button></td>`;
     tbody.appendChild(tr);
@@ -591,7 +586,10 @@ function renderPackages() {
 function recalc() {
   let tong=0;
   state.goi_cuocs.forEach(g=>{
-    tong+=(parseFloat(g.so_luong)||0)*(parseFloat((g.gia_goi||"").replace(/\./g,""))||0);
+    const sl = parseFloat(g.so_luong)||0;
+    const giaStr = (g.gia_goi||"").replace(/\./g,"").replace(/,/g,".");
+    const gia = parseFloat(giaStr)||0;
+    tong += sl * gia;
   });
   const ts=tong?fmtVND(tong)+" đ":"0 đ";
   document.querySelectorAll(".tong-val").forEach(el=>el.textContent=ts);
@@ -757,13 +755,103 @@ document.addEventListener("DOMContentLoaded",()=>{
   const draft=JSON.parse(localStorage.getItem("hd_draft")||"null");
   if(draft&&draft.goi_cuocs){state.goi_cuocs=draft.goi_cuocs;renderPackages();}
   // Validate khi thay đổi
-  document.addEventListener("input",()=>{validateForm();recalc();});
+  document.addEventListener("input", ()=>{ validateForm(); recalc(); });
+  document.addEventListener("change", ()=>{ validateForm(); recalc(); });
   setTimeout(validateForm,300);
 });
 </script>
 <style>
 @keyframes fadeIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
 </style>
+
+
+<!-- MODAL CHỈNH SỬA NV -->
+<div id="nv_modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:14px;padding:28px 32px;width:380px;box-shadow:0 8px 40px rgba(0,0,0,0.2);">
+    <div style="font-size:1rem;font-weight:700;color:#0d1f35;margin-bottom:20px;">✏️ Chỉnh sửa thông tin nhân viên</div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:0.72rem;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Họ tên</label>
+      <input id="edit_nv_name" style="width:100%;height:36px;border:1.5px solid #e2e8f0;border-radius:7px;padding:0 10px;font-size:0.85rem;" placeholder="Họ tên nhân viên"/>
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:0.72rem;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Chức vụ</label>
+      <input id="edit_nv_role" style="width:100%;height:36px;border:1.5px solid #e2e8f0;border-radius:7px;padding:0 10px;font-size:0.85rem;" placeholder="Nhân viên kinh doanh"/>
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:0.72rem;font-weight:600;color:#374151;display:block;margin-bottom:4px;">SĐT</label>
+      <input id="edit_nv_sdt" style="width:100%;height:36px;border:1.5px solid #e2e8f0;border-radius:7px;padding:0 10px;font-size:0.85rem;" placeholder="0905 424 214"/>
+    </div>
+    <div style="margin-bottom:20px;">
+      <label style="font-size:0.72rem;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Email</label>
+      <input id="edit_nv_email" style="width:100%;height:36px;border:1.5px solid #e2e8f0;border-radius:7px;padding:0 10px;font-size:0.85rem;" placeholder="email@mobifone.vn"/>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button onclick="closeEditNV()" style="padding:8px 18px;border-radius:7px;border:1.5px solid #e2e8f0;background:white;font-size:0.82rem;font-weight:600;cursor:pointer;">Huỷ</button>
+      <button onclick="saveEditNV()" style="padding:8px 18px;border-radius:7px;border:none;background:#0d1f35;color:white;font-size:0.82rem;font-weight:600;cursor:pointer;">Lưu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// NV state
+const nvState = {
+  name: localStorage.getItem("nv_name") || "Võ Thị Lê",
+  role: localStorage.getItem("nv_role") || "Nhân viên kinh doanh",
+  sdt:  localStorage.getItem("nv_sdt")  || "0905 424 214",
+  email:localStorage.getItem("nv_email")|| "vothile@mobifone.vn",
+};
+
+function updateNVDisplay(){
+  const nd = document.getElementById("nv_name_display");
+  const rd = document.getElementById("nv_role_display");
+  const sd = document.getElementById("nv_sdt_display");
+  const ed = document.getElementById("nv_email_display");
+  if(nd) nd.textContent = nvState.name;
+  if(rd) rd.textContent = nvState.role;
+  if(sd) sd.textContent = nvState.sdt;
+  if(ed) ed.textContent = nvState.email;
+  // Cập nhật header avatar initials
+  const av = document.querySelector(".hdr-av");
+  if(av) av.textContent = nvState.name.split(" ").map(w=>w[0]).slice(-2).join("").toUpperCase();
+  const sav = document.querySelector(".nv-av");
+  if(sav) sav.textContent = nvState.name.split(" ").map(w=>w[0]).slice(-2).join("").toUpperCase();
+}
+
+function openEditNV(){
+  document.getElementById("edit_nv_name").value  = nvState.name;
+  document.getElementById("edit_nv_role").value  = nvState.role;
+  document.getElementById("edit_nv_sdt").value   = nvState.sdt;
+  document.getElementById("edit_nv_email").value = nvState.email;
+  const modal = document.getElementById("nv_modal");
+  modal.style.display = "flex";
+}
+
+function closeEditNV(){
+  document.getElementById("nv_modal").style.display = "none";
+}
+
+function saveEditNV(){
+  nvState.name  = document.getElementById("edit_nv_name").value  || nvState.name;
+  nvState.role  = document.getElementById("edit_nv_role").value  || nvState.role;
+  nvState.sdt   = document.getElementById("edit_nv_sdt").value   || nvState.sdt;
+  nvState.email = document.getElementById("edit_nv_email").value || nvState.email;
+  localStorage.setItem("nv_name",  nvState.name);
+  localStorage.setItem("nv_role",  nvState.role);
+  localStorage.setItem("nv_sdt",   nvState.sdt);
+  localStorage.setItem("nv_email", nvState.email);
+  updateNVDisplay();
+  closeEditNV();
+  showToast("✅ Đã lưu thông tin nhân viên!", "success");
+}
+
+// Đóng modal khi click ngoài
+document.getElementById("nv_modal").addEventListener("click", function(e){
+  if(e.target === this) closeEditNV();
+});
+
+// Init
+document.addEventListener("DOMContentLoaded", updateNVDisplay);
+</script>
 
 </body>
 </html>
