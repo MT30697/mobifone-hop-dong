@@ -849,9 +849,9 @@ for k, default in [
     ("show_preview", False),
     ("active_tab",   "contract"),
     ("goi_cuocs",    [
-        {"ten_goi":"","don_vi":"Gói","so_luong":"","gia_goi":"","so_hd_trong_goi":""},
-        {"ten_goi":"","don_vi":"Gói","so_luong":"","gia_goi":"","so_hd_trong_goi":""},
-        {"ten_goi":"","don_vi":"Gói","so_luong":"","gia_goi":"","so_hd_trong_goi":""},
+        {"ten_goi":"","don_vi":"","so_luong":"","gia_goi":"","so_hd_trong_goi":""},
+        {"ten_goi":"","don_vi":"","so_luong":"","gia_goi":"","so_hd_trong_goi":""},
+        {"ten_goi":"","don_vi":"","so_luong":"","gia_goi":"","so_hd_trong_goi":""},
     ]),
     ("n_goi",        3),
     ("current_step", 2),
@@ -1095,6 +1095,11 @@ def inject_css():
 .card { margin-bottom: 14px !important; }
 .card-head { margin-bottom: 12px !important; }
 
+/* Remove extra spacing in columns inside cards */
+.card [data-testid="column"] { padding: 0 4px !important; }
+.card [data-testid="stVerticalBlock"] > div { gap: 8px !important; }
+[data-testid="stVerticalBlock"] > div:first-child { padding-top: 0 !important; }
+
 /* ── STEP ACTIVE GLOW ── */
 .step-active-dot {
     box-shadow: 0 0 0 5px rgba(11,45,77,0.15) !important;
@@ -1122,6 +1127,16 @@ def inject_css():
 
 /* ── PACKAGE TABLE ── */
 .pkg-table { border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; margin-bottom: 12px; }
+
+/* ── DISABLED INPUT (Thành tiền) ── */
+[data-testid="stTextInput"] input:disabled {
+    background: #f8fafc !important;
+    color: #0B2D4D !important;
+    font-weight: 700 !important;
+    border-color: #e2e8f0 !important;
+    -webkit-text-fill-color: #0B2D4D !important;
+    opacity: 1 !important;
+}
 
 /* ── REMOVE STREAMLIT TOP PADDING ── */
 .main > div { padding-top: 0 !important; }
@@ -1397,7 +1412,7 @@ def render_package_table():
         r = st.columns([0.25, 1.8, 0.7, 0.7, 1.0, 0.9, 1.0, 0.25])
         with r[0]: st.markdown(f"<div style='padding-top:30px;text-align:center;font-size:0.75rem;color:#94a3b8'>{i+1}</div>", unsafe_allow_html=True)
         with r[1]: g["ten_goi"]          = st.text_input("Gói",  value=g.get("ten_goi",""),  key=f"gc_ten_{i}",  placeholder="E-50",   label_visibility="collapsed")
-        with r[2]: g["don_vi"]           = st.text_input("ĐVT",  value=g.get("don_vi","Gói"),key=f"gc_dv_{i}",   label_visibility="collapsed")
+        with r[2]: g["don_vi"]           = st.text_input("ĐVT",  value=g.get("don_vi",""),   key=f"gc_dv_{i}",   placeholder="Gói", label_visibility="collapsed")
         with r[3]: g["so_luong"]         = st.text_input("SL",   value=g.get("so_luong",""), key=f"gc_sl_{i}",   placeholder="1",      label_visibility="collapsed")
         with r[4]: g["gia_goi"]          = st.text_input("Giá",  value=g.get("gia_goi",""),  key=f"gc_gia_{i}",  placeholder="100000", label_visibility="collapsed")
         try:
@@ -1406,12 +1421,9 @@ def render_package_table():
             tt  = sl * gia; tong_tien += tt
         except: tt = 0
         with r[5]:
-            tt_str = "{:,}".format(tt).replace(",", ".") if tt else "0"
-            st.markdown(
-                "<div style='padding-top:32px;font-size:0.82rem;font-weight:600;"
-                "color:#0B2D4D;text-align:right;padding-right:4px;'>" + tt_str + "</div>",
-                unsafe_allow_html=True
-            )
+            tt_str = "{:,}".format(tt).replace(",", ".") if tt else ""
+            st.text_input("TT", value=tt_str, key="gc_tt_" + str(i),
+                          label_visibility="collapsed", disabled=True)
         with r[6]: g["so_hd_trong_goi"] = st.text_input("SL HĐ",value=g.get("so_hd_trong_goi",""), key=f"gc_sohdgoi_{i}", placeholder="50", label_visibility="collapsed")
         with r[7]:
             st.markdown("<div style='padding-top:24px'>", unsafe_allow_html=True)
