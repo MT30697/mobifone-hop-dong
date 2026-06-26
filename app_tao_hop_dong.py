@@ -12,6 +12,14 @@ _TEMPLATE_B64 = "UEsDBBQAAAAIAHsk2VziYOayugEAAM4JAAATAAAAW0NvbnRlbnRfVHlwZXNdLnh
 DEFAULT_TEMPLATE_BYTES = base64.b64decode(_TEMPLATE_B64)
 
 # ─────────────────────────────────────────────
+# LOGO MOBIFONE (nhúng sẵn, không cần upload)
+# ─────────────────────────────────────────────
+import os
+_LOGO_PATH = os.path.join(os.path.dirname(__file__), "assets", "mobifone_logo.png")
+with open(_LOGO_PATH, "rb") as _f:
+    MOBIFONE_LOGO_B64 = base64.b64encode(_f.read()).decode()
+
+# ─────────────────────────────────────────────
 # PAGE CONFIG
 # ─────────────────────────────────────────────
 st.set_page_config(
@@ -32,7 +40,7 @@ st.markdown("""
 
 /* ══ NỀN TỔNG THỂ ══ */
 [data-testid="stAppViewContainer"] { background: #f0f2f5 !important; }
-[data-testid="stMainBlockContainer"] { padding: 1.2rem 2rem 2rem !important; max-width: 1300px; }
+[data-testid="stMainBlockContainer"] { padding: 0.6rem 2rem 2rem !important; max-width: 1300px; }
 [data-testid="block-container"] { padding-top: 0 !important; }
 
 /* ══ SIDEBAR ══ */
@@ -40,7 +48,11 @@ st.markdown("""
     background: linear-gradient(180deg, #0d2137 0%, #122d4a 100%) !important;
     border-right: none !important;
 }
-[data-testid="stSidebar"] section { padding: 1.2rem 1rem !important; }
+[data-testid="stSidebar"] > div:first-child { padding-top: 0 !important; }
+[data-testid="stSidebar"] section { padding: 0.5rem 1rem 1.2rem !important; }
+[data-testid="stSidebarHeader"] { min-height: 0 !important; height: 0 !important; padding: 0 !important; }
+[data-testid="stSidebarContent"] { padding-top: 0.5rem !important; }
+[data-testid="stSidebarUserContent"] { padding-top: 0.4rem !important; }
 [data-testid="stSidebar"] * { color: #cbd5e1 !important; }
 [data-testid="stSidebar"] h1,
 [data-testid="stSidebar"] h2,
@@ -49,10 +61,15 @@ st.markdown("""
 [data-testid="stSidebar"] label { color: #94a3b8 !important; font-size: 0.75rem !important; font-weight: 500 !important; }
 [data-testid="stSidebar"] input {
     background: #1a3550 !important; color: #f1f5f9 !important;
-    border: 1px solid #2a4a6b !important; border-radius: 7px !important;
+    border: 1px solid #2a4a6b !important; border-left: 3px solid #e63946 !important;
+    border-radius: 7px !important;
     font-size: 0.83rem !important;
+    transition: border-color 0.15s, box-shadow 0.15s !important;
 }
-[data-testid="stSidebar"] input:focus { border-color: #e63946 !important; }
+[data-testid="stSidebar"] input:focus {
+    border-color: #e63946 !important;
+    box-shadow: 0 0 0 3px rgba(230,57,70,0.18) !important;
+}
 [data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] {
     background: #1a3550 !important; border: 2px dashed #2a4a6b !important;
     border-radius: 10px !important;
@@ -97,10 +114,10 @@ st.markdown("""
     position: relative;
 }
 .mbf-header-inner {
-    padding: 22px 28px;
+    padding: 26px 32px;
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 20px;
     position: relative;
     z-index: 2;
 }
@@ -122,31 +139,69 @@ st.markdown("""
     border-radius: 50%;
     z-index: 1;
 }
+@keyframes mbfPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.25); }
+    50%      { box-shadow: 0 0 0 8px rgba(255,255,255,0); }
+}
 .mbf-logo-box {
-    width: 52px; height: 52px;
-    background: rgba(255,255,255,0.15);
+    width: 92px; height: 58px;
+    background: #ffffff;
+    border: 1px solid rgba(255,255,255,0.4);
     border-radius: 14px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.8rem;
-    backdrop-filter: blur(4px);
+    padding: 10px 12px;
     flex-shrink: 0;
+    animation: mbfPulse 2.6s ease-in-out infinite;
 }
 .mbf-header h1 {
     color: #ffffff !important;
-    font-size: 1.35rem !important;
+    font-size: 1.55rem !important;
     font-weight: 800 !important;
-    margin: 0 0 4px !important;
+    margin: 0 0 6px !important;
     letter-spacing: -0.3px;
 }
 .mbf-header .sub {
-    color: rgba(255,255,255,0.65);
+    color: rgba(255,255,255,0.75);
     font-size: 0.8rem;
-    display: flex; align-items: center; gap: 10px;
+    display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap;
 }
 .mbf-header .sub span {
-    background: rgba(255,255,255,0.12);
-    padding: 2px 10px; border-radius: 20px;
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.18);
+    padding: 3px 12px; border-radius: 20px;
+    white-space: nowrap;
 }
+
+/* ══ BẢNG GÓI CƯỚC ══ */
+.goi-row-num {
+    display: grid; grid-template-columns: 2.5fr 1.2fr 1.8fr 1.8fr 1.8fr;
+    gap: 0 1rem;
+}
+.goi-th {
+    font-size: 0.7rem; font-weight: 700; color: #64748b;
+    text-transform: uppercase; letter-spacing: 0.4px;
+}
+
+/* ══ STEPPER ══ */
+.step-row { display: flex; align-items: center; margin-bottom: 18px; background: #fff;
+            border-radius: 12px; padding: 14px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            border: 1px solid #f1f5f9; }
+.step-item { display: flex; align-items: center; gap: 10px; }
+.step-dot {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; font-weight: 800; flex-shrink: 0;
+    transition: all 0.25s;
+}
+.step-dot.pending { background: #f1f5f9; color: #94a3b8; border: 2px solid #e2e8f0; }
+.step-dot.active  { background: #1a3a5c; color: #fff; box-shadow: 0 0 0 4px rgba(26,58,92,0.15); }
+.step-dot.done    { background: #16a34a; color: #fff; }
+.step-text .lbl { font-size: 0.82rem; font-weight: 700; color: #0f172a; line-height: 1.1; }
+.step-text .sub { font-size: 0.7rem; color: #94a3b8; margin-top: 1px; }
+.step-item.is-active .step-text .lbl { color: #1a3a5c; }
+.step-conn { flex: 1; height: 2px; background: #e2e8f0; margin: 0 12px; min-width: 16px; }
+.step-conn.done { background: #16a34a; }
 
 /* ══ STAT CARDS ══ */
 .stat-row { display: flex; gap: 12px; margin-bottom: 18px; }
@@ -158,12 +213,19 @@ st.markdown("""
     box-shadow: 0 1px 4px rgba(0,0,0,0.07);
     display: flex; align-items: center; gap: 12px;
     border: 1px solid #f1f5f9;
+    transition: box-shadow 0.25s, transform 0.25s;
+}
+.stat-card:hover {
+    box-shadow: 0 10px 28px rgba(13,31,53,0.14);
+    transform: translateY(-3px);
 }
 .stat-icon {
     width: 40px; height: 40px; border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
     font-size: 1.2rem; flex-shrink: 0;
+    transition: transform 0.25s;
 }
+.stat-card:hover .stat-icon { transform: scale(1.12) rotate(-4deg); }
 .stat-icon.red   { background: #fff1f2; }
 .stat-icon.blue  { background: #eff6ff; }
 .stat-icon.green { background: #f0fdf4; }
@@ -171,20 +233,73 @@ st.markdown("""
 .stat-lbl { font-size: 0.72rem; color: #64748b; font-weight: 500; margin-top: 2px; }
 
 /* ══ SECTION BLOCK ══ */
+@keyframes mbfFadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
 .sec-block {
     background: #ffffff;
     border-radius: 12px;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     border: 1px solid #f1f5f9;
     overflow: hidden;
+    transition: box-shadow 0.25s, transform 0.25s;
+    animation: mbfFadeUp 0.35s ease both;
+}
+.sec-block:hover {
+    box-shadow: 0 8px 24px rgba(13,31,53,0.12);
+    transform: translateY(-2px);
 }
 .sec-head {
     background: linear-gradient(90deg, #0d1f35, #1a3a5c);
     padding: 11px 18px;
     display: flex; align-items: center; gap: 8px;
+    transition: background 0.2s;
+    position: relative;
 }
+.sec-head::after {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: #e63946;
+}
+.sec-block:hover .sec-head { background: linear-gradient(90deg, #102640, #1f4570); }
 .sec-head span { color: #ffffff !important; font-weight: 700; font-size: 0.82rem; letter-spacing: 0.5px; text-transform: uppercase; }
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 20px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ══ PROGRESS BAR (hoàn thành thông tin bắt buộc) ══ */
+.progress-wrap { margin-bottom: 4px; }
+.progress-label {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 0.78rem; color: #334155; font-weight: 600; margin-bottom: 6px;
+}
+.progress-label .pct { font-size: 0.95rem; font-weight: 800; color: #1a3a5c; }
+.progress-track {
+    width: 100%; height: 8px; border-radius: 20px;
+    background: #e2e8f0; overflow: hidden;
+}
+.progress-fill {
+    height: 100%; border-radius: 20px;
+    background: linear-gradient(90deg, #e63946, #1a3a5c);
+    transition: width 0.4s ease;
+}
+
+/* ══ RESPONSIVE / MOBILE ══ */
+@media (max-width: 900px) {
+    [data-testid="stMainBlockContainer"] { padding: 0.8rem 0.8rem 1.5rem !important; }
+    .stat-row { flex-direction: column; }
+    .mbf-header-inner { flex-wrap: wrap; padding: 16px 18px; }
+    .mbf-header .sub { flex-wrap: wrap; gap: 6px; }
+    .mbf-header h1 { font-size: 1.1rem !important; }
+    .sec-head { padding: 9px 14px; }
+    .sec-body { padding: 12px 14px 8px; }
+    div[data-testid="stHorizontalBlock"] { flex-wrap: wrap !important; }
+}
 .sec-body { padding: 16px 18px 10px; }
 
 /* ══ RIGHT PANEL CARDS ══ */
@@ -194,7 +309,18 @@ st.markdown("""
     margin-bottom: 12px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     border: 1px solid #f1f5f9;
+    border-left: 4px solid #e2e8f0;
     overflow: hidden;
+    transition: box-shadow 0.25s, transform 0.25s;
+    animation: mbfFadeUp 0.35s ease both;
+}
+.panel-card.accent-blue  { border-left-color: #3b82f6; }
+.panel-card.accent-green { border-left-color: #16a34a; }
+.panel-card.accent-red   { border-left-color: #e63946; }
+.panel-card.accent-gray  { border-left-color: #94a3b8; }
+.panel-card:hover {
+    box-shadow: 0 8px 24px rgba(13,31,53,0.12);
+    transform: translateY(-2px);
 }
 .panel-head {
     padding: 10px 16px;
@@ -381,6 +507,8 @@ for k, default in [
                   {"ten_goi": "", "don_vi": "Gói", "so_luong": "", "gia_goi": "", "so_hd_trong_goi": ""},
                   {"ten_goi": "", "don_vi": "Gói", "so_luong": "", "gia_goi": "", "so_hd_trong_goi": ""}]),
     ("n_goi", 3),
+    ("last_filled_count", 0),
+    ("last_errors_count", 13),
 ]:
     if k not in st.session_state:
         st.session_state[k] = default
@@ -821,28 +949,45 @@ def validate(kh: dict) -> list:
         errors.append("SĐT KH phải 10 số, bắt đầu bằng 0")
     if kh.get("sdt_ben_b") and not re.match(r"^0\d{9}$", kh["sdt_ben_b"]):
         errors.append("SĐT nhân viên phải 10 số, bắt đầu bằng 0")
-    if kh.get("email_kh") and "@" not in kh["email_kh"]:
-        errors.append("Email KH không đúng định dạng")
-    if kh.get("email_ben_b") and "@" not in kh["email_ben_b"]:
-        errors.append("Email nhân viên không đúng định dạng")
+    EMAIL_RE = r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+    if kh.get("email_kh") and not re.match(EMAIL_RE, kh["email_kh"].strip()):
+        errors.append("Email KH không đúng định dạng (thiếu @ hoặc đuôi .com/.vn...)")
+    if kh.get("email_ben_b") and not re.match(EMAIL_RE, kh["email_ben_b"].strip()):
+        errors.append("Email nhân viên không đúng định dạng (thiếu @ hoặc đuôi .com/.vn...)")
     return errors
+
+EMAIL_RE = r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+def is_valid_email(v: str) -> bool:
+    return bool(re.match(EMAIL_RE, v.strip())) if v else True
 
 # ─────────────────────────────────────────────
 # SIDEBAR
 # ─────────────────────────────────────────────
 with st.sidebar:
     # ── Branding ──
-    st.markdown("""
-    <div style="padding:10px 4px 14px;border-bottom:1px solid #1e3a55;margin-bottom:14px">
-        <div style="font-size:1rem;font-weight:800;color:#f1f5f9;letter-spacing:0.5px">MOBIFONE AUTO-MT306</div>
-        <div style="font-size:0.72rem;color:#64748b;margin-top:3px">Auto Create Contract · v7 Web</div>
+    st.markdown(f"""
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 4px 14px;
+                border-bottom:1px solid #1e3a55;margin-bottom:14px">
+        <div style="width:54px;height:36px;border-radius:8px;flex-shrink:0;
+                    background:#ffffff;padding:6px 8px;
+                    display:flex;align-items:center;justify-content:center;
+                    box-shadow:0 4px 12px rgba(0,0,0,0.25)">
+            <img src="data:image/png;base64,{MOBIFONE_LOGO_B64}" style="width:100%;height:auto;" />
+        </div>
+        <div>
+            <div style="font-size:1rem;font-weight:800;color:#f1f5f9;letter-spacing:0.5px">MOBIFONE AUTO-MT306</div>
+            <div style="font-size:0.72rem;color:#64748b;margin-top:2px">Auto Create Contract · v7 Web</div>
+        </div>
     </div>
     <div style="font-size:0.72rem;font-weight:700;color:#94a3b8;letter-spacing:1px;margin-bottom:8px">TEMPLATE</div>
-    <div style="background:#0d3320;border:1px solid #166534;border-radius:8px;
-                padding:8px 12px;font-size:0.78rem;color:#4ade80;margin-bottom:10px;">
+    <div style="background:linear-gradient(135deg,#0d3320,#0f3d26);border:1px solid #166534;border-radius:8px;
+                padding:9px 12px;font-size:0.78rem;color:#4ade80;margin-bottom:10px;
+                display:flex;align-items:center;gap:8px;">
+        <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#4ade80;
+                     box-shadow:0 0 8px #4ade80;"></span>
         Template mặc định sẵn sàng
     </div>
-    <div style="font-size:0.72rem;color:#475569;margin-bottom:6px">
+    <div style="font-size:0.72rem;color:#64748b;margin-bottom:6px">
         Để dùng template khác, upload ở đây:
     </div>
     """, unsafe_allow_html=True)
@@ -887,12 +1032,14 @@ with st.sidebar:
                 '[data-testid=stSidebar] input[type=file]'
             );
             if(inp) inp.click();
-        " style="
-            width:100%; padding:8px 0; background:#1a3550;
-            border:1px dashed #3b6b9a; border-radius:8px;
+        " onmouseover="this.style.borderColor='#e63946';this.style.color='#fca5a5';this.style.background='#1e3d5c';"
+          onmouseout="this.style.borderColor='#3b6b9a';this.style.color='#94a3b8';this.style.background='#1a3550';"
+          style="
+            width:100%; padding:9px 0; background:#1a3550;
+            border:1.5px dashed #3b6b9a; border-radius:8px;
             color:#94a3b8; font-size:0.78rem; cursor:pointer;
-            font-family:Arial,sans-serif;
-        ">+ Chọn file template khác</button>
+            font-family:Arial,sans-serif; transition:all 0.15s;
+        ">📤 Chọn file template khác</button>
         """, height=44)
 
     st.markdown("<hr style='border-color:#1e3a55;margin:12px 0'/>", unsafe_allow_html=True)
@@ -912,9 +1059,11 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
     st.markdown("<hr style='border-color:#1e3a55;margin:12px 0'/>\n<div style='font-size:0.72rem;font-weight:700;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px'>BÊN B — MẶC ĐỊNH</div>", unsafe_allow_html=True)
-    ten_nv_ben_b = st.text_input("Tên nhân viên",  value=st.session_state.draft.get("ten_nv_ben_b", "Trương Thị Mỹ Châu"))
-    email_ben_b  = st.text_input("Email nhân viên", value=st.session_state.draft.get("email_ben_b",  "cuong.danghuy.ctv@mobifone.vn"))
-    sdt_ben_b    = st.text_input("SĐT nhân viên",   value=st.session_state.draft.get("sdt_ben_b",    "0901959799"))
+    ten_nv_ben_b = st.text_input("Tên nhân viên",  value=st.session_state.draft.get("ten_nv_ben_b", ""), placeholder="Nguyễn Văn A")
+    email_ben_b  = st.text_input("Email nhân viên", value=st.session_state.draft.get("email_ben_b",  ""), placeholder="ten.nv@mobifone.vn")
+    if not is_valid_email(email_ben_b):
+        st.markdown('<div style="color:#fca5a5;font-size:0.72rem;margin:-8px 0 8px">⚠ Email chưa đúng định dạng (thiếu @ hoặc đuôi .com/.vn...)</div>', unsafe_allow_html=True)
+    sdt_ben_b    = st.text_input("SĐT nhân viên",   value=st.session_state.draft.get("sdt_ben_b",    ""), placeholder="0901234567")
 
     st.markdown("<hr style='border-color:#1e3a55;margin:12px 0'/>\n<div style='font-size:0.72rem;font-weight:700;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px'>LỊCH SỬ GẦN NHẤT</div>", unsafe_allow_html=True)
     if not st.session_state.history:
@@ -936,10 +1085,12 @@ with st.sidebar:
 # ─────────────────────────────────────────────
 # HEADER
 # ─────────────────────────────────────────────
-st.markdown("""
+st.markdown(f"""
 <div class="mbf-header">
     <div class="mbf-header-inner">
-        <div class="mbf-logo-box">📄</div>
+        <div class="mbf-logo-box">
+            <img src="data:image/png;base64,{MOBIFONE_LOGO_B64}" style="width:100%;height:auto;" />
+        </div>
         <div>
             <h1>MobiFone Auto Create Contract</h1>
             <div class="sub">
@@ -1030,6 +1181,40 @@ components.html("""
 """, height=0)
 
 # ─────────────────────────────────────────────
+# STEPPER (5 bước — trạng thái lấy từ lần nhập trước,
+# trễ 1 nhịp do widget chưa khởi tạo tại điểm này)
+# ─────────────────────────────────────────────
+_STEPS = [
+    ("1", "Chọn template",   "Mặc định" if not template_file else "Tùy chỉnh"),
+    ("2", "Nhập thông tin",  f"{st.session_state.last_filled_count}/13 trường"),
+    ("3", "Kiểm tra",        "Tất cả hợp lệ" if st.session_state.last_errors_count == 0 else "Còn thiếu"),
+    ("4", "Xem trước",       "Đã xem" if st.session_state.show_preview else "Chưa xem"),
+    ("5", "Tạo hợp đồng",    "Hoàn tất" if st.session_state.generated else "Chưa tạo"),
+]
+if st.session_state.generated:
+    _states = ["done", "done", "done", "done" if st.session_state.show_preview else "done", "active"]
+elif st.session_state.last_errors_count == 0:
+    _states = ["done", "done", "active", "pending", "pending"]
+elif st.session_state.last_filled_count > 0:
+    _states = ["done", "active", "pending", "pending", "pending"]
+else:
+    _states = ["active", "pending", "pending", "pending", "pending"]
+
+_step_html = ""
+for i, ((num, lbl, sub), state) in enumerate(zip(_STEPS, _states)):
+    icon = "✓" if state == "done" else num
+    _step_html += f"""
+    <div class="step-item{' is-active' if state == 'active' else ''}">
+        <div class="step-dot {state}">{icon}</div>
+        <div class="step-text"><div class="lbl">{lbl}</div><div class="sub">{sub}</div></div>
+    </div>"""
+    if i < len(_STEPS) - 1:
+        conn_done = "done" if _states[i] == "done" else ""
+        _step_html += f'<div class="step-conn {conn_done}"></div>'
+
+st.markdown(f'<div class="step-row">{_step_html}</div>', unsafe_allow_html=True)
+
+# ─────────────────────────────────────────────
 # STAT CARDS
 # ─────────────────────────────────────────────
 total       = len(st.session_state.history)
@@ -1096,27 +1281,29 @@ with col_l:
 
     ca1, ca2 = st.columns(2)
     with ca1:
-        ten_hkd    = st.text_input("Tên HKD đầy đủ ✱",  value=st.session_state.draft.get("ten_hkd", ""),    placeholder="HKD Nhà Nghỉ Kim Liên")
+        ten_hkd    = st.text_input("🏪 Tên HKD đầy đủ ✱",  value=st.session_state.draft.get("ten_hkd", ""),    placeholder="HKD Nhà Nghỉ Kim Liên")
     with ca2:
-        tru_so     = st.text_input("Trụ sở chính ✱",     value=st.session_state.draft.get("tru_so", ""),    placeholder="142/2 Phan Châu Trinh, P.Hải Châu, Đà Nẵng")
+        tru_so     = st.text_input("📍 Trụ sở chính ✱",     value=st.session_state.draft.get("tru_so", ""),    placeholder="142/2 Phan Châu Trinh, P.Hải Châu, Đà Nẵng")
 
     cb1, cb2 = st.columns(2)
     with cb1:
-        dia_chi_gd = st.text_input("Địa chỉ giao dịch",  value=st.session_state.draft.get("dia_chi_gd", ""), placeholder="Để trống nếu giống trụ sở")
+        dia_chi_gd = st.text_input("📍 Địa chỉ giao dịch",  value=st.session_state.draft.get("dia_chi_gd", ""), placeholder="Để trống nếu giống trụ sở")
     with cb2:
-        dien_thoai = st.text_input("Số điện thoại ✱",    value=st.session_state.draft.get("dien_thoai", ""), placeholder="0904725978")
+        dien_thoai = st.text_input("📞 Số điện thoại ✱",    value=st.session_state.draft.get("dien_thoai", ""), placeholder="0904725978")
 
     cc1, cc2 = st.columns(2)
     with cc1:
-        ma_so_thue = st.text_input("Mã số thuế ✱",       value=st.session_state.draft.get("ma_so_thue", ""), placeholder="049189011144")
+        ma_so_thue = st.text_input("🧾 Mã số thuế ✱",       value=st.session_state.draft.get("ma_so_thue", ""), placeholder="049189011144")
     with cc2:
-        dai_dien   = st.text_input("Họ tên đại diện ✱",  value=st.session_state.draft.get("dai_dien", ""),   placeholder="PHẠM THỊ KIM LIÊN")
+        dai_dien   = st.text_input("👤 Họ tên đại diện ✱",  value=st.session_state.draft.get("dai_dien", ""),   placeholder="PHẠM THỊ KIM LIÊN")
 
     cd1, cd2 = st.columns(2)
     with cd1:
-        chuc_vu    = st.text_input("Chức vụ ✱",          value=st.session_state.draft.get("chuc_vu", "Chủ HKD"), placeholder="Chủ HKD")
+        chuc_vu    = st.text_input("🎖 Chức vụ ✱",          value=st.session_state.draft.get("chuc_vu", "Chủ HKD"), placeholder="Chủ HKD")
     with cd2:
-        email_kh   = st.text_input("Email khách hàng ✱", value=st.session_state.draft.get("email_kh", ""),   placeholder="kimlienpham@gmail.com")
+        email_kh   = st.text_input("✉️ Email khách hàng ✱", value=st.session_state.draft.get("email_kh", ""),   placeholder="kimlienpham@gmail.com")
+        if not is_valid_email(email_kh):
+            st.markdown('<div style="color:#be123c;font-size:0.74rem;margin:-10px 0 4px">⚠ Email chưa đúng định dạng — cần đủ dạng tên@miền.com</div>', unsafe_allow_html=True)
 
     st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
 
@@ -1124,7 +1311,7 @@ with col_l:
     st.markdown("""
     <div class="sec-block">
         <div class="sec-head">
-            <span>💰 Điều 6 — Giá trị hợp đồng</span>
+            <span>💰 Giá trị hợp đồng</span>
         </div>
     </div>""", unsafe_allow_html=True)
 
@@ -1135,20 +1322,31 @@ with col_l:
     while len(goi_list) < n_goi:
         goi_list.append({"ten_goi": "", "don_vi": "Gói", "so_luong": "", "gia_goi": "", "so_hd_trong_goi": ""})
 
+    st.markdown("""
+    <div class="goi-row-num" style="margin-bottom:6px;">
+        <div class="goi-th">Tên gói</div>
+        <div class="goi-th">ĐVT</div>
+        <div class="goi-th">Số lượng</div>
+        <div class="goi-th">Giá gói (VNĐ)</div>
+        <div class="goi-th">SL HĐ/gói</div>
+    </div>
+    """, unsafe_allow_html=True)
+
     tong_tien = 0
     for i in range(n_goi):
         g = goi_list[i] if i < len(goi_list) else {}
         g6c1, g6c2, g6c3, g6c4, g6c5 = st.columns([2.5, 1.2, 1.8, 1.8, 1.8])
+        lv = "collapsed"
         with g6c1:
-            g["ten_goi"] = st.text_input(f"Gói cước {i+1}", value=g.get("ten_goi",""), key=f"gc_ten_{i}", placeholder="E-50")
+            g["ten_goi"] = st.text_input(f"Gói cước {i+1}", value=g.get("ten_goi",""), key=f"gc_ten_{i}", placeholder="E-50", label_visibility=lv)
         with g6c2:
-            g["don_vi"] = st.text_input("ĐVT", value=g.get("don_vi","Gói"), key=f"gc_dv_{i}", placeholder="Gói")
+            g["don_vi"] = st.text_input("ĐVT", value=g.get("don_vi","Gói"), key=f"gc_dv_{i}", placeholder="Gói", label_visibility=lv)
         with g6c3:
-            g["so_luong"] = st.text_input("Số lượng", value=g.get("so_luong",""), key=f"gc_sl_{i}", placeholder="1")
+            g["so_luong"] = st.text_input("Số lượng", value=g.get("so_luong",""), key=f"gc_sl_{i}", placeholder="1", label_visibility=lv)
         with g6c4:
-            g["gia_goi"] = st.text_input("Giá gói (VNĐ)", value=g.get("gia_goi",""), key=f"gc_gia_{i}", placeholder="100000")
+            g["gia_goi"] = st.text_input("Giá gói (VNĐ)", value=g.get("gia_goi",""), key=f"gc_gia_{i}", placeholder="100000", label_visibility=lv)
         with g6c5:
-            g["so_hd_trong_goi"] = st.text_input("SL HĐ/gói", value=g.get("so_hd_trong_goi",""), key=f"gc_sohdgoi_{i}", placeholder="50")
+            g["so_hd_trong_goi"] = st.text_input("SL HĐ/gói", value=g.get("so_hd_trong_goi",""), key=f"gc_sohdgoi_{i}", placeholder="50", label_visibility=lv)
         try:
             tong_tien += int(g.get("so_luong") or 0) * int(g.get("gia_goi") or 0)
         except:
@@ -1198,6 +1396,14 @@ current_data = {
 errors      = validate(current_data)
 fname_str   = filename_preview(so_hd, ten_hkd)
 
+REQ_FIELDS  = ["so_hd", "ten_hkd", "tru_so", "dien_thoai", "ma_so_thue", "dai_dien",
+               "chuc_vu", "email_kh", "thang_ky", "nam_ky",
+               "ten_nv_ben_b", "email_ben_b", "sdt_ben_b"]
+filled_count = sum(1 for k in REQ_FIELDS if current_data.get(k, "").strip())
+progress_pct = round(filled_count / len(REQ_FIELDS) * 100)
+st.session_state.last_filled_count = filled_count
+st.session_state.last_errors_count = len(errors)
+
 # ── BUTTONS: Tạo HĐ + Xem trước ──────────────
 with col_l:
     st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
@@ -1208,6 +1414,7 @@ with col_l:
             use_container_width=True,
             disabled=bool(errors),
             type="primary",
+            help=("Còn thiếu: " + ", ".join(errors)) if errors else "Tạo hợp đồng từ thông tin đã nhập",
         )
     with g6b2:
         preview_btn = st.button(
@@ -1248,7 +1455,7 @@ with col_l:
 with col_r:
 
     # ── Preview file ──────────────────────────
-    st.markdown('<div class="panel-card"><div class="panel-head">👁 Preview tên file</div><div class="panel-body">', unsafe_allow_html=True)
+    st.markdown('<div class="panel-card accent-blue"><div class="panel-head">👁 Preview tên file</div><div class="panel-body">', unsafe_allow_html=True)
     st.markdown(f"""
     <div class="file-preview">
         <div class="icon">📄</div>
@@ -1259,7 +1466,16 @@ with col_r:
     st.markdown("</div></div>", unsafe_allow_html=True)
 
     # ── Validation ────────────────────────────
-    st.markdown('<div class="panel-card"><div class="panel-head">✅ Kiểm tra thông tin</div><div class="panel-body">', unsafe_allow_html=True)
+    st.markdown(f'<div class="panel-card {"accent-green" if not errors else "accent-red"}"><div class="panel-head">✅ Kiểm tra thông tin</div><div class="panel-body">', unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="progress-wrap">
+        <div class="progress-label">
+            <span>Đã điền {filled_count}/{len(REQ_FIELDS)} trường bắt buộc</span>
+            <span class="pct">{progress_pct}%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:{progress_pct}%"></div></div>
+    </div>
+    """, unsafe_allow_html=True)
     if errors:
         err_html = "".join(f'<div class="err-row">✕ Thiếu: {e}</div>' for e in errors)
         st.markdown(f'<div class="err-list">{err_html}</div>', unsafe_allow_html=True)
@@ -1268,7 +1484,7 @@ with col_r:
     st.markdown("</div></div>", unsafe_allow_html=True)
 
     # ── Nháp ─────────────────────────────────
-    st.markdown('<div class="panel-card"><div class="panel-head">💾 Lưu nháp</div><div class="panel-body">', unsafe_allow_html=True)
+    st.markdown('<div class="panel-card accent-gray"><div class="panel-head">💾 Lưu nháp</div><div class="panel-body">', unsafe_allow_html=True)
     bn1, bn2 = st.columns(2)
     with bn1:
         if st.button("💾 Lưu nháp", use_container_width=True):
